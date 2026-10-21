@@ -1,35 +1,129 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f4f7fa;
-  --foreground: #1a2833;
+/*
+ * Subleasy 2.0 — design tokens
+ * Base: tema atual de subleasy.com.br (#3818d9 + #25edb1, Area Normal, raio 8px,
+ * container 1280px). A escala antiga --brand-* (#534AB7) foi descartada.
+ * Documentação: docs/design-system/README.md
+ */
+
+@theme {
+  /* Marca — roxo do logo. 600 é a cor primária, 500 o hover. */
+  --color-brand-50: #f4f1ff;
+  --color-brand-100: #e9e3fe;
+  --color-brand-200: #d3c8fd;
+  --color-brand-300: #b19ffb;
+  --color-brand-400: #8a6ef4;
+  --color-brand-500: #583be9;
+  --color-brand-600: #3818d9;
+  --color-brand-700: #2c12b3;
+  --color-brand-800: #22108c;
+  --color-brand-900: #1a0b66;
+
+  /* Menta — o ponto do logo. Só como acento; texto usa 700. */
+  --color-mint-50: #ecfdf6;
+  --color-mint-100: #cefbea;
+  --color-mint-400: #25edb1;
+  --color-mint-500: #11d096;
+  --color-mint-700: #047857;
+
+  /* Neutros — títulos 900, corpo 600, bordas 300 e 200. */
+  --color-ink-900: #101828;
+  --color-ink-800: #1d2939;
+  --color-ink-700: #344054;
+  --color-ink-600: #475467;
+  --color-ink-500: #667085;
+  --color-ink-400: #98a2b3;
+  --color-ink-300: #d0d5dd;
+  --color-ink-200: #eaecf0;
+  --color-ink-100: #f2f4f7;
+  --color-ink-50: #f9fafb;
+
+  /* Reservado para o botão de contato. Texto sempre ink-900 (contraste AA). */
+  --color-whatsapp: #25d366;
+  --color-whatsapp-hover: #1fbe5b;
+
+  /* Estados */
+  --color-danger-600: #d92d20;
+  --color-warning-500: #f79009;
+
+  /* Tipografia: Area Normal em tudo (títulos, corpo, botões e menu).
+     O kit tem só 400 e 700, então o sistema usa font-normal e font-bold. */
+  --font-sans: "area-normal", ui-sans-serif, system-ui, sans-serif;
+
+  --text-display: 3.25rem;
+  --text-display--line-height: 1.08;
+  --text-display--letter-spacing: -0.02em;
+  --text-h1: 2.5rem;
+  --text-h1--line-height: 1.12;
+  --text-h1--letter-spacing: -0.02em;
+  --text-h2: 2rem;
+  --text-h2--line-height: 1.2;
+  --text-h2--letter-spacing: -0.015em;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.3;
+  --text-h3--letter-spacing: -0.01em;
+
+  /* Raios: controles 8px (como no site atual), cards 12px, painéis 20px. */
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-panel: 20px;
+
+  /* Sombras */
+  --shadow-xs: 0 1px 2px rgb(16 24 40 / 0.05);
+  --shadow-card: 0 1px 3px rgb(16 24 40 / 0.06), 0 1px 2px rgb(16 24 40 / 0.04);
+  --shadow-raised: 0 12px 32px -12px rgb(16 24 40 / 0.18), 0 4px 8px -4px rgb(16 24 40 / 0.06);
+  --shadow-brand: 0 24px 48px -20px rgb(56 24 217 / 0.45);
+
+  /* Layout: 1280px com 32px de margem (20px no mobile). */
+  --container-page: 80rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-navy: #0b3a5b;
-  --color-clinic: #1b6ca8;
-  --color-sky: #3b8fcf;
-  --color-ice: #e8f1f8;
-  --color-mist: #c5d6e4;
-  --color-slate-ink: #4a5560;
-  --color-paper: #f4f7fa;
-  --font-sans: var(--font-ibm-plex-sans);
-  --font-display: var(--font-newsreader);
+:root {
+  --background: #ffffff;
+  --foreground: var(--color-ink-900);
 }
 
 html {
   color-scheme: light;
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-ibm-plex-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-brand-100);
+  color: var(--color-brand-900);
+}
+
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-page);
+  padding-inline: 1.25rem;
+
+  @media (width >= 40rem) {
+    padding-inline: 2rem;
+  }
+}
+
+/* Foco visível em todo elemento interativo. */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
