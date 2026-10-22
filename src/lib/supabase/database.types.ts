@@ -84,6 +84,7 @@ export type Database = {
           consecutive_confirmations: number
           created_at: string
           description: string | null
+          embedding: string | null
           id: string
           last_confirmed_at: string
           min_rental_period: string | null
@@ -110,6 +111,7 @@ export type Database = {
           consecutive_confirmations?: number
           created_at?: string
           description?: string | null
+          embedding?: string | null
           id?: string
           last_confirmed_at?: string
           min_rental_period?: string | null
@@ -136,6 +138,7 @@ export type Database = {
           consecutive_confirmations?: number
           created_at?: string
           description?: string | null
+          embedding?: string | null
           id?: string
           last_confirmed_at?: string
           min_rental_period?: string | null
