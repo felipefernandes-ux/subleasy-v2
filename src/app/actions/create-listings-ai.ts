@@ -104,7 +104,7 @@ Use só o que está no texto. Se uma informação não aparece, devolva null (ou
 
 export type CreateListingAIResult =
   | { ok: true; listing: { id: string; slug: string; title: string } }
-  | { ok: false; error: string; missingFields?: string[] };
+  | { ok: false; error: string; code?: "unauthenticated"; missingFields?: string[] };
 
 /**
  * Recebe a descrição livre de um espaço, extrai os campos da tabela listings
@@ -135,7 +135,11 @@ export async function createListingAI(rawText: string): Promise<CreateListingAIR
     error: authError,
   } = await supabase.auth.getUser();
   if (authError || !user) {
-    return { ok: false, error: "Entre na sua conta para publicar um anúncio." };
+    return {
+      ok: false,
+      code: "unauthenticated",
+      error: "Entre na sua conta para salvar o anúncio. Seu texto continua aqui.",
+    };
   }
 
   const ai = new OpenAI({ apiKey, baseURL: GEMINI_BASE_URL, timeout: 30_000 });
