@@ -168,8 +168,8 @@ body {
 }
 
 /*
- * Borda da IA: degradê roxo → menta que gira em volta do campo.
- * Parada e cinza em repouso; acende no foco e acelera enquanto a IA trabalha.
+ * Borda da IA: cinza em repouso, roxa no foco. Enquanto a IA trabalha,
+ * vira um degradê roxo → menta girando em volta do campo.
  */
 @property --border-angle {
   syntax: "<angle>";
@@ -195,14 +195,13 @@ body {
   background: var(--color-ink-200);
   transition: background-color 0.3s;
 
-  &:focus-within,
-  &[data-busy="true"] {
-    background: var(--ai-gradient);
-    animation: border-spin 5s linear infinite;
+  &:focus-within {
+    background: var(--color-brand-300);
   }
 
   &[data-busy="true"] {
-    animation-duration: 1.6s;
+    background: var(--ai-gradient);
+    animation: border-spin 1.6s linear infinite;
   }
 }
 

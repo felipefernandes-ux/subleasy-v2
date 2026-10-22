@@ -7,10 +7,8 @@ import {
   CheckCircleIcon,
   CheckIcon,
   CircleNotchIcon,
-  LockSimpleIcon,
   SignInIcon,
   SparkleIcon,
-  TextAlignLeftIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react";
 import { createListingAI, type CreateListingAIResult } from "@/app/actions/create-listings-ai";
@@ -19,57 +17,14 @@ import { buttonClasses } from "./ui";
 const MIN_LENGTH = 30;
 const MAX_LENGTH = 6000;
 
-const EXAMPLE = `Sublocamos sala de psicologia em Pinheiros, São Paulo/SP, a 5 minutos do metrô Fradique Coutinho. R$ 80 por turno.
-Livre segunda e quarta de manhã, quinta à noite e sábado à tarde.
-A sala tem poltronas, mesa de apoio, ar-condicionado, wifi e janela com isolamento acústico. O prédio tem recepção e elevador.
-Não pode procedimento invasivo. Período mínimo de 1 turno por semana.`;
-
-// Pistas simples para a checklist reagir enquanto a pessoa escreve.
-// Quem decide de verdade é a IA; isto só orienta.
-const CHECKLIST = [
-  {
-    key: "tipo",
-    label: "Tipo de sala",
-    example: "sala de psicologia",
-    required: true,
-    test: /consultori|psicolog|nutri|fisio|odonto|dentist|estetic|terap|estudio|reuniao|medic|pilates|massag|clinic/,
-  },
-  {
-    key: "local",
-    label: "Bairro e cidade",
-    example: "Pinheiros, São Paulo",
-    required: true,
-    test: /\b(bairro|zona|centro|jardim|vila|cidade|rua|avenida|av)\b|\/\s?[a-z]{2}\b|\bem [a-z]{4,}/,
-  },
-  {
-    key: "preco",
-    label: "Preço e cobrança",
-    example: "R$ 80 por turno",
-    required: true,
-    test: /(r\$\s?\d|\d+\s?reais)[\s\S]*\b(hora|turno|dia|diaria|mes|mensal)|\b(hora|turno|dia|diaria|mes|mensal)\b[\s\S]*(r\$\s?\d|\d+\s?reais)/,
-  },
-  {
-    key: "turnos",
-    label: "Dias e turnos livres",
-    example: "segunda de manhã",
-    required: false,
-    test: /segunda|terca|quarta|quinta|sexta|sabado|domingo|manha|tarde|noite|fim de semana|dias uteis/,
-  },
-  {
-    key: "comodidades",
-    label: "Comodidades",
-    example: "ar-condicionado, maca",
-    required: false,
-    test: /ar.condicionado|wi.?fi|internet|maca|\bpia\b|recepc|estacionamento|banheiro|janela|poltrona|cadeira|acessib|elevador|isolamento/,
-  },
-  {
-    key: "regras",
-    label: "Regras de uso",
-    example: "sem procedimento invasivo",
-    required: false,
-    test: /nao pode|nao e permitid|proibid|sem procedimento|regra|periodo minimo|minimo de|somente|apenas/,
-  },
-] as const;
+// Alternam no placeholder para mostrar, sem explicar, o que vale escrever.
+const EXAMPLES = [
+  "Sala de psicologia em Pinheiros, São Paulo. R$ 80 por turno, livre segunda e quarta de manhã. Tem ar-condicionado e wifi.",
+  "Consultório odontológico na Savassi, Belo Horizonte, com cadeira e autoclave. R$ 450 por dia, às sextas e aos sábados.",
+  "Sala de estética no Batel, Curitiba. R$ 60 por hora, de terça a quinta à tarde. Tem maca, pia e recepção.",
+  "Consultório de nutrição no Moinhos de Vento, Porto Alegre. R$ 1.800 por mês, todas as manhãs. Não pode procedimento invasivo.",
+  "Sala de reunião para 8 pessoas em Boa Viagem, Recife. R$ 300 por dia, de segunda a sexta. Tem TV, wifi e café.",
+];
 
 const STEPS = [
   "Lendo sua descrição",
@@ -78,24 +33,28 @@ const STEPS = [
   "Salvando o rascunho",
 ];
 
-function normalize(text: string) {
-  return text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-}
-
 export function ListingComposer() {
   const [text, setText] = useState("");
   const [result, setResult] = useState<CreateListingAIResult | null>(null);
   const [step, setStep] = useState(0);
+  const [example, setExample] = useState(0);
   const [isPending, startTransition] = useTransition();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fieldId = useId();
   const hintId = useId();
 
-  const normalized = normalize(text);
-  const found = new Set(CHECKLIST.filter((item) => item.test.test(normalized)).map((item) => item.key));
   const length = text.trim().length;
   const tooShort = length > 0 && length < MIN_LENGTH;
   const canSubmit = length >= MIN_LENGTH && !isPending;
+  const showPlaceholder = text.length === 0;
+
+  // Troca o exemplo do placeholder enquanto o campo está vazio.
+  useEffect(() => {
+    if (!showPlaceholder) return;
+    const timer = setInterval(() => {
+      setExample((current) => (current + 1) % EXAMPLES.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [showPlaceholder]);
 
   // As etapas avançam no ritmo médio da IA e param na última até a resposta chegar.
   useEffect(() => {
@@ -128,7 +87,7 @@ export function ListingComposer() {
   }
 
   return (
-    <div className="animate-fade-up [animation-delay:240ms]">
+    <div className="animate-fade-up [animation-delay:160ms]">
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -144,82 +103,72 @@ export function ListingComposer() {
           }`}
         />
 
-        <div data-busy={isPending} className="ai-border rounded-panel p-[1.5px] shadow-raised">
-          <div className="rounded-[calc(var(--radius-panel)-1.5px)] bg-white">
-            <label
-              htmlFor={fieldId}
-              className="flex items-center gap-2 px-5 pt-5 text-sm font-bold text-ink-900 sm:px-6"
-            >
-              <TextAlignLeftIcon className="size-4.5 text-brand-600" weight="bold" aria-hidden />
-              Como é a sala que você quer sublocar?
-            </label>
-
-            <textarea
-              ref={textareaRef}
-              id={fieldId}
-              value={text}
-              onChange={(event) => setText(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-                  event.preventDefault();
-                  submit();
-                }
-              }}
-              readOnly={isPending}
-              maxLength={MAX_LENGTH}
-              rows={7}
-              aria-describedby={hintId}
-              placeholder="Ex: Sala de psicologia em Pinheiros, São Paulo. R$ 80 por turno. Livre segunda e quarta de manhã. Tem ar-condicionado e wifi."
-              className={`block min-h-52 w-full resize-y bg-transparent px-5 pt-3 pb-4 text-lg leading-relaxed text-ink-900 placeholder:text-ink-400 focus:outline-none sm:px-6 ${
-                isPending ? "text-ink-500" : ""
-              }`}
-            />
+        <div data-busy={isPending} className="ai-border rounded-panel p-px shadow-raised">
+          <div className="rounded-[calc(var(--radius-panel)-1px)] bg-white">
+            <div className="relative">
+              {showPlaceholder && (
+                <p
+                  key={example}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 top-0 animate-fade-up px-4 pt-4 text-base leading-relaxed text-ink-400 sm:px-6 sm:pt-5 sm:text-lg"
+                >
+                  Ex: {EXAMPLES[example]}
+                </p>
+              )}
+              <textarea
+                ref={textareaRef}
+                value={text}
+                onChange={(event) => setText(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+                    event.preventDefault();
+                    submit();
+                  }
+                }}
+                readOnly={isPending}
+                maxLength={MAX_LENGTH}
+                rows={6}
+                aria-label="Descreva a sala que você quer sublocar"
+                aria-describedby={hintId}
+                className={`relative block min-h-40 w-full resize-y bg-transparent px-4 pt-4 pb-3 text-base leading-relaxed text-ink-900 focus:outline-none sm:min-h-48 sm:px-6 sm:pt-5 sm:pb-4 sm:text-lg ${
+                  isPending ? "text-ink-500" : ""
+                }`}
+              />
+            </div>
 
             <div className="flex flex-col-reverse gap-3 border-t border-ink-200 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
               <button
                 type="button"
                 onClick={() => {
-                  setText(EXAMPLE);
+                  setText(EXAMPLES[example]);
                   setResult(null);
                   textareaRef.current?.focus();
                 }}
                 disabled={isPending}
-                className={`${buttonClasses("ghost")} disabled:opacity-50`}
+                className={`${buttonClasses("ghost")} disabled:opacity-50 max-sm:h-10 max-sm:text-xs`}
               >
                 <SparkleIcon className="size-4 text-brand-600" weight="fill" aria-hidden />
                 Usar texto de exemplo
               </button>
 
-              <div className="flex items-center justify-between gap-4 sm:justify-end">
-                <p id={hintId} aria-live="polite" className="text-xs whitespace-nowrap text-ink-500 tabular-nums">
-                  {tooShort ? (
-                    <span className="text-ink-700">Escreva pelo menos {MIN_LENGTH} caracteres</span>
-                  ) : (
-                    <>
-                      {length.toLocaleString("pt-BR")} / {MAX_LENGTH.toLocaleString("pt-BR")}
-                    </>
-                  )}
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-4">
+                <p id={hintId} aria-live="polite" className="text-center text-xs text-ink-700 empty:hidden">
+                  {tooShort && `Escreva pelo menos ${MIN_LENGTH} caracteres`}
                 </p>
                 <button
                   type="submit"
                   disabled={!canSubmit}
-                  className={`${buttonClasses("primary", "lg")} shadow-brand disabled:cursor-not-allowed disabled:bg-brand-300 disabled:shadow-none`}
+                  className={`${buttonClasses("primary", "lg")} shadow-brand disabled:cursor-not-allowed disabled:bg-brand-300 disabled:shadow-none max-sm:h-11 max-sm:w-full max-sm:text-sm`}
                 >
                   {isPending ? (
                     <>
-                      <CircleNotchIcon className="size-5 animate-spin" weight="bold" aria-hidden />
+                      <CircleNotchIcon className="size-4.5 animate-spin sm:size-5" weight="bold" aria-hidden />
                       Gerando anúncio
                     </>
                   ) : (
                     <>
-                      <SparkleIcon className="size-5" weight="fill" aria-hidden />
+                      <SparkleIcon className="size-4.5 sm:size-5" weight="fill" aria-hidden />
                       Gerar anúncio com IA
-                      <kbd
-                        title="⌘ + Enter (Ctrl + Enter no Windows)"
-                        className="ml-1 hidden rounded-md bg-white/15 px-1.5 py-0.5 font-sans text-xs font-normal lg:inline"
-                      >
-                        ⌘↵
-                      </kbd>
                     </>
                   )}
                 </button>
@@ -236,63 +185,7 @@ export function ListingComposer() {
           <ErrorCard result={result} />
         ) : null}
       </div>
-
-      {!isPending && <Checklist found={found} />}
-
-      <p className="mt-8 flex items-start gap-2 text-sm leading-relaxed text-ink-500">
-        <LockSimpleIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
-        Deixe telefone e endereço completo de fora. O contato fica protegido e só aparece para
-        quem chamar você. O texto é processado pela IA do Google (Gemini).
-      </p>
     </div>
-  );
-}
-
-function Checklist({ found }: { found: Set<string> }) {
-  const groups = [
-    { title: "Obrigatório", items: CHECKLIST.filter((item) => item.required) },
-    { title: "Deixa o anúncio melhor", items: CHECKLIST.filter((item) => !item.required) },
-  ];
-
-  return (
-    <section aria-labelledby="checklist-title" className="mt-8">
-      <h2 id="checklist-title" className="text-sm font-bold text-ink-900">
-        O que incluir no texto
-      </h2>
-      <div className="mt-3 grid gap-6 sm:grid-cols-2">
-        {groups.map((group) => (
-          <div key={group.title}>
-            <p className="text-xs font-bold tracking-wide text-ink-500 uppercase">{group.title}</p>
-            <ul className="mt-2 space-y-1.5">
-              {group.items.map((item) => {
-                const done = found.has(item.key);
-                return (
-                  <li
-                    key={item.key}
-                    className={`flex items-center gap-3 rounded-control px-3 py-2 ring-1 transition-colors duration-300 ${
-                      done ? "bg-mint-50 ring-mint-100" : "bg-white/70 ring-ink-200"
-                    }`}
-                  >
-                    <span
-                      className={`grid size-5 shrink-0 place-items-center rounded-full transition-colors duration-300 ${
-                        done ? "bg-mint-400 text-brand-900" : "ring-1 ring-ink-300 ring-inset"
-                      }`}
-                    >
-                      {done && <CheckIcon key="check" className="size-3 animate-pop" weight="bold" aria-hidden />}
-                    </span>
-                    <span className="min-w-0 text-sm">
-                      <span className="font-bold text-ink-900">{item.label}</span>
-                      <span className="text-ink-500"> · {item.example}</span>
-                      {done && <span className="sr-only"> (incluído)</span>}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </section>
   );
 }
 
@@ -392,7 +285,7 @@ function SuccessCard({ title, onReset }: { title: string; onReset: () => void })
         <h2 ref={headingRef} tabIndex={-1} className="mt-5 text-h3 font-bold text-ink-900 focus:outline-none">
           Rascunho salvo
         </h2>
-        <p className="mt-3 text-2xl leading-snug font-bold tracking-[-0.01em] text-brand-700">“{title}”</p>
+        <p className="mt-3 text-xl leading-snug font-bold sm:text-2xl tracking-[-0.01em] text-brand-700">“{title}”</p>
         <p className="mt-3 text-ink-600">
           A IA organizou seu texto em campos. Só você vê este anúncio até ele ser publicado.
         </p>
