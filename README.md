@@ -76,8 +76,6 @@ Regra do projeto: nada da fase seguinte começa antes de o critério da fase atu
    ```
 4. Abra [http://localhost:3000](http://localhost:3000).
 
-Se o CSS parecer desatualizado depois de reiniciar o servidor, apague a pasta `.next` e rode `npm run dev` de novo.
-
 ## Estrutura
 
 ```
