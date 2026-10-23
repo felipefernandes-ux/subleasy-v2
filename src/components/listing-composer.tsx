@@ -3,9 +3,6 @@
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import {
-  ArrowCounterClockwiseIcon,
-  CheckCircleIcon,
-  CheckIcon,
   CircleNotchIcon,
   SignInIcon,
   SparkleIcon,
@@ -31,6 +28,7 @@ const STEPS = [
   "Separando tipo, local, preço e turnos",
   "Escrevendo título e resumo",
   "Salvando o rascunho",
+  "Abrindo a revisão",
 ];
 
 export function ListingComposer() {
@@ -70,20 +68,11 @@ export function ListingComposer() {
     setResult(null);
     setStep(0);
     startTransition(async () => {
+      // No sucesso, a action abre a tela de revisão; aqui só chegam erros.
       const response = await createListingAI(text);
       setResult(response);
-      if (!response.ok) textareaRef.current?.focus();
+      textareaRef.current?.focus();
     });
-  }
-
-  function reset() {
-    setText("");
-    setResult(null);
-    requestAnimationFrame(() => textareaRef.current?.focus());
-  }
-
-  if (result?.ok) {
-    return <SuccessCard title={result.listing.title} onReset={reset} />;
   }
 
   return (
@@ -181,7 +170,7 @@ export function ListingComposer() {
       <div aria-live="polite" className="mt-6">
         {isPending ? (
           <Progress step={step} />
-        ) : result && !result.ok ? (
+        ) : result ? (
           <ErrorCard result={result} />
         ) : null}
       </div>
@@ -189,47 +178,22 @@ export function ListingComposer() {
   );
 }
 
+// Só a etapa em andamento aparece: uma lista inteira dá a sensação de espera longa.
 function Progress({ step }: { step: number }) {
   return (
-    <ol className="space-y-2.5 rounded-card bg-white/80 p-5 ring-1 ring-ink-200 backdrop-blur-sm">
-      {STEPS.map((label, index) => {
-        const done = index < step;
-        const active = index === step;
-        return (
-          <li
-            key={label}
-            className={`flex items-center gap-3 text-sm transition-opacity duration-500 ${
-              index > step ? "opacity-40" : "opacity-100"
-            }`}
-          >
-            <span className="grid size-5 shrink-0 place-items-center">
-              {done ? (
-                <CheckCircleIcon className="size-5 animate-pop text-mint-700" weight="fill" aria-hidden />
-              ) : active ? (
-                <span className="size-2.5 animate-pulse rounded-full bg-brand-600" />
-              ) : (
-                <span className="size-2 rounded-full bg-ink-300" />
-              )}
-            </span>
-            <span
-              className={
-                active
-                  ? "animate-shimmer bg-[linear-gradient(90deg,var(--color-ink-700)_35%,var(--color-brand-500)_50%,var(--color-ink-700)_65%)] bg-[length:200%_100%] bg-clip-text font-bold text-transparent"
-                  : done
-                    ? "text-ink-700"
-                    : "text-ink-500"
-              }
-            >
-              {label}
-            </span>
-          </li>
-        );
-      })}
-    </ol>
+    <p className="flex items-center justify-center gap-3 text-sm" role="status">
+      <span className="size-2.5 shrink-0 animate-pulse rounded-full bg-brand-600" aria-hidden />
+      {/* Duas animações, dois elementos: a entrada de cada etapa e o brilho de "pensando". */}
+      <span key={step} className="animate-fade-up">
+        <span className="animate-shimmer bg-[linear-gradient(90deg,var(--color-ink-700)_35%,var(--color-brand-500)_50%,var(--color-ink-700)_65%)] bg-[length:200%_100%] bg-clip-text font-bold text-transparent">
+          {STEPS[step]}
+        </span>
+      </span>
+    </p>
   );
 }
 
-function ErrorCard({ result }: { result: Extract<CreateListingAIResult, { ok: false }> }) {
+function ErrorCard({ result }: { result: CreateListingAIResult }) {
   const missing = result.missingFields ?? [];
 
   if (missing.length > 0) {
@@ -267,33 +231,6 @@ function ErrorCard({ result }: { result: Extract<CreateListingAIResult, { ok: fa
           Entrar
         </Link>
       )}
-    </div>
-  );
-}
-
-function SuccessCard({ title, onReset }: { title: string; onReset: () => void }) {
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  useEffect(() => headingRef.current?.focus(), []);
-
-  return (
-    <div className="animate-fade-up overflow-hidden rounded-panel bg-white shadow-raised ring-1 ring-ink-900/8">
-      <div aria-hidden="true" className="ai-glow h-1" />
-      <div className="p-6 sm:p-8">
-        <span className="grid size-12 place-items-center rounded-full bg-mint-400 text-brand-900">
-          <CheckIcon className="size-6 animate-pop" weight="bold" aria-hidden />
-        </span>
-        <h2 ref={headingRef} tabIndex={-1} className="mt-5 text-h3 font-bold text-ink-900 focus:outline-none">
-          Rascunho salvo
-        </h2>
-        <p className="mt-3 text-xl leading-snug font-bold sm:text-2xl tracking-[-0.01em] text-brand-700">“{title}”</p>
-        <p className="mt-3 text-ink-600">
-          A IA organizou seu texto em campos. Só você vê este anúncio até ele ser publicado.
-        </p>
-        <button type="button" onClick={onReset} className={`${buttonClasses("secondary", "lg")} mt-6`}>
-          <ArrowCounterClockwiseIcon className="size-4.5" aria-hidden />
-          Descrever outra sala
-        </button>
-      </div>
     </div>
   );
 }

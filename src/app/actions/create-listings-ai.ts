@@ -1,31 +1,16 @@
 "use server";
 
-import OpenAI from "openai";
+import { redirect } from "next/navigation";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
+import { EXTRACTION_MODEL, aiErrorMessage, embedListing, geminiClient } from "@/lib/ai";
+import { BILLING_TYPE_KEYS, SPACE_TYPE_KEYS, WEEKDAY_KEYS } from "@/lib/listing-options";
 import { createClient } from "@/lib/supabase/server";
 
-// Gemini pelo endpoint compatível com a SDK da OpenAI (plano gratuito do Google AI Studio).
-const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/";
-const EXTRACTION_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash-lite";
-// Trocar o modelo de embedding exige regerar os vetores de todos os anúncios.
-const EMBEDDING_MODEL = "gemini-embedding-001";
-const EMBEDDING_DIMENSIONS = 1536;
 const MAX_INPUT_LENGTH = 6000;
-
-const SPACE_TYPES = [
-  "consultorio_medico",
-  "psicologia",
-  "nutricao",
-  "fisioterapia",
-  "odontologia",
-  "estetica",
-  "terapias",
-  "estudio",
-  "reuniao",
-] as const;
-const BILLING_TYPES = ["hora", "turno", "dia", "mes"] as const;
-const WEEKDAYS = ["seg", "ter", "qua", "qui", "sex", "sab", "dom"] as const;
+const SPACE_TYPES = SPACE_TYPE_KEYS;
+const BILLING_TYPES = BILLING_TYPE_KEYS;
+const WEEKDAYS = WEEKDAY_KEYS;
 const SHIFTS = z.array(z.enum(["manha", "tarde", "noite"]));
 
 // O que o modelo devolve. Structured Outputs exige todos os campos:
@@ -102,13 +87,18 @@ Use só o que está no texto. Se uma informação não aparece, devolva null (ou
 - rules: regras de uso, frases curtas.
 - amenities: em snake_case, ex: ar_condicionado, maca, pia, recepcao, wifi, estacionamento, acessibilidade.`;
 
-export type CreateListingAIResult =
-  | { ok: true; listing: { id: string; slug: string; title: string } }
-  | { ok: false; error: string; code?: "unauthenticated"; missingFields?: string[] };
+// No sucesso a action redireciona para a revisão; só os erros voltam para a tela.
+export type CreateListingAIResult = {
+  ok: false;
+  error: string;
+  code?: "unauthenticated";
+  missingFields?: string[];
+};
 
 /**
  * Recebe a descrição livre de um espaço, extrai os campos da tabela listings
- * com o Gemini, gera o embedding e salva o anúncio como rascunho do usuário logado.
+ * com o Gemini, gera o embedding, salva o anúncio como rascunho do usuário logado
+ * e abre a tela de revisão.
  */
 export async function createListingAI(rawText: string): Promise<CreateListingAIResult> {
   const text = typeof rawText === "string" ? rawText.trim() : "";
@@ -122,11 +112,8 @@ export async function createListingAI(rawText: string): Promise<CreateListingAIR
     };
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.error("[createListingAI] Falta GEMINI_API_KEY no .env.local");
-    return { ok: false, error: "Serviço de IA não configurado." };
-  }
+  const ai = geminiClient();
+  if (!ai) return { ok: false, error: "Serviço de IA não configurado." };
 
   // A RLS só aceita insert com owner_id = auth.uid(), então exige sessão.
   const supabase = await createClient();
@@ -141,8 +128,6 @@ export async function createListingAI(rawText: string): Promise<CreateListingAIR
       error: "Entre na sua conta para salvar o anúncio. Seu texto continua aqui.",
     };
   }
-
-  const ai = new OpenAI({ apiKey, baseURL: GEMINI_BASE_URL, timeout: 30_000 });
 
   let listing: Listing;
   try {
@@ -176,17 +161,9 @@ export async function createListingAI(rawText: string): Promise<CreateListingAIR
     return { ok: false, error: aiErrorMessage(error, "extração") };
   }
 
-  let embedding: number[];
+  let embedding: string;
   try {
-    const result = await ai.embeddings.create({
-      model: EMBEDDING_MODEL,
-      input: embeddingInput(listing),
-      dimensions: EMBEDDING_DIMENSIONS,
-    });
-    embedding = result.data[0]?.embedding ?? [];
-    if (embedding.length !== EMBEDDING_DIMENSIONS) {
-      throw new Error(`Embedding com ${embedding.length} dimensões`);
-    }
+    embedding = await embedListing(ai, listing);
   } catch (error) {
     return { ok: false, error: aiErrorMessage(error, "embedding") };
   }
@@ -199,10 +176,9 @@ export async function createListingAI(rawText: string): Promise<CreateListingAIR
       owner_id: user.id,
       slug: createSlug(listing.title),
       status: "draft",
-      // pgvector aceita o formato de texto "[0.1,0.2,...]".
-      embedding: JSON.stringify(embedding),
+      embedding,
     })
-    .select("id, slug, title")
+    .select("id")
     .single();
 
   if (error) {
@@ -216,46 +192,7 @@ export async function createListingAI(rawText: string): Promise<CreateListingAIR
     return { ok: false, error: "Não foi possível salvar o anúncio. Tente de novo." };
   }
 
-  return { ok: true, listing: data };
-}
-
-function aiErrorMessage(error: unknown, step: string) {
-  console.error(`[createListingAI] Erro na ${step}:`, error);
-
-  // Limite do plano gratuito (por minuto ou por dia) estourado.
-  if (error instanceof OpenAI.RateLimitError) {
-    return "Muitas solicitações agora. Tente de novo em instantes.";
-  }
-  // O Gemini devolve 503 quando o modelo está sobrecarregado.
-  if (error instanceof OpenAI.InternalServerError) {
-    return "Serviço de IA sobrecarregado. Tente de novo em alguns minutos.";
-  }
-  if (error instanceof OpenAI.APIConnectionError) {
-    return "Sem conexão com o serviço de IA. Tente de novo.";
-  }
-  // O Gemini responde chave inválida com 400, não 401.
-  if (
-    error instanceof OpenAI.AuthenticationError ||
-    (error instanceof OpenAI.BadRequestError && /api key/i.test(error.message))
-  ) {
-    return "Serviço de IA não configurado.";
-  }
-  return "Não foi possível processar a descrição. Tente de novo.";
-}
-
-// Texto que representa o anúncio na busca semântica.
-function embeddingInput(listing: Listing) {
-  return [
-    listing.title,
-    listing.short_summary,
-    listing.description,
-    `Tipo: ${listing.space_type}`,
-    `Local: ${listing.neighborhood}, ${listing.city} - ${listing.state}`,
-    listing.amenities.length > 0 && `Comodidades: ${listing.amenities.join(", ")}`,
-    listing.rules.length > 0 && `Regras: ${listing.rules.join("; ")}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  redirect(`/painel/anuncios/${data.id}`);
 }
 
 // Guarda só os dias com turno livre: {"seg": ["manha"], "ter": ["noite"]}.
