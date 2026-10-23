@@ -22,7 +22,7 @@ export async function createClient() {
           );
         } catch {
           // Chamado de um Server Component, onde cookies são só leitura.
-          // A sessão é renovada pelo proxy.ts quando a autenticação existir.
+          // A sessão é renovada pelo proxy.ts.
         }
       },
     },

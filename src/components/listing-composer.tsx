@@ -262,7 +262,7 @@ function ErrorCard({ result }: { result: Extract<CreateListingAIResult, { ok: fa
         <p className="mt-1 text-sm text-ink-600">{result.error}</p>
       </div>
       {needsLogin && (
-        <Link href="/entrar" className={buttonClasses("secondary")}>
+        <Link href="/entrar?next=/anunciar" className={buttonClasses("secondary")}>
           <SignInIcon className="size-4.5" aria-hidden />
           Entrar
         </Link>
