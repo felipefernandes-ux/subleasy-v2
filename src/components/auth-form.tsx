@@ -221,9 +221,9 @@ function SentNotice({ email, onBack }: { email: string; onBack: () => void }) {
         Confira seu e-mail
       </h1>
       <p className="mt-3 text-ink-600">
-        Enviamos um link de acesso para{" "}
-        <strong className="font-bold break-all text-ink-900">{email}</strong>. Abra o link neste
-        aparelho para entrar.
+        Enviamos um link de acesso para
+        <strong className="block font-bold [overflow-wrap:anywhere] text-ink-900">{email}</strong>
+        Abra o link neste aparelho para entrar.
       </p>
       <p className="mt-3 text-sm text-ink-500">Não chegou? Veja a caixa de spam.</p>
       <button type="button" onClick={onBack} className={`${buttonClasses("ghost")} mt-6`}>

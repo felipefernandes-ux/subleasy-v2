@@ -1,9 +1,9 @@
 "use server";
 
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { safeNextPath } from "@/lib/auth-redirect";
+import { getOrigin } from "@/lib/origin";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthMode = "signin" | "signup";
@@ -79,13 +79,15 @@ export async function sendMagicLink(
   return { status: "error", email, error: "Não foi possível enviar o link. Tente de novo." };
 }
 
-// O Origin vem em toda chamada de Server Action; o host é a reserva.
+/** Encerra a sessão e volta para o login. */
+export async function signOut() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/entrar");
+}
+
 async function callbackUrl(next: string) {
-  const requestHeaders = await headers();
-  const origin =
-    requestHeaders.get("origin") ??
-    `${requestHeaders.get("x-forwarded-proto") ?? "http"}://${requestHeaders.get("host")}`;
-  const url = new URL("/auth/callback", origin);
+  const url = new URL("/auth/callback", await getOrigin());
   if (next !== "/") url.searchParams.set("next", next);
   return url.toString();
 }

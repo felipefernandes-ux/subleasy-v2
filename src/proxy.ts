@@ -1,12 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { AUTH_PATHS, isProtectedPath, safeNextPath } from "@/lib/auth-redirect";
+import { AUTH_PATHS, PROFILE_PATH, isProtectedPath, safeNextPath } from "@/lib/auth-redirect";
 import type { Database } from "@/lib/supabase/database.types";
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "@/lib/supabase/env";
 
 /**
  * Renova a sessão do Supabase a cada requisição e protege as rotas do anfitrião:
- * sem conta, /anunciar e /painel levam para /entrar?next=<rota>.
+ * sem conta, /anunciar e /painel levam para /entrar?next=<rota>; com conta mas
+ * sem perfil, levam para /cadastro?next=<rota>.
  */
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -29,7 +30,8 @@ export async function proxy(request: NextRequest) {
 
   // getClaims valida o JWT; não confie em getSession() no servidor.
   const { data } = await supabase.auth.getClaims();
-  const signedIn = Boolean(data?.claims);
+  const claims = data?.claims;
+  const signedIn = Boolean(claims);
   const { pathname, search, searchParams } = request.nextUrl;
 
   if (!signedIn && isProtectedPath(pathname)) {
@@ -38,6 +40,28 @@ export async function proxy(request: NextRequest) {
     url.search = "";
     url.searchParams.set("next", `${pathname}${search}`);
     return redirectKeepingCookies(url, response);
+  }
+
+  // Só consulta o perfil nas rotas protegidas, para não pesar no resto do site.
+  if (signedIn && isProtectedPath(pathname)) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", String(claims?.sub))
+      .maybeSingle();
+    const onProfilePage = pathname === PROFILE_PATH;
+
+    if (!profile && !onProfilePage) {
+      const url = request.nextUrl.clone();
+      url.pathname = PROFILE_PATH;
+      url.search = "";
+      url.searchParams.set("next", `${pathname}${search}`);
+      return redirectKeepingCookies(url, response);
+    }
+    if (profile && onProfilePage) {
+      const url = new URL(safeNextPath(searchParams.get("next")), request.url);
+      return redirectKeepingCookies(url, response);
+    }
   }
 
   if (signedIn && AUTH_PATHS.includes(pathname)) {

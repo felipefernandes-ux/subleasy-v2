@@ -1,5 +1,8 @@
 /** Rotas que exigem conta. O proxy.ts manda quem não entrou para /entrar. */
-export const PROTECTED_PATHS = ["/anunciar", "/painel"];
+export const PROTECTED_PATHS = ["/anunciar", "/painel", "/cadastro", "/admin"];
+
+/** Cadastro do perfil: quem entrou pela primeira vez passa por aqui antes do resto. */
+export const PROFILE_PATH = "/cadastro";
 
 /** Telas de login e cadastro: quem já entrou segue direto para o destino. */
 export const AUTH_PATHS = ["/entrar", "/criar-conta"];

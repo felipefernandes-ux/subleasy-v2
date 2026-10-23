@@ -14,6 +14,21 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       listing_contacts: {
         Row: {
           listing_id: string
@@ -92,6 +107,8 @@ export type Database = {
           owner_id: string
           photos: string[]
           price: number
+          published_at: string | null
+          review_note: string | null
           rules: string[]
           shifts_available: Json
           short_summary: string | null
@@ -99,6 +116,7 @@ export type Database = {
           space_type: string
           state: string
           status: string
+          submitted_at: string | null
           title: string
           updated_at: string
           zip_code: string | null
@@ -119,6 +137,8 @@ export type Database = {
           owner_id: string
           photos?: string[]
           price: number
+          published_at?: string | null
+          review_note?: string | null
           rules?: string[]
           shifts_available?: Json
           short_summary?: string | null
@@ -126,6 +146,7 @@ export type Database = {
           space_type: string
           state: string
           status?: string
+          submitted_at?: string | null
           title: string
           updated_at?: string
           zip_code?: string | null
@@ -146,6 +167,8 @@ export type Database = {
           owner_id?: string
           photos?: string[]
           price?: number
+          published_at?: string | null
+          review_note?: string | null
           rules?: string[]
           shifts_available?: Json
           short_summary?: string | null
@@ -153,9 +176,46 @@ export type Database = {
           space_type?: string
           state?: string
           status?: string
+          submitted_at?: string | null
           title?: string
           updated_at?: string
           zip_code?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          marketing_opt_in: boolean
+          marketing_opt_in_at: string | null
+          terms_accepted_at: string
+          terms_version: string
+          updated_at: string
+          whatsapp_number: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          id: string
+          marketing_opt_in?: boolean
+          marketing_opt_in_at?: string | null
+          terms_accepted_at: string
+          terms_version: string
+          updated_at?: string
+          whatsapp_number: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          marketing_opt_in?: boolean
+          marketing_opt_in_at?: string | null
+          terms_accepted_at?: string
+          terms_version?: string
+          updated_at?: string
+          whatsapp_number?: string
         }
         Relationships: []
       }
@@ -167,6 +227,15 @@ export type Database = {
       get_listing_whatsapp: {
         Args: { p_listing_id: string; p_visitor_id: string }
         Returns: string
+      }
+      is_admin: { Args: never; Returns: boolean }
+      listing_owner: {
+        Args: { p_listing_id: string }
+        Returns: {
+          display_name: string
+          email: string
+          whatsapp_number: string
+        }[]
       }
       record_listing_view: {
         Args: { p_listing_id: string; p_visitor_id: string }
