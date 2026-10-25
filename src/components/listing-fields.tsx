@@ -2,33 +2,22 @@
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import {
-  ArmchairIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
-  BedIcon,
   BroomIcon,
   CameraIcon,
-  CarIcon,
   CheckIcon,
   CircleNotchIcon,
-  DeskIcon,
   DeviceMobileCameraIcon,
   DotsSixVerticalIcon,
-  DropIcon,
-  ElevatorIcon,
   LightbulbIcon,
   MagicWandIcon,
   MagnifyingGlassPlusIcon,
   PersonIcon,
-  SnowflakeIcon,
-  SpeakerSimpleSlashIcon,
   SunIcon,
-  ToiletIcon,
   TrashIcon,
   UploadSimpleIcon,
   WarningCircleIcon,
-  WheelchairIcon,
-  WifiHighIcon,
   XIcon,
   type Icon,
 } from "@phosphor-icons/react";
@@ -76,21 +65,7 @@ export function usePhotoSizes(photos: Photo[], setPhotos: (update: (current: Pho
   }, [photos, setPhotos]);
 }
 
-// Ícone de cada comodidade da lista fixa. As que a IA trouxer de fora ficam com o ícone padrão.
-export const AMENITY_ICONS: Record<string, Icon> = {
-  ar_condicionado: SnowflakeIcon,
-  wifi: WifiHighIcon,
-  recepcao: DeskIcon,
-  sala_de_espera: ArmchairIcon,
-  maca: BedIcon,
-  pia: DropIcon,
-  banheiro_privativo: ToiletIcon,
-  estacionamento: CarIcon,
-  elevador: ElevatorIcon,
-  acessibilidade: WheelchairIcon,
-  isolamento_acustico: SpeakerSimpleSlashIcon,
-  limpeza_inclusa: BroomIcon,
-};
+export { AMENITY_ICONS } from "@/lib/amenity-icons";
 
 
 export const INPUT =

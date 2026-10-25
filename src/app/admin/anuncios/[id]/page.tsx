@@ -43,7 +43,7 @@ async function AdminReview({
   const { data: isAdmin } = await supabase.rpc("is_admin");
   if (!isAdmin) redirect("/");
 
-  const [{ data: listing }, { data: owner }, { data: contact }] = await Promise.all([
+  const [{ data: listing }, { data: owner }, { data: contact }, { data: host }] = await Promise.all([
     supabase
       .from("listings")
       .select(
@@ -53,6 +53,7 @@ async function AdminReview({
       .maybeSingle(),
     supabase.rpc("listing_owner", { p_listing_id: id }).maybeSingle(),
     supabase.from("listing_contacts").select("whatsapp_number, street_address").eq("listing_id", id).maybeSingle(),
+    supabase.rpc("listing_host", { p_listing_id: id }).maybeSingle(),
   ]);
   if (!listing) notFound();
 
@@ -96,7 +97,7 @@ async function AdminReview({
 
       <div>
         <p className="mb-4 text-sm font-bold text-ink-500">Como o anúncio vai aparecer</p>
-        <ListingView listing={listing} />
+        <ListingView listing={listing} host={host} />
       </div>
     </div>
   );

@@ -43,7 +43,7 @@ export function LegalPage({
             </p>
           </aside>
 
-          <div className="mt-4 text-ink-700 [&_a]:font-bold [&_a]:text-brand-600 [&_a]:underline [&_a]:underline-offset-2 [&_h2]:mt-12 [&_h2]:scroll-mt-8 [&_h2]:text-h3 [&_h2]:font-bold [&_h2]:text-ink-900 [&_h3]:mt-6 [&_h3]:font-bold [&_h3]:text-ink-900 [&_li]:mt-2 [&_li]:pl-1 [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mt-4 [&_p]:leading-relaxed [&_strong]:text-ink-900 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-5">
+          <div className="mt-4 text-ink-700 [&_a]:font-bold [&_a]:text-brand-600 [&_a]:hover:text-brand-700 [&_h2]:mt-12 [&_h2]:scroll-mt-8 [&_h2]:text-h3 [&_h2]:font-bold [&_h2]:text-ink-900 [&_h3]:mt-6 [&_h3]:font-bold [&_h3]:text-ink-900 [&_li]:mt-2 [&_li]:pl-1 [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mt-4 [&_p]:leading-relaxed [&_strong]:text-ink-900 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-5">
             {children}
           </div>
         </article>

@@ -112,11 +112,11 @@ export function ProfileForm({
               />
               <span>
                 Li e aceito os{" "}
-                <Link href="/termos" target="_blank" className="font-bold text-brand-600 underline underline-offset-2">
+                <Link href="/termos" target="_blank" className="font-bold text-brand-600 hover:text-brand-700">
                   Termos de uso
                 </Link>{" "}
                 e a{" "}
-                <Link href="/privacidade" target="_blank" className="font-bold text-brand-600 underline underline-offset-2">
+                <Link href="/privacidade" target="_blank" className="font-bold text-brand-600 hover:text-brand-700">
                   Política de privacidade
                 </Link>
                 .

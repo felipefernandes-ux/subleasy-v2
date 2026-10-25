@@ -158,7 +158,7 @@ export function AuthForm({
           <p id={errorId} role="alert" className="mt-2 text-sm text-danger-600">
             {fieldError.error}
             {fieldError.code === "no_account" && (
-              <Link href={switchHref} className="focus-ring mt-1 block w-fit rounded-sm font-bold text-brand-600 underline underline-offset-2">
+              <Link href={switchHref} className="focus-ring mt-1 block w-fit rounded-sm font-bold text-brand-600 hover:text-brand-700">
                 Criar conta com este e-mail
               </Link>
             )}

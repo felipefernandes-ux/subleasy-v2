@@ -214,7 +214,10 @@ export async function saveListing(
   }
 
   // Saiu do ar para revisar as mudanças: a página pública deixa de mostrar a versão antiga.
-  if (published) updateTag(`listing:${current.slug}`);
+  if (published) {
+    updateTag(`listing:${current.slug}`);
+    updateTag("listings");
+  }
 
   if (whatsapp) {
     const { error: contactError } = await supabase
@@ -277,6 +280,7 @@ export async function approveListing(listingId: string) {
   }
 
   updateTag(`listing:${listing.slug}`);
+  updateTag("listings");
   const [{ data: owner }, origin] = await Promise.all([
     supabase.rpc("listing_owner", { p_listing_id: listingId }).maybeSingle(),
     getOrigin(),
@@ -473,6 +477,7 @@ export async function renewListing(listingId: string) {
   const { error } = await supabase.rpc("renew_listing", { p_listing_id: listingId });
   if (error) console.error("[renewListing]", error);
   updateTag(`listing:${listing.slug}`);
+  updateTag("listings");
   refresh();
 }
 
@@ -530,6 +535,7 @@ export async function deleteListing(listingId: string, survey: RemovalSurvey): P
     return { ok: false, error: "Não foi possível excluir. Tente de novo." };
   }
   updateTag(`listing:${listing.slug}`);
+  updateTag("listings");
   redirect("/painel?excluido=1");
 }
 
@@ -540,6 +546,7 @@ export async function pauseListing(listingId: string) {
   const { error } = await supabase.from("listings").update({ status: "paused" }).eq("id", listingId);
   if (error) console.error("[pauseListing]", error);
   updateTag(`listing:${listing.slug}`);
+  updateTag("listings");
   refresh();
 }
 
@@ -553,6 +560,7 @@ export async function resumeListing(listingId: string) {
     .eq("id", listingId);
   if (error) console.error("[resumeListing]", error);
   updateTag(`listing:${listing.slug}`);
+  updateTag("listings");
   refresh();
 }
 
