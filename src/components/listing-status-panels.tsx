@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { CheckIcon, PauseCircleIcon } from "@phosphor-icons/react/ssr";
+import { CheckIcon } from "@phosphor-icons/react/ssr";
 import { REVIEW_TIME } from "@/lib/email";
-import { ShareLink } from "./share-link";
 import { buttonClasses } from "./ui";
 
 const JOURNEY = ["Enviado", "Em revisão", "No ar"];
@@ -10,7 +9,6 @@ const JOURNEY = ["Enviado", "Em revisão", "No ar"];
 export function SubmittedPanel({ title, email }: { title: string; email: string }) {
   return (
     <div className="overflow-hidden rounded-panel bg-white shadow-raised ring-1 ring-ink-900/8">
-      <div aria-hidden="true" className="ai-glow h-1" />
       <div className="p-6 sm:p-10">
         <span className="grid size-12 place-items-center rounded-full bg-mint-400 text-brand-900">
           <CheckIcon className="size-6 animate-pop" weight="bold" aria-hidden />
@@ -45,43 +43,6 @@ export function SubmittedPanel({ title, email }: { title: string; email: string 
           </Link>
         </div>
       </div>
-    </div>
-  );
-}
-
-/** Anúncio aprovado: o link para compartilhar é a ação principal. */
-export function PublishedPanel({ title, url }: { title: string; url: string }) {
-  return (
-    <div className="overflow-hidden rounded-panel bg-white shadow-raised ring-1 ring-ink-900/8">
-      <div className="p-6 sm:p-10">
-        <span className="inline-flex items-center gap-2 rounded-full bg-mint-100 px-3 py-1 text-sm font-bold text-mint-700">
-          <span className="size-2 rounded-full bg-mint-500" aria-hidden />
-          No ar
-        </span>
-        <h1 className="mt-5 text-h2 font-bold text-ink-900">Sua sala está no ar</h1>
-        <p className="mt-3 text-lg leading-snug font-bold text-brand-700">“{title}”</p>
-        <p className="mt-4 text-ink-600">
-          Compartilhe o link no Instagram, nos grupos de WhatsApp e com colegas. Quem se interessar
-          fala com você direto pelo WhatsApp.
-        </p>
-        <ShareLink url={url} title={title} />
-      </div>
-    </div>
-  );
-}
-
-export function PausedPanel({ title, url }: { title: string; url: string }) {
-  return (
-    <div className="rounded-panel bg-white p-6 shadow-card ring-1 ring-ink-900/8 sm:p-10">
-      <PauseCircleIcon className="size-10 text-ink-500" weight="fill" aria-hidden />
-      <h1 className="mt-4 text-h2 font-bold text-ink-900">Anúncio pausado</h1>
-      <p className="mt-3 text-ink-600">
-        “{title}” não recebe contatos agora. A página continua no ar com o aviso de que a sala não
-        está disponível.
-      </p>
-      <Link href={url} className={`${buttonClasses("secondary", "lg")} mt-6`}>
-        Ver página da sala
-      </Link>
     </div>
   );
 }

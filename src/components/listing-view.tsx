@@ -1,20 +1,21 @@
 import type { ReactNode } from "react";
-import Image from "next/image";
-import { CheckIcon, MapPinIcon } from "@phosphor-icons/react/ssr";
+import { CheckIcon, GiftIcon, MapPinIcon } from "@phosphor-icons/react/ssr";
 import {
   BILLING_UNIT,
-  SHIFTS,
-  SHIFT_KEYS,
+  HIGHLIGHTS,
+  OFFERS,
   SPACE_TYPES,
-  WEEKDAYS,
-  WEEKDAY_KEYS,
   amenityLabel,
   formatPrice,
-  parseShifts,
+  parsePhotoSizes,
   photoUrl,
   type BillingType,
+  type Highlight,
+  type Offer,
   type SpaceType,
 } from "@/lib/listing-options";
+import { FramedPhoto } from "./framed-photo";
+import { LocationMap } from "./location-map";
 
 export type PublicListing = {
   id: string;
@@ -30,25 +31,32 @@ export type PublicListing = {
   min_rental_period: string | null;
   rules: string[];
   amenities: string[];
-  shifts_available: unknown;
   photos: string[];
+  photo_sizes: unknown;
+  highlights: string[];
+  offers: string[];
+  latitude: number | null;
+  longitude: number | null;
+  show_exact_location: boolean;
 };
 
 /** O anúncio como quem procura vê. Usado na página pública e na revisão do admin. */
 export function ListingView({ listing, action }: { listing: PublicListing; action?: ReactNode }) {
-  const shifts = parseShifts(listing.shifts_available);
   const [cover, ...rest] = listing.photos;
+  const sizes = parsePhotoSizes(listing.photo_sizes);
+  const offers = listing.offers.filter((key): key is Offer => key in OFFERS);
+  const highlights = listing.highlights.filter((key): key is Highlight => key in HIGHLIGHTS);
 
   return (
     <article>
       {cover && (
         <div className="grid gap-2 overflow-hidden rounded-panel sm:grid-cols-4 sm:grid-rows-2">
-          <div className="relative aspect-[4/3] sm:col-span-2 sm:row-span-2 sm:aspect-auto">
-            <Image src={photoUrl(cover)} alt={`Foto principal: ${listing.title}`} fill priority sizes="(min-width: 640px) 50vw, 100vw" className="object-cover" />
+          <div className="relative aspect-[4/3] overflow-hidden bg-ink-100 sm:col-span-2 sm:row-span-2 sm:aspect-auto">
+            <FramedPhoto src={photoUrl(cover)} alt={`Foto principal: ${listing.title}`} size={sizes[cover]} priority sizes="(min-width: 640px) 50vw, 100vw" />
           </div>
           {rest.slice(0, 4).map((path, index) => (
-            <div key={path} className="relative hidden aspect-[4/3] sm:block">
-              <Image src={photoUrl(path)} alt={`Foto ${index + 2} da sala`} fill sizes="25vw" className="object-cover" />
+            <div key={path} className="relative hidden aspect-[4/3] overflow-hidden bg-ink-100 sm:block">
+              <FramedPhoto src={photoUrl(path)} alt={`Foto ${index + 2} da sala`} size={sizes[path]} sizes="25vw" />
             </div>
           ))}
         </div>
@@ -62,6 +70,15 @@ export function ListingView({ listing, action }: { listing: PublicListing; actio
             <MapPinIcon className="size-4.5 shrink-0" aria-hidden />
             {listing.neighborhood}, {listing.city} - {listing.state}
           </p>
+          {highlights.length > 0 && (
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {highlights.map((key) => (
+                <li key={key} className="rounded-full bg-brand-50 px-3 py-1 text-sm font-bold text-brand-800 ring-1 ring-brand-100">
+                  {HIGHLIGHTS[key]}
+                </li>
+              ))}
+            </ul>
+          )}
 
           {listing.description && (
             <div className="mt-8 space-y-4 leading-relaxed text-ink-700">
@@ -70,39 +87,6 @@ export function ListingView({ listing, action }: { listing: PublicListing; actio
               ))}
             </div>
           )}
-
-          <h2 className="mt-10 text-h3 font-bold text-ink-900">Turnos livres</h2>
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[26rem] border-separate border-spacing-1 text-center text-xs">
-              <thead>
-                <tr>
-                  <th className="w-16" />
-                  {WEEKDAY_KEYS.map((day) => (
-                    <th key={day} scope="col" className="font-bold text-ink-600">
-                      {WEEKDAYS[day]}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {SHIFT_KEYS.map((shift) => (
-                  <tr key={shift}>
-                    <th scope="row" className="pr-1 text-left font-bold text-ink-600">
-                      {SHIFTS[shift]}
-                    </th>
-                    {WEEKDAY_KEYS.map((day) => {
-                      const free = shifts[day]?.includes(shift);
-                      return (
-                        <td key={day} className={`h-9 rounded-control ${free ? "bg-brand-600 text-white" : "bg-ink-100 text-ink-400"}`}>
-                          {free ? <CheckIcon className="mx-auto size-4" weight="bold" aria-label="Livre" /> : <span className="sr-only">Ocupado</span>}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
 
           {listing.amenities.length > 0 && (
             <>
@@ -129,6 +113,17 @@ export function ListingView({ listing, action }: { listing: PublicListing; actio
               </ul>
             </>
           )}
+
+          {listing.latitude !== null && listing.longitude !== null && (
+            <>
+              <h2 className="mt-10 text-h3 font-bold text-ink-900">Onde fica</h2>
+              <p className="mt-2 text-ink-600">
+                {listing.neighborhood}, {listing.city} - {listing.state}.{" "}
+                {listing.show_exact_location ? "O endereço completo você combina com o anfitrião." : "A localização exata é passada pelo anfitrião."}
+              </p>
+              <LocationMap latitude={listing.latitude} longitude={listing.longitude} exact={listing.show_exact_location} className="mt-4 h-80" />
+            </>
+          )}
         </div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
@@ -138,6 +133,21 @@ export function ListingView({ listing, action }: { listing: PublicListing; actio
               {BILLING_UNIT[listing.billing_type as BillingType] ?? listing.billing_type}
             </p>
             {listing.short_summary && <p className="mt-3 text-sm text-ink-600">{listing.short_summary}</p>}
+            {offers.length > 0 && (
+              <div className="mt-5 rounded-card bg-mint-50 p-4 ring-1 ring-mint-500/30">
+                <p className="flex items-center gap-2 text-xs font-bold tracking-wide text-mint-700 uppercase">
+                  <GiftIcon className="size-4" weight="fill" aria-hidden />
+                  Oferta para quem vem pelo Subleasy
+                </p>
+                <ul className="mt-2 space-y-1">
+                  {offers.map((key) => (
+                    <li key={key} className="text-sm text-ink-800">
+                      <strong className="font-bold text-ink-900">{OFFERS[key].title}.</strong> {OFFERS[key].text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {action && <div className="mt-6">{action}</div>}
           </div>
         </aside>

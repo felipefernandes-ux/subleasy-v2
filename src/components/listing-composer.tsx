@@ -25,7 +25,7 @@ const EXAMPLES = [
 
 const STEPS = [
   "Lendo sua descrição",
-  "Separando tipo, local, preço e turnos",
+  "Separando área, local e preço",
   "Escrevendo título e resumo",
   "Salvando o rascunho",
   "Abrindo a revisão",
@@ -226,7 +226,7 @@ function ErrorCard({ result }: { result: CreateListingAIResult }) {
         <p className="mt-1 text-sm text-ink-600">{result.error}</p>
       </div>
       {needsLogin && (
-        <Link href="/entrar?next=/anunciar" className={buttonClasses("secondary")}>
+        <Link href="/entrar?next=/anunciar/ia" className={buttonClasses("secondary")}>
           <SignInIcon className="size-4.5" aria-hidden />
           Entrar
         </Link>

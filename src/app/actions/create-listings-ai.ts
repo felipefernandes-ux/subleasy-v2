@@ -4,14 +4,12 @@ import { redirect } from "next/navigation";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import { EXTRACTION_MODEL, aiErrorMessage, embedListing, geminiClient } from "@/lib/ai";
-import { BILLING_TYPE_KEYS, SPACE_TYPE_KEYS, WEEKDAY_KEYS } from "@/lib/listing-options";
+import { BILLING_TYPE_KEYS, SPACE_TYPE_KEYS, createSlug } from "@/lib/listing-options";
 import { createClient } from "@/lib/supabase/server";
 
 const MAX_INPUT_LENGTH = 6000;
 const SPACE_TYPES = SPACE_TYPE_KEYS;
 const BILLING_TYPES = BILLING_TYPE_KEYS;
-const WEEKDAYS = WEEKDAY_KEYS;
-const SHIFTS = z.array(z.enum(["manha", "tarde", "noite"]));
 
 // O que o modelo devolve. Structured Outputs exige todos os campos:
 // o que não estiver no texto vem como null, nunca inventado.
@@ -26,14 +24,7 @@ const extractionSchema = z.object({
   state: z.string().nullable(),
   neighborhood: z.string().nullable(),
   zip_code: z.string().nullable(),
-  shifts_available: z.object(
-    Object.fromEntries(WEEKDAYS.map((day) => [day, SHIFTS])) as Record<
-      (typeof WEEKDAYS)[number],
-      typeof SHIFTS
-    >,
-  ),
   min_rental_period: z.string().nullable(),
-  rules: z.array(z.string()),
   amenities: z.array(z.string()),
 });
 
@@ -54,9 +45,7 @@ const listingSchema = z.object({
     .regex(/^[0-9]{5}-?[0-9]{3}$/)
     .nullable()
     .catch(null),
-  shifts_available: extractionSchema.shape.shifts_available,
   min_rental_period: z.string().trim().nullable(),
-  rules: z.array(z.string().trim()),
   amenities: z.array(z.string().trim()),
 });
 
@@ -65,7 +54,7 @@ type Listing = z.infer<typeof listingSchema>;
 const FIELD_LABELS: Record<string, string> = {
   title: "título (10 a 70 caracteres)",
   short_summary: "resumo (até 120 caracteres)",
-  space_type: "tipo de espaço",
+  space_type: "área de atuação",
   billing_type: "forma de cobrança",
   price: "preço (mínimo R$ 10)",
   city: "cidade",
@@ -82,9 +71,7 @@ Use só o que está no texto. Se uma informação não aparece, devolva null (ou
 - space_type: ${SPACE_TYPES.join(", ")}. Use "consultorio_medico" para consultórios médicos genéricos.
 - billing_type e price: o preço vale para a unidade de cobrança (hora, turno, dia ou mes). Preço em reais, só o número.
 - state: sigla da UF com 2 letras maiúsculas. zip_code: CEP no formato 00000-000.
-- shifts_available: para cada dia (seg, ter, qua, qui, sex, sab, dom), os turnos livres (manha, tarde, noite). Dias sem informação ficam com lista vazia.
 - min_rental_period: período mínimo, ex: "1 turno/semana".
-- rules: regras de uso, frases curtas.
 - amenities: em snake_case, ex: ar_condicionado, maca, pia, recepcao, wifi, estacionamento, acessibilidade.`;
 
 // No sucesso a action redireciona para a revisão; só os erros voltam para a tela.
@@ -163,7 +150,7 @@ export async function createListingAI(rawText: string): Promise<CreateListingAIR
 
   let embedding: string;
   try {
-    embedding = await embedListing(ai, listing);
+    embedding = await embedListing(ai, { ...listing, rules: [] });
   } catch (error) {
     return { ok: false, error: aiErrorMessage(error, "embedding") };
   }
@@ -172,7 +159,6 @@ export async function createListingAI(rawText: string): Promise<CreateListingAIR
     .from("listings")
     .insert({
       ...listing,
-      shifts_available: compactShifts(listing.shifts_available),
       owner_id: user.id,
       slug: createSlug(listing.title),
       status: "draft",
@@ -193,25 +179,4 @@ export async function createListingAI(rawText: string): Promise<CreateListingAIR
   }
 
   redirect(`/painel/anuncios/${data.id}`);
-}
-
-// Guarda só os dias com turno livre: {"seg": ["manha"], "ter": ["noite"]}.
-function compactShifts(shifts: Listing["shifts_available"]) {
-  const compact: Record<string, string[]> = {};
-  for (const [day, list] of Object.entries(shifts)) {
-    if (list.length > 0) compact[day] = [...new Set(list)];
-  }
-  return compact;
-}
-
-function createSlug(title: string) {
-  const base = title
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
-
-  return `${base}-${crypto.randomUUID().slice(0, 6)}`;
 }

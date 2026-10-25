@@ -12,7 +12,16 @@ const FROM = process.env.EMAIL_FROM ?? "Subleasy <onboarding@resend.dev>";
 /** Prazo prometido ao anfitrião. Mude aqui se a rotina de revisão mudar. */
 export const REVIEW_TIME = "1 dia útil";
 
-type Email = { to: string; subject: string; heading: string; paragraphs: string[]; cta?: { label: string; url: string }; footnote?: string };
+type Email = {
+  to: string;
+  subject: string;
+  heading: string;
+  paragraphs: string[];
+  cta?: { label: string; url: string };
+  footnote?: string;
+  /** Para onde vai a resposta. Na mensagem de um interessado, é o e-mail dele. */
+  replyTo?: string;
+};
 
 export async function sendEmail(email: Email) {
   const apiKey = process.env.RESEND_API_KEY;
@@ -28,7 +37,7 @@ export async function sendEmail(email: Email) {
     const response = await fetch(RESEND_URL, {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [email.to], subject: email.subject, html, text }),
+      body: JSON.stringify({ from: FROM, to: [email.to], subject: email.subject, html, text, ...(email.replyTo ? { reply_to: email.replyTo } : {}) }),
     });
     if (!response.ok) {
       console.error(`[email] Resend respondeu ${response.status}:`, await response.text());
@@ -104,6 +113,27 @@ export function listingReturnedEmail(to: string, name: string, title: string, no
 }
 
 // ── Renderização ───────────────────────────────────────────
+
+export function newInquiryEmail(
+  to: string,
+  title: string,
+  inquiry: { name: string; email: string; phone: string | null; message: string },
+  url: string,
+): Email {
+  return {
+    to,
+    replyTo: inquiry.email,
+    subject: `Nova mensagem sobre “${title}”`,
+    heading: `${firstName(inquiry.name)} quer saber da sua sala`,
+    paragraphs: [
+      `Mensagem enviada pelo anúncio “${title}” no Subleasy:`,
+      `“${inquiry.message}”`,
+      `Contato: ${inquiry.name} · ${inquiry.email}${inquiry.phone ? ` · ${inquiry.phone}` : ""}`,
+    ],
+    cta: { label: "Ver no painel", url },
+    footnote: "Responda este e-mail para falar direto com quem enviou.",
+  };
+}
 
 function firstName(name: string) {
   return name.trim().split(/\s+/)[0] || name;

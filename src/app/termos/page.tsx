@@ -83,12 +83,11 @@ export default function TermosPage() {
         <li>Vai manter o anúncio atualizado e pausá-lo quando a sala deixar de estar livre.</li>
       </ul>
 
-      <h3>Confirmação de disponibilidade</h3>
+      <h3>Prazo do anúncio</h3>
       <p>
-        A cada 30 dias, pedimos que você confirme se a sala continua livre. Um clique resolve.
-        Se não houver resposta em 45 dias, o anúncio é pausado: a página continua no ar, sem o
-        botão de WhatsApp, e você pode reativá-lo quando quiser. Quem confirma três vezes seguidas
-        passa a confirmar a cada 60 dias.
+        Cada anúncio fica no ar por 30 dias a partir da publicação. Antes do fim do prazo, você
+        pode renovar por mais 30 dias, sem custo. Sem renovação, o anúncio sai da busca e deixa de
+        receber contatos. Ele continua salvo no seu painel e volta ao ar quando você renovar.
       </p>
 
       <h2 id="ia">4. Textos escritos pela IA</h2>

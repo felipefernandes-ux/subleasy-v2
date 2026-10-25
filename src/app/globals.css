@@ -46,6 +46,8 @@
   /* Estados */
   --color-danger-600: #d92d20;
   --color-warning-500: #f79009;
+  /* Texto de alerta sobre fundo claro: o 500 não passa no contraste AA em fonte pequena. */
+  --color-warning-700: #b54708;
 
   /* Tipografia: Area Normal em tudo (títulos, corpo, botões e menu).
      O kit tem só 400 e 700, então o sistema usa font-normal e font-bold. */
