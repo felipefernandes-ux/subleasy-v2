@@ -4,16 +4,11 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore, useTransition, type ReactNode } from "react";
 import {
   ArrowsOutIcon,
-  CarrotIcon,
   CheckCircleIcon,
   CheckIcon,
   CircleNotchIcon,
   CoffeeIcon,
-  DeskIcon,
-  DotsThreeOutlineIcon,
-  EarIcon,
   EnvelopeSimpleIcon,
-  FlowerLotusIcon,
   GiftIcon,
   HandshakeIcon,
   LockOpenIcon,
@@ -21,12 +16,8 @@ import {
   MapPinIcon,
   PaintRollerIcon,
   PercentIcon,
-  SmileyIcon,
-  SparkleIcon as PhSparkleIcon,
   SpeakerSimpleSlashIcon,
-  StethoscopeIcon,
   SunIcon,
-  ToothIcon,
   WarningCircleIcon,
   type Icon,
 } from "@phosphor-icons/react";
@@ -65,20 +56,10 @@ import {
   type AddressValues,
   type Photo,
 } from "./listing-fields";
+import { SPACE_ICONS } from "@/lib/space-type-icons";
 import { LocationMap } from "./location-map";
 import { Logo, SparkleIcon, WhatsAppIcon, buttonClasses } from "./ui";
 
-const SPACE_ICONS: Record<SpaceType, Icon> = {
-  consultorio_medico: StethoscopeIcon,
-  odontologia: ToothIcon,
-  psicologia: SmileyIcon,
-  estetica: PhSparkleIcon,
-  terapias: FlowerLotusIcon,
-  fisioterapia: DeskIcon,
-  nutricao: CarrotIcon,
-  to_fono: EarIcon,
-  outro: DotsThreeOutlineIcon,
-};
 
 const HIGHLIGHT_ICONS: Record<Highlight, Icon> = {
   silenciosa: SpeakerSimpleSlashIcon,
@@ -961,7 +942,7 @@ function BottomBar({
       </div>
       <div className="container-page flex items-center justify-between gap-3 py-3 sm:py-4">
         {step > 0 ? (
-          <button type="button" onClick={onBack} className="focus-ring rounded-sm font-bold text-ink-900 underline underline-offset-4 hover:text-brand-700">
+          <button type="button" onClick={onBack} className="focus-ring rounded-sm font-bold text-ink-900 hover:text-brand-700">
             Voltar
           </button>
         ) : (

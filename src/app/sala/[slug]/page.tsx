@@ -7,7 +7,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ViewTracker } from "@/components/view-tracker";
 import { WhatsAppButton } from "@/components/whatsapp-button";
-import { photoUrl } from "@/lib/listing-options";
+import { RelatedListings } from "@/components/related-listings";
+import { BILLING_UNIT, SPACE_TYPES, formatPrice, photoUrl, type BillingType, type SpaceType } from "@/lib/listing-options";
 import { createPublicClient } from "@/lib/supabase/public";
 
 // Anúncio publicado: guardado em cache e renovado quando o admin aprova (updateTag).
@@ -25,6 +26,34 @@ async function getPublicListing(slug: string) {
     .eq("status", "active")
     .maybeSingle();
   return data;
+}
+
+// Primeiro nome, anúncios no ar e ano de entrada do anfitrião. Fica em cache junto do anúncio.
+async function getPublicHost(listingId: string, slug: string) {
+  "use cache";
+  cacheTag(`listing:${slug}`);
+  cacheLife("hours");
+
+  const { data } = await createPublicClient().rpc("listing_host", { p_listing_id: listingId }).maybeSingle();
+  return data;
+}
+
+// Até 4 salas parecidas: mesmo tipo na mesma cidade primeiro, depois mesma cidade, depois mesmo tipo.
+async function getRelated(listing: { id: string; city: string; space_type: string }, slug: string) {
+  "use cache";
+  cacheTag(`listing:${slug}`, "listings");
+  cacheLife("hours");
+
+  const { data } = await createPublicClient()
+    .from("listings")
+    .select("slug, title, space_type, neighborhood, city, price, billing_type, photos, photo_sizes")
+    .eq("status", "active")
+    .neq("id", listing.id)
+    .or(`city.eq."${listing.city.replace(/"/g, "")}",space_type.eq.${listing.space_type}`)
+    .order("published_at", { ascending: false })
+    .limit(24);
+  const score = (item: { city: string; space_type: string }) => (item.city === listing.city ? 2 : 0) + (item.space_type === listing.space_type ? 1 : 0);
+  return (data ?? []).sort((a, b) => score(b) - score(a)).slice(0, 4);
 }
 
 export async function generateMetadata({ params }: PageProps<"/sala/[slug]">): Promise<Metadata> {
@@ -62,10 +91,18 @@ export default function SalaPage({ params }: PageProps<"/sala/[slug]">) {
 async function Sala({ slug }: { slug: string }) {
   const listing = await getPublicListing(slug);
   if (!listing) notFound();
+  const [host, related] = await Promise.all([getPublicHost(listing.id, slug), getRelated(listing, slug)]);
+  // Contexto que já vai escrito na mensagem do formulário de e-mail.
+  const about = `${SPACE_TYPES[listing.space_type as SpaceType] ?? listing.space_type} em ${listing.neighborhood}, ${listing.city}, ${formatPrice(listing.price)}/${BILLING_UNIT[listing.billing_type as BillingType] ?? listing.billing_type}`;
   return (
     <>
       <ViewTracker listingId={listing.id} />
-      <ListingView listing={listing} action={<WhatsAppButton listingId={listing.id} title={listing.title} email={listing.email_contact} />} />
+      <ListingView
+        listing={listing}
+        host={host}
+        action={<WhatsAppButton listingId={listing.id} title={listing.title} about={about} email={listing.email_contact} />}
+        related={<RelatedListings listings={related} description={`Outras opções em ${listing.city} e para a mesma área de atuação.`} />}
+      />
     </>
   );
 }

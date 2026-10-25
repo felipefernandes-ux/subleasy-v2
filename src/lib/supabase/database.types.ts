@@ -29,6 +29,60 @@ export type Database = {
         }
         Relationships: []
       }
+      favorite_items: {
+        Row: {
+          created_at: string
+          list_id: string
+          listing_id: string
+        }
+        Insert: {
+          created_at?: string
+          list_id: string
+          listing_id: string
+        }
+        Update: {
+          created_at?: string
+          list_id?: string
+          listing_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorite_items_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "favorite_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorite_items_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      favorite_lists: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
       listing_contacts: {
         Row: {
           contact_email: string | null
@@ -309,6 +363,9 @@ export type Database = {
           id: string
           marketing_opt_in: boolean
           marketing_opt_in_at: string | null
+          notify_expiration: boolean
+          notify_listing_updates: boolean
+          notify_messages: boolean
           terms_accepted_at: string
           terms_version: string
           updated_at: string
@@ -320,6 +377,9 @@ export type Database = {
           id: string
           marketing_opt_in?: boolean
           marketing_opt_in_at?: string | null
+          notify_expiration?: boolean
+          notify_listing_updates?: boolean
+          notify_messages?: boolean
           terms_accepted_at: string
           terms_version: string
           updated_at?: string
@@ -331,6 +391,9 @@ export type Database = {
           id?: string
           marketing_opt_in?: boolean
           marketing_opt_in_at?: string | null
+          notify_expiration?: boolean
+          notify_listing_updates?: boolean
+          notify_messages?: boolean
           terms_accepted_at?: string
           terms_version?: string
           updated_at?: string
@@ -343,11 +406,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_own_account: { Args: never; Returns: undefined }
       get_listing_whatsapp: {
         Args: { p_listing_id: string; p_visitor_id: string }
         Returns: string
       }
       is_admin: { Args: never; Returns: boolean }
+      listing_host: {
+        Args: { p_listing_id: string }
+        Returns: {
+          active_listings: number
+          first_name: string
+          host_id: string
+          member_since: string
+        }[]
+      }
       listing_owner: {
         Args: { p_listing_id: string }
         Returns: {

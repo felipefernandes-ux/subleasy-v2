@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { PlusIcon } from "@phosphor-icons/react/ssr";
+import { AccountMenu } from "./account-menu";
 import { Logo, buttonClasses } from "./ui";
 
 /** Moldura das telas do anfitrião e do admin: logo, atalhos e fundo neutro. */
@@ -42,6 +43,9 @@ export function HostShell({
                 </Link>
               </>
             )}
+            <span className="ml-1">
+              <AccountMenu showSignIn={false} />
+            </span>
           </nav>
         </div>
       </header>
