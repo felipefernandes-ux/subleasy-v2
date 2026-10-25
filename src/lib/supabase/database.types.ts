@@ -31,16 +31,19 @@ export type Database = {
       }
       listing_contacts: {
         Row: {
+          contact_email: string | null
           listing_id: string
           street_address: string | null
           whatsapp_number: string
         }
         Insert: {
+          contact_email?: string | null
           listing_id: string
           street_address?: string | null
           whatsapp_number: string
         }
         Update: {
+          contact_email?: string | null
           listing_id?: string
           street_address?: string | null
           whatsapp_number?: string
@@ -90,6 +93,98 @@ export type Database = {
           },
         ]
       }
+      listing_inquiries: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          listing_id: string
+          message: string
+          name: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          listing_id: string
+          message: string
+          name: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          listing_id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_inquiries_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_removals: {
+        Row: {
+          city: string
+          comment: string | null
+          contacts: number
+          id: string
+          listing_id: string
+          owner_id: string
+          published_at: string | null
+          reason: string
+          removed_at: string
+          rented_via_subleasy: string | null
+          space_type: string
+          state: string
+          status: string
+          title: string
+          views: number
+        }
+        Insert: {
+          city: string
+          comment?: string | null
+          contacts?: number
+          id?: string
+          listing_id: string
+          owner_id: string
+          published_at?: string | null
+          reason: string
+          removed_at?: string
+          rented_via_subleasy?: string | null
+          space_type: string
+          state: string
+          status: string
+          title: string
+          views?: number
+        }
+        Update: {
+          city?: string
+          comment?: string | null
+          contacts?: number
+          id?: string
+          listing_id?: string
+          owner_id?: string
+          published_at?: string | null
+          reason?: string
+          removed_at?: string
+          rented_via_subleasy?: string | null
+          space_type?: string
+          state?: string
+          status?: string
+          title?: string
+          views?: number
+        }
+        Relationships: []
+      }
       listings: {
         Row: {
           amenities: string[]
@@ -99,12 +194,19 @@ export type Database = {
           consecutive_confirmations: number
           created_at: string
           description: string | null
+          email_contact: boolean
           embedding: string | null
+          expires_at: string | null
+          highlights: string[]
           id: string
           last_confirmed_at: string
+          latitude: number | null
+          longitude: number | null
           min_rental_period: string | null
           neighborhood: string
+          offers: string[]
           owner_id: string
+          photo_sizes: Json
           photos: string[]
           price: number
           published_at: string | null
@@ -112,6 +214,7 @@ export type Database = {
           rules: string[]
           shifts_available: Json
           short_summary: string | null
+          show_exact_location: boolean
           slug: string
           space_type: string
           state: string
@@ -129,12 +232,19 @@ export type Database = {
           consecutive_confirmations?: number
           created_at?: string
           description?: string | null
+          email_contact?: boolean
           embedding?: string | null
+          expires_at?: string | null
+          highlights?: string[]
           id?: string
           last_confirmed_at?: string
+          latitude?: number | null
+          longitude?: number | null
           min_rental_period?: string | null
           neighborhood: string
+          offers?: string[]
           owner_id: string
+          photo_sizes?: Json
           photos?: string[]
           price: number
           published_at?: string | null
@@ -142,6 +252,7 @@ export type Database = {
           rules?: string[]
           shifts_available?: Json
           short_summary?: string | null
+          show_exact_location?: boolean
           slug: string
           space_type: string
           state: string
@@ -159,12 +270,19 @@ export type Database = {
           consecutive_confirmations?: number
           created_at?: string
           description?: string | null
+          email_contact?: boolean
           embedding?: string | null
+          expires_at?: string | null
+          highlights?: string[]
           id?: string
           last_confirmed_at?: string
+          latitude?: number | null
+          longitude?: number | null
           min_rental_period?: string | null
           neighborhood?: string
+          offers?: string[]
           owner_id?: string
+          photo_sizes?: Json
           photos?: string[]
           price?: number
           published_at?: string | null
@@ -172,6 +290,7 @@ export type Database = {
           rules?: string[]
           shifts_available?: Json
           short_summary?: string | null
+          show_exact_location?: boolean
           slug?: string
           space_type?: string
           state?: string
@@ -240,6 +359,18 @@ export type Database = {
       record_listing_view: {
         Args: { p_listing_id: string; p_visitor_id: string }
         Returns: undefined
+      }
+      renew_listing: { Args: { p_listing_id: string }; Returns: string }
+      submit_listing_inquiry: {
+        Args: {
+          p_email: string
+          p_listing_id: string
+          p_message: string
+          p_name: string
+          p_phone: string
+          p_visitor_id: string
+        }
+        Returns: string
       }
     }
     Enums: {

@@ -19,7 +19,7 @@ export const FAQ_ITEMS = [
   {
     question: "Por quanto tempo o anúncio fica no ar?",
     answer:
-      "O anúncio não expira. A cada 30 dias você recebe um lembrete para confirmar que a sala continua disponível ou pausar o anúncio, com um clique. Reativar também leva um clique.",
+      "Por 30 dias a partir da publicação. Antes do fim do prazo, você renova grátis com um clique por mais 30 dias. Se não renovar, o anúncio sai da busca e para de receber contatos, mas continua salvo no seu painel para voltar ao ar quando quiser.",
   },
   {
     question: "Preciso ter CRP, CRM ou CRO para alugar uma sala?",

@@ -47,7 +47,7 @@ async function AdminReview({
     supabase
       .from("listings")
       .select(
-        "id, status, title, short_summary, description, space_type, billing_type, price, zip_code, city, state, neighborhood, min_rental_period, rules, amenities, shifts_available, photos",
+        "id, status, title, short_summary, description, space_type, billing_type, price, zip_code, city, state, neighborhood, min_rental_period, rules, amenities, photos, photo_sizes, highlights, offers, latitude, longitude, show_exact_location",
       )
       .eq("id", id)
       .maybeSingle(),

@@ -4,9 +4,20 @@ import { PlusIcon } from "@phosphor-icons/react/ssr";
 import { Logo, buttonClasses } from "./ui";
 
 /** Moldura das telas do anfitrião e do admin: logo, atalhos e fundo neutro. */
-export function HostShell({ children, admin = false }: { children: ReactNode; admin?: boolean }) {
+export function HostShell({
+  children,
+  admin = false,
+  wide = false,
+  white = false,
+}: {
+  children: ReactNode;
+  admin?: boolean;
+  wide?: boolean;
+  /** Fundo branco, como a lista de anúncios: os filtros em cinza se destacam melhor. */
+  white?: boolean;
+}) {
   return (
-    <div className="flex min-h-dvh flex-col bg-ink-50">
+    <div className={`flex min-h-dvh flex-col ${white ? "bg-white" : "bg-ink-50"}`}>
       <header className="border-b border-ink-200 bg-white">
         <div className="container-page flex h-16 items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -35,7 +46,7 @@ export function HostShell({ children, admin = false }: { children: ReactNode; ad
         </div>
       </header>
       <main className="flex-1 px-5 pt-8 pb-16 sm:px-8 sm:pt-12">
-        <div className="mx-auto w-full max-w-3xl">{children}</div>
+        <div className={`mx-auto w-full ${wide ? "max-w-5xl" : "max-w-3xl"}`}>{children}</div>
       </main>
     </div>
   );

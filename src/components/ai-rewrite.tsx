@@ -10,22 +10,26 @@ const TONES: { tone: RewriteTone; label: string }[] = [
   { tone: "encurtar", label: "Encurtar" },
   { tone: "detalhar", label: "Mais detalhes" },
 ];
+// Campo vazio: não há o que melhorar, só escrever.
+const WRITE: typeof TONES = [{ tone: "escrever", label: "Escrever" }];
 
 /**
  * "Reescrever com IA" de um campo, no espírito do "Help me write" do Gmail:
  * um botão discreto abre um painel pequeno; a sugestão só entra no campo se
- * o anfitrião clicar em "Usar este texto".
+ * o anfitrião clicar em "Usar este texto". Com o campo vazio, a IA já começa escrevendo.
  */
 export function AiRewrite({
   field,
   value,
   facts,
   onApply,
+  label = "Reescrever com IA",
 }: {
   field: RewriteField;
   value: string;
   facts: string;
   onApply: (text: string) => void;
+  label?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [tone, setTone] = useState<RewriteTone | null>(null);
@@ -70,25 +74,29 @@ export function AiRewrite({
     <span className="relative">
       <button
         type="button"
-        onClick={() => (open ? close() : setOpen(true))}
+        onClick={() => {
+          if (open) return close();
+          setOpen(true);
+          if (!value.trim()) run("escrever");
+        }}
         aria-expanded={open}
         className="focus-ring inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-bold text-brand-700 transition-colors hover:bg-brand-50"
       >
         <SparkleIcon className="size-3.5" />
-        Reescrever com IA
+        {label}
       </button>
 
       {open && (
         <div
           ref={panelRef}
           role="dialog"
-          aria-label="Reescrever com IA"
+          aria-label={label}
           className="absolute top-full right-0 z-20 mt-2 w-[min(26rem,calc(100vw-3rem))] animate-fade-up rounded-card bg-white p-4 text-left shadow-raised ring-1 ring-brand-100 [animation-duration:0.25s]"
         >
           <div className="flex items-center justify-between">
             <p className="flex items-center gap-1.5 text-sm font-bold text-ink-900">
               <SparkleIcon className="size-4 text-brand-600" />
-              Reescrever com IA
+              {label}
             </p>
             <button type="button" onClick={close} aria-label="Fechar" className="focus-ring grid size-8 place-items-center rounded-full text-ink-500 hover:bg-ink-100">
               <XIcon className="size-4" aria-hidden />
@@ -97,7 +105,7 @@ export function AiRewrite({
 
           {suggestion === null && !isPending && (
             <div className="mt-3 flex flex-wrap gap-2">
-              {TONES.map((item) => (
+              {(value.trim() ? TONES : WRITE).map((item) => (
                 <button
                   key={item.tone}
                   type="button"

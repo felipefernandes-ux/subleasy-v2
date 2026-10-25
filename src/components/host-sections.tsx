@@ -80,7 +80,7 @@ const HOST_BENEFITS = [
   "Veja quantas pessoas abriram sua sala e quantas chamaram no WhatsApp.",
   "Compare seu preço com salas parecidas da região.",
   "Receba uma recomendação por semana do que mudar no anúncio.",
-  "Seu anúncio não expira. A cada 30 dias você confirma a disponibilidade em um clique.",
+  "Seu anúncio fica no ar por 30 dias e renova grátis com um clique.",
 ];
 
 export function HostDashboard() {
@@ -152,8 +152,8 @@ export function HostDashboard() {
           </div>
 
           <div className="mt-4 flex items-center justify-between border-t border-ink-200 pt-4 text-xs text-ink-500">
-            <span>Disponibilidade confirmada em 14/10</span>
-            <span>Próximo lembrete em 13/11</span>
+            <span>Publicado em 14/10</span>
+            <span>Expira em 13/11</span>
           </div>
         </figure>
       </div>

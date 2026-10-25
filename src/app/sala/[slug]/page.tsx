@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ListingView } from "@/components/listing-view";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { ViewTracker } from "@/components/view-tracker";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { photoUrl } from "@/lib/listing-options";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -18,7 +19,7 @@ async function getPublicListing(slug: string) {
   const { data } = await createPublicClient()
     .from("listings")
     .select(
-      "id, title, short_summary, description, space_type, billing_type, price, city, state, neighborhood, min_rental_period, rules, amenities, shifts_available, photos",
+      "id, title, short_summary, description, space_type, billing_type, price, city, state, neighborhood, min_rental_period, rules, amenities, photos, photo_sizes, highlights, offers, latitude, longitude, show_exact_location, email_contact",
     )
     .eq("slug", slug)
     .eq("status", "active")
@@ -61,5 +62,10 @@ export default function SalaPage({ params }: PageProps<"/sala/[slug]">) {
 async function Sala({ slug }: { slug: string }) {
   const listing = await getPublicListing(slug);
   if (!listing) notFound();
-  return <ListingView listing={listing} action={<WhatsAppButton listingId={listing.id} title={listing.title} />} />;
+  return (
+    <>
+      <ViewTracker listingId={listing.id} />
+      <ListingView listing={listing} action={<WhatsAppButton listingId={listing.id} title={listing.title} email={listing.email_contact} />} />
+    </>
+  );
 }

@@ -52,6 +52,28 @@ export function AiBadge({ label = "Sugestão" }: { label?: string }) {
   );
 }
 
+/** Versão compacta para campos de formulário: só o ícone, com a explicação num tooltip (hover e foco). */
+export function AiHint({ tip }: { tip: string }) {
+  return (
+    <span className="group relative inline-flex">
+      <span
+        tabIndex={0}
+        role="img"
+        aria-label={tip}
+        className="focus-ring grid size-6 place-items-center rounded-full bg-brand-50 text-brand-700 ring-1 ring-brand-100"
+      >
+        <SparkleIcon className="size-3.5" />
+      </span>
+      <span
+        aria-hidden
+        className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-56 -translate-x-1/2 translate-y-1 rounded-control bg-ink-900 px-2.5 py-1.5 text-xs font-normal text-white opacity-0 shadow-raised transition duration-150 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100"
+      >
+        {tip}
+      </span>
+    </span>
+  );
+}
+
 export function SparkleIcon({ className = "size-4" }: { className?: string }) {
   return (
     <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" className={className}>
