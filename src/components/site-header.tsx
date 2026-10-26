@@ -4,9 +4,11 @@ import { SearchNavMenu } from "./search-nav-menu";
 import { Logo, buttonClasses } from "./ui";
 
 // "Buscar salas" vem antes, com o menu dos tipos de sala (SearchNavMenu).
+// O blog é outro site, por isso abre em nova aba.
 const NAV = [
   { href: "/#como-funciona", label: "Como funciona" },
   { href: "/sobre", label: "Sobre" },
+  { href: "https://blog.subleasy.com.br/", label: "Blog", newTab: true },
   { href: "/#perguntas", label: "FAQ" },
 ];
 
@@ -24,9 +26,11 @@ export function SiteHeader() {
             <a
               key={item.href}
               href={item.href}
+              {...(item.newTab && { target: "_blank", rel: "noopener noreferrer" })}
               className="focus-ring rounded-control px-3 py-2 text-sm text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900"
             >
               {item.label}
+              {item.newTab && <span className="sr-only"> (abre em nova aba)</span>}
             </a>
           ))}
         </nav>
