@@ -39,10 +39,16 @@ export function HowItWorks() {
               Você informa preço, endereço e turnos. A IA cuida da redação e lê
               as fotos. O que ela não tem como saber, ela pergunta.
             </p>
-            <a href="/anunciar" className={`${buttonClasses("primary", "lg")} mt-8`}>
-              Começar meu anúncio
-              <ArrowRightIcon />
-            </a>
+            <div className="mt-8 flex flex-col items-start gap-4">
+              <a href="/anunciar" className={buttonClasses("primary", "lg")}>
+                Começar meu anúncio
+                <ArrowRightIcon />
+              </a>
+              <a href="/como-funciona" className="focus-ring inline-flex min-h-11 items-center gap-1.5 rounded-control text-sm font-bold text-brand-600 hover:text-brand-700">
+                Como funciona a sublocação de consultório
+                <ArrowRightIcon />
+              </a>
+            </div>
           </div>
 
           <ol className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">

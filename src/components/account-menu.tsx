@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { BellIcon, GearSixIcon, HeartIcon, ListIcon, SignOutIcon, SquaresFourIcon, UserIcon } from "@phosphor-icons/react";
+import { BellIcon, GearSixIcon, HeartIcon, ListIcon, SignOutIcon, SquaresFourIcon } from "@phosphor-icons/react";
 import { signOut } from "@/app/actions/auth";
 import { createClient } from "@/lib/supabase/client";
 import { buttonClasses } from "./ui";
@@ -116,9 +116,6 @@ function Menu({ account }: { account: Account }) {
           <div className="py-1.5">
             <Item href="/painel" icon={<SquaresFourIcon className="size-5" aria-hidden />} onSelect={() => setOpen(false)}>
               Meus anúncios
-            </Item>
-            <Item href="/perfil" icon={<UserIcon className="size-5" aria-hidden />} onSelect={() => setOpen(false)}>
-              Perfil
             </Item>
             <Item href="/favoritos" icon={<HeartIcon className="size-5" aria-hidden />} onSelect={() => setOpen(false)}>
               Favoritos

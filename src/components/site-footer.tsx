@@ -50,7 +50,7 @@ const FOOTER_LINKS = [
     title: "Anfitriões",
     links: [
       { href: "/anunciar", label: "Anunciar sala" },
-      { href: "#como-funciona", label: "Como funciona" },
+      { href: "/como-funciona", label: "Como funciona" },
       { href: "#painel", label: "Painel do anfitrião" },
     ],
   },

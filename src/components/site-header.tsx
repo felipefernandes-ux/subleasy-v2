@@ -6,7 +6,7 @@ import { Logo, buttonClasses } from "./ui";
 // "Buscar salas" vem antes, com o menu dos tipos de sala (SearchNavMenu).
 // O blog é outro site, por isso abre em nova aba.
 const NAV = [
-  { href: "/#como-funciona", label: "Como funciona" },
+  { href: "/como-funciona", label: "Como funciona" },
   { href: "/sobre", label: "Sobre" },
   { href: "https://blog.subleasy.com.br/", label: "Blog", newTab: true },
   { href: "/#perguntas", label: "FAQ" },
