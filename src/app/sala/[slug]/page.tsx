@@ -41,6 +41,15 @@ async function getPublicHost(listingId: string, slug: string) {
   return data;
 }
 
+// Na prévia, o anfitrião vem com a sessão do admin: um anúncio importado ainda não tem perfil
+// do dono, e só o admin recebe o nome (vindo do login) nesse caso. Sem cache, como o resto da prévia.
+async function getAdminHost(listingId: string) {
+  const supabase = await getAdminClient();
+  if (!supabase) return null;
+  const { data } = await supabase.rpc("listing_host", { p_listing_id: listingId }).maybeSingle();
+  return data;
+}
+
 // Até 4 salas parecidas: mesmo tipo na mesma cidade primeiro, depois mesma cidade, depois mesmo tipo.
 async function getRelated(listing: { id: string; city: string; space_type: string }, slug: string) {
   "use cache";
@@ -110,7 +119,7 @@ async function Sala({ slug }: { slug: string }) {
   const preview = published ? null : await getAdminPreview(slug);
   const listing = published ?? preview;
   if (!listing) notFound();
-  const [host, related] = await Promise.all([getPublicHost(listing.id, slug), getRelated(listing, slug)]);
+  const [host, related] = await Promise.all([(preview ? getAdminHost(listing.id) : getPublicHost(listing.id, slug)), getRelated(listing, slug)]);
   // Contexto que já vai escrito na mensagem do formulário de e-mail.
   const about = `${SPACE_TYPES[listing.space_type as SpaceType] ?? listing.space_type} em ${listing.neighborhood}, ${listing.city}, ${formatPrice(listing.price)}/${BILLING_UNIT[listing.billing_type as BillingType] ?? listing.billing_type}`;
   return (

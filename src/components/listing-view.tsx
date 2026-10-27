@@ -46,7 +46,8 @@ export type PublicListing = {
 
 /** Anunciante na página pública: só o primeiro nome, nunca contato ou sobrenome. */
 export type PublicHost = {
-  public_id: string;
+  /** Nulo quando o anunciante ainda não tem perfil (só o admin vê esse caso). */
+  public_id: string | null;
   public_name: string;
   avatar_path: string | null;
   active_listings: number;
@@ -213,27 +214,7 @@ export function ListingView({
             )}
             {action && <div className="mt-6">{action}</div>}
 
-            {host?.public_id && host.public_name && (
-              // O bloco inteiro leva ao perfil público do anunciante. A checagem evita quebrar com resposta antiga em cache.
-              <Link
-                href={`/u/${host.public_id}`}
-                className="group focus-ring -mx-2 mt-4 flex items-center gap-3 rounded-card border-t border-ink-200 px-2 pt-5 pb-1"
-              >
-                <ProfileAvatar name={host.public_name} path={host.avatar_path} size={44} />
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-1 text-sm font-bold text-ink-900 group-hover:text-brand-700">
-                    Anunciado por {host.public_name}
-                    {host.identity_verified_at && (
-                      <SealCheckIcon className="size-4 text-brand-600" weight="fill" aria-label="Identidade verificada" />
-                    )}
-                  </span>
-                  <span className="block text-xs text-ink-600">
-                    {host.active_listings} {host.active_listings === 1 ? "anúncio" : "anúncios"} ・ desde {new Date(host.member_since).getFullYear()}
-                  </span>
-                </span>
-                <CaretRightIcon className="size-4 shrink-0 text-ink-400 transition-transform group-hover:translate-x-0.5 group-hover:text-brand-700" aria-hidden />
-              </Link>
-            )}
+            {host?.public_name && <HostCard host={host} name={host.public_name} />}
           </div>
         </aside>
       </div>
@@ -252,5 +233,37 @@ export function ListingView({
         </div>
       )}
     </article>
+  );
+}
+
+/**
+ * Bloco do anunciante. Com perfil, o bloco inteiro leva ao perfil público. Sem perfil (anúncio
+ * importado cujo dono ainda não aceitou o convite, visto só pelo admin), mostra o mesmo bloco sem link.
+ */
+function HostCard({ host, name }: { host: PublicHost; name: string }) {
+  const content = (
+    <>
+      <ProfileAvatar name={name} path={host.avatar_path} size={44} />
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-1 text-sm font-bold text-ink-900 group-hover:text-brand-700">
+          Anunciado por {name}
+          {host.identity_verified_at && (
+            <SealCheckIcon className="size-4 text-brand-600" weight="fill" aria-label="Identidade verificada" />
+          )}
+        </span>
+        <span className="block text-xs text-ink-600">
+          {host.active_listings} {host.active_listings === 1 ? "anúncio" : "anúncios"} ・ desde {new Date(host.member_since).getFullYear()}
+        </span>
+      </span>
+    </>
+  );
+  const box = "group -mx-2 mt-4 flex items-center gap-3 rounded-card border-t border-ink-200 px-2 pt-5 pb-1";
+
+  if (!host.public_id) return <div className={box}>{content}</div>;
+  return (
+    <Link href={`/u/${host.public_id}`} className={`${box} focus-ring`}>
+      {content}
+      <CaretRightIcon className="size-4 shrink-0 text-ink-400 transition-transform group-hover:translate-x-0.5 group-hover:text-brand-700" aria-hidden />
+    </Link>
   );
 }
