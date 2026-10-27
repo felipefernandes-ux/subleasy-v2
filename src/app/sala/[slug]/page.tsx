@@ -9,6 +9,7 @@ import { ViewTracker } from "@/components/view-tracker";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { RelatedListings } from "@/components/related-listings";
 import { BILLING_UNIT, SPACE_TYPES, formatPrice, photoUrl, type BillingType, type SpaceType } from "@/lib/listing-options";
+import { STATUS_LABEL, getAdminClient } from "@/lib/admin-preview";
 import { createPublicClient } from "@/lib/supabase/public";
 
 // Anúncio publicado: guardado em cache e renovado quando o admin aprova (updateTag).
@@ -90,15 +91,37 @@ export default function SalaPage({ params }: PageProps<"/sala/[slug]">) {
   );
 }
 
+// Prévia do admin: o mesmo anúncio, sem cache, mesmo que não esteja no ar. Para os outros, null.
+async function getAdminPreview(slug: string) {
+  const supabase = await getAdminClient();
+  if (!supabase) return null;
+  const { data } = await supabase
+    .from("listings")
+    .select(
+      "id, title, short_summary, description, space_type, billing_type, price, city, state, neighborhood, min_rental_period, rules, amenities, photos, photo_sizes, highlights, offers, latitude, longitude, show_exact_location, email_contact, status",
+    )
+    .eq("slug", slug)
+    .maybeSingle();
+  return data;
+}
+
 async function Sala({ slug }: { slug: string }) {
-  const listing = await getPublicListing(slug);
+  const published = await getPublicListing(slug);
+  const preview = published ? null : await getAdminPreview(slug);
+  const listing = published ?? preview;
   if (!listing) notFound();
   const [host, related] = await Promise.all([getPublicHost(listing.id, slug), getRelated(listing, slug)]);
   // Contexto que já vai escrito na mensagem do formulário de e-mail.
   const about = `${SPACE_TYPES[listing.space_type as SpaceType] ?? listing.space_type} em ${listing.neighborhood}, ${listing.city}, ${formatPrice(listing.price)}/${BILLING_UNIT[listing.billing_type as BillingType] ?? listing.billing_type}`;
   return (
     <>
-      <ViewTracker listingId={listing.id} />
+      {preview && (
+        <p role="status" className="mb-6 rounded-control border border-warning-500/40 bg-warning-500/10 px-4 py-3 text-sm text-ink-800">
+          <strong className="font-bold">Prévia do admin.</strong> Este anúncio está como {STATUS_LABEL[preview.status] ?? preview.status} e só você o vê.
+          O botão de contato e a contagem de visitas só funcionam com o anúncio no ar.
+        </p>
+      )}
+      {!preview && <ViewTracker listingId={listing.id} />}
       <ListingView
         listing={listing}
         host={host}

@@ -6,6 +6,7 @@ import type { SearchResult } from "@/components/search/result-card";
 import { SiteHeader } from "@/components/site-header";
 import { geocodeArea, spread } from "@/lib/geocode";
 import { AMENITIES, BILLING_TYPE_KEYS, SPACE_TYPE_KEYS, parsePhotoSizes } from "@/lib/listing-options";
+import { getAdminClient } from "@/lib/admin-preview";
 import { createPublicClient } from "@/lib/supabase/public";
 
 export const metadata: Metadata = {
@@ -50,11 +51,12 @@ async function search(params: Awaited<PageProps<"/salas">["searchParams"]>): Pro
   const max = Number(one(params.max));
   const local = one(params.local).replace(/[,()%*\\]/g, " ").trim().slice(0, 80);
 
-  let query = createPublicClient()
+  // O admin vê todos os anúncios, também os que ainda não estão no ar, para ver o site com conteúdo real.
+  const adminClient = await getAdminClient();
+  let query = (adminClient ?? createPublicClient())
     .from("listings")
-    .select("id, slug, title, space_type, neighborhood, city, state, price, billing_type, photos, photo_sizes, offers, latitude, longitude")
-    .eq("status", "active")
-    .gt("expires_at", new Date().toISOString());
+    .select("id, slug, title, space_type, neighborhood, city, state, price, billing_type, photos, photo_sizes, offers, latitude, longitude");
+  if (!adminClient) query = query.eq("status", "active").gt("expires_at", new Date().toISOString());
   if (tipos.length) query = query.in("space_type", tipos);
   if ((BILLING_TYPE_KEYS as string[]).includes(cobranca)) query = query.eq("billing_type", cobranca);
   if (comodidades.length) query = query.contains("amenities", comodidades);
@@ -62,7 +64,7 @@ async function search(params: Awaited<PageProps<"/salas">["searchParams"]>): Pro
   if (max > 0) query = query.lte("price", max);
   if (local) query = query.or(`city.ilike.%${local}%,neighborhood.ilike.%${local}%,state.ilike.${local}`);
 
-  const { data, error } = await query.order("published_at", { ascending: false }).limit(60);
+  const { data, error } = await query.order("published_at", { ascending: false, nullsFirst: false }).order("created_at", { ascending: false }).limit(60);
   if (error) console.error("[salas]", error);
 
   // Sala sem localização no mapa aparece na área do bairro. Uma consulta por vez,

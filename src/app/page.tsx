@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { FAQ_ITEMS, Faq } from "@/components/faq";
+import { AdminPreviewListings } from "@/components/admin-preview-listings";
 import { FeaturedClinics } from "@/components/featured-clinics";
 import { HeroSection } from "@/components/hero-section";
 import { HostDashboard, HowItWorks } from "@/components/host-sections";
@@ -49,6 +51,9 @@ export default function Home() {
         <HeroSection />
         <HowItWorks />
         <FeaturedClinics />
+        <Suspense fallback={null}>
+          <AdminPreviewListings />
+        </Suspense>
         <HostDashboard />
         <Faq />
         <FinalCta />
