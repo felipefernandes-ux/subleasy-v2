@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# exportações do Subleasy atual (têm e-mail e telefone de anunciantes)
+/imports/

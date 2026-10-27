@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://subleasy.com.br/schemas/subleasy-import.v1.json",
+  "title": "subleasy-import v1",
+  "description": "Anúncios e anunciantes exportados do Subleasy atual (WordPress) para o Subleasy 2.0. Ver docs/importacao/formato-anuncios.md.",
+  "type": "object",
+  "required": ["format", "version", "source", "summary", "advertisers", "listings"],
+  "properties": {
+    "format": { "const": "subleasy-import" },
+    "version": { "const": 1 },
+    "source": {
+      "type": "object",
+      "required": ["system", "site", "exported_at"],
+      "properties": {
+        "system": { "const": "wordpress" },
+        "site": { "type": "string" },
+        "exported_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["advertisers", "listings", "by_status"],
+      "properties": {
+        "advertisers": { "type": "integer", "minimum": 0 },
+        "listings": { "type": "integer", "minimum": 0 },
+        "by_status": { "type": "object", "additionalProperties": { "type": "integer" } }
+      }
+    },
+    "advertisers": { "type": "array", "items": { "$ref": "#/$defs/advertiser" } },
+    "listings": { "type": "array", "items": { "$ref": "#/$defs/listing" } }
+  },
+  "$defs": {
+    "nullableString": { "type": ["string", "null"] },
+    "nullableNumber": { "type": ["number", "null"] },
+    "nullableDate": { "type": ["string", "null"], "format": "date-time" },
+    "advertiser": {
+      "type": "object",
+      "required": ["source_id", "name", "email", "whatsapp", "registered_at", "wp_role"],
+      "properties": {
+        "source_id": { "type": "string", "pattern": "^wp-(user-[0-9]+|email-[0-9a-f]{12})$" },
+        "name": { "$ref": "#/$defs/nullableString" },
+        "email": { "$ref": "#/$defs/nullableString" },
+        "whatsapp": { "type": ["string", "null"], "pattern": "^[0-9]{10,11}$" },
+        "registered_at": { "$ref": "#/$defs/nullableDate" },
+        "wp_role": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "listing": {
+      "type": "object",
+      "required": ["source_id", "source_url", "advertiser_source_id", "status", "source_status", "title", "description", "space_type", "space_type_labels", "billing_type", "price", "address", "amenities", "photos", "contact", "extras", "dates", "metrics", "seo", "issues"],
+      "properties": {
+        "source_id": { "type": "string", "pattern": "^wp-[0-9]+$" },
+        "source_url": { "type": "string" },
+        "advertiser_source_id": { "type": "string" },
+        "status": { "enum": ["active", "expired", "pending_approval", "draft", "removed"] },
+        "source_status": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "space_type": { "enum": ["consultorio_medico", "odontologia", "psicologia", "estetica", "terapias", "fisioterapia", "nutricao", "to_fono", "outro"] },
+        "space_type_labels": { "type": "array", "items": { "type": "string" } },
+        "billing_type": { "enum": ["hora", "turno", "dia", "mes", null] },
+        "price": { "$ref": "#/$defs/nullableNumber" },
+        "address": {
+          "type": "object",
+          "required": ["zip_code", "street", "number", "complement", "neighborhood", "city", "state"],
+          "properties": {
+            "zip_code": { "type": ["string", "null"], "pattern": "^[0-9]{5}-[0-9]{3}$" },
+            "street": { "$ref": "#/$defs/nullableString" },
+            "number": { "$ref": "#/$defs/nullableString" },
+            "complement": { "$ref": "#/$defs/nullableString" },
+            "neighborhood": { "$ref": "#/$defs/nullableString" },
+            "city": { "$ref": "#/$defs/nullableString" },
+            "state": { "type": ["string", "null"], "pattern": "^[A-Z]{2}$" }
+          }
+        },
+        "amenities": { "type": "array", "items": { "type": "string", "pattern": "^[a-z0-9_]+$" } },
+        "photos": { "type": "array", "items": { "type": "string" } },
+        "contact": {
+          "type": "object",
+          "required": ["whatsapp", "email"],
+          "properties": {
+            "whatsapp": { "type": ["string", "null"], "pattern": "^[0-9]{10,11}$" },
+            "email": { "$ref": "#/$defs/nullableString" }
+          }
+        },
+        "extras": { "type": "object" },
+        "dates": {
+          "type": "object",
+          "required": ["created_at", "published_at", "updated_at", "removed_at"],
+          "properties": {
+            "created_at": { "$ref": "#/$defs/nullableDate" },
+            "published_at": { "$ref": "#/$defs/nullableDate" },
+            "updated_at": { "$ref": "#/$defs/nullableDate" },
+            "removed_at": { "$ref": "#/$defs/nullableDate" }
+          }
+        },
+        "metrics": {
+          "type": "object",
+          "required": ["views_total", "visits_total", "whatsapp_clicks_total", "views_daily", "whatsapp_clicks_monthly"],
+          "properties": {
+            "views_total": { "type": "integer", "minimum": 0 },
+            "visits_total": { "type": "integer", "minimum": 0 },
+            "whatsapp_clicks_total": { "type": "integer", "minimum": 0 },
+            "views_daily": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["date", "views", "visits"],
+                "properties": {
+                  "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+                  "views": { "type": "integer", "minimum": 0 },
+                  "visits": { "type": "integer", "minimum": 0 }
+                }
+              }
+            },
+            "whatsapp_clicks_monthly": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["month", "clicks"],
+                "properties": {
+                  "month": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}$" },
+                  "clicks": { "type": "integer", "minimum": 0 }
+                }
+              }
+            }
+          }
+        },
+        "seo": {
+          "type": "object",
+          "properties": {
+            "slug": { "$ref": "#/$defs/nullableString" },
+            "meta_description": { "$ref": "#/$defs/nullableString" }
+          }
+        },
+        "issues": {
+          "type": "array",
+          "items": { "enum": ["varios_tipos", "sem_tipo", "sem_uf", "sem_cidade", "sem_foto", "sem_titulo", "titulo_longo", "titulo_curto", "preco_invalido", "sem_cobranca", "sem_descricao"] }
+        }
+      }
+    }
+  }
+}
