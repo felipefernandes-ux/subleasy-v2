@@ -29,7 +29,12 @@ const FIELD_ERRORS: Record<ProfileField, string> = {
 
 const profileSchema = z.object({
   display_name: z.string().trim().min(2).max(80),
-  whatsapp: z.string().transform(toBrazilianWhatsApp).pipe(z.string().regex(/^\+55[0-9]{10,11}$/)),
+  // Opcional: vazio vira null; preenchido, precisa ser um número válido.
+  whatsapp: z
+    .string()
+    .trim()
+    .transform((value) => (value ? toBrazilianWhatsApp(value) : null))
+    .pipe(z.string().regex(/^\+55[0-9]{10,11}$/).nullable()),
   terms: z.literal("on"),
   marketing: z.boolean(),
 });
@@ -70,8 +75,11 @@ export async function saveProfile(
 
   const avatarPath = values.avatar_path && isOwnAvatarPath(values.avatar_path, user.id) ? values.avatar_path : null;
 
+  // Sem número não há o que mostrar no perfil público.
+  const showWhatsapp = values.show_whatsapp && parsed.data.whatsapp !== null;
+
   // WhatsApp no perfil público: o registro do consentimento vem antes (LGPD, art. 8º, §2º).
-  if (values.show_whatsapp) {
+  if (showWhatsapp) {
     const logError = await recordWhatsAppConsent(supabase, user.id, true, "cadastro");
     if (logError) {
       console.error("[saveProfile] registro de consentimento", logError);
@@ -90,8 +98,8 @@ export async function saveProfile(
     marketing_opt_in_at: parsed.data.marketing ? now : null,
     bio: values.bio || null,
     avatar_path: avatarPath,
-    show_whatsapp: values.show_whatsapp,
-    show_whatsapp_at: values.show_whatsapp ? now : null,
+    show_whatsapp: showWhatsapp,
+    show_whatsapp_at: showWhatsapp ? now : null,
   });
 
   if (error) {

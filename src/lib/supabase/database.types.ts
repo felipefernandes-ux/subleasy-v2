@@ -430,7 +430,7 @@ export type Database = {
           terms_accepted_at: string
           terms_version: string
           updated_at: string
-          whatsapp_number: string
+          whatsapp_number: string | null
         }
         Insert: {
           avatar_path?: string | null
@@ -451,7 +451,7 @@ export type Database = {
           terms_accepted_at: string
           terms_version: string
           updated_at?: string
-          whatsapp_number: string
+          whatsapp_number: string | null
         }
         Update: {
           avatar_path?: string | null
@@ -472,7 +472,7 @@ export type Database = {
           terms_accepted_at?: string
           terms_version?: string
           updated_at?: string
-          whatsapp_number?: string
+          whatsapp_number?: string | null
         }
         Relationships: []
       }
