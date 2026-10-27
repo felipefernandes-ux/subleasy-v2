@@ -16,7 +16,7 @@ const WRITE: typeof TONES = [{ tone: "escrever", label: "Escrever" }];
 /**
  * "Reescrever com IA" de um campo, no espírito do "Help me write" do Gmail:
  * um botão discreto abre um painel pequeno; a sugestão só entra no campo se
- * o anfitrião clicar em "Usar este texto". Com o campo vazio, a IA já começa escrevendo.
+ * o anunciante clicar em "Usar este texto". Com o campo vazio, a IA já começa escrevendo.
  */
 export function AiRewrite({
   field,

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-/** Cópia dos dados da pessoa logada (LGPD): perfil, anúncios, contatos, mensagens e favoritos. */
+/** Cópia dos dados da pessoa logada (LGPD): perfil, anúncios, contatos, mensagens, favoritos e consentimentos. */
 export async function GET() {
   const supabase = await createClient();
   const {
@@ -9,13 +9,14 @@ export async function GET() {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Entre na sua conta para baixar seus dados." }, { status: 401 });
 
-  const [{ data: profile }, { data: listings }, { data: favorites }] = await Promise.all([
+  const [{ data: profile }, { data: listings }, { data: favorites }, { data: consents }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
     supabase
       .from("listings")
       .select("*, listing_contacts(whatsapp_number, contact_email, street_address), listing_inquiries(name, email, phone, message, created_at)")
       .eq("owner_id", user.id),
     supabase.from("favorite_lists").select("name, created_at, favorite_items(created_at, listings(title, slug))"),
+    supabase.from("consent_events").select("purpose, granted, channel, text_version, created_at").order("created_at"),
   ]);
 
   // O vetor da busca não diz nada para a pessoa e deixaria o arquivo enorme.
@@ -30,6 +31,7 @@ export async function GET() {
     profile,
     listings: cleanListings,
     favorites,
+    consents,
   };
 
   return new NextResponse(JSON.stringify(body, null, 2), {

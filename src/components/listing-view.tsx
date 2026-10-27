@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { CaretRightIcon, GiftIcon, MapPinIcon } from "@phosphor-icons/react/ssr";
+import { CaretRightIcon, GiftIcon, MapPinIcon, SealCheckIcon } from "@phosphor-icons/react/ssr";
 import { AMENITY_ICONS, DEFAULT_AMENITY_ICON } from "@/lib/amenity-icons";
 import {
   BILLING_UNIT,
@@ -16,6 +16,7 @@ import {
   type Offer,
   type SpaceType,
 } from "@/lib/listing-options";
+import { ProfileAvatar } from "./profile-avatar";
 import { ListingShareSave } from "./listing-share-save";
 import { LocationMap } from "./location-map";
 import { PhotoGallery } from "./photo-gallery";
@@ -43,8 +44,15 @@ export type PublicListing = {
   show_exact_location: boolean;
 };
 
-/** Anfitrião na página pública: só o primeiro nome, nunca contato ou sobrenome. */
-export type PublicHost = { host_id: string; first_name: string; active_listings: number; member_since: string };
+/** Anunciante na página pública: só o primeiro nome, nunca contato ou sobrenome. */
+export type PublicHost = {
+  public_id: string;
+  public_name: string;
+  avatar_path: string | null;
+  active_listings: number;
+  member_since: string;
+  identity_verified_at: string | null;
+};
 
 /**
  * O anúncio como quem procura vê, no desenho do Airbnb: título e preço, grade de fotos,
@@ -165,7 +173,7 @@ export function ListingView({
               </p>
               <LocationMap latitude={listing.latitude} longitude={listing.longitude} exact={listing.show_exact_location} className="mt-4 h-80" />
               <p className="mt-3 text-sm text-ink-500">
-                {listing.show_exact_location ? "O endereço completo você combina com o anfitrião." : "Área aproximada. A localização exata é passada pelo anfitrião."}
+                {listing.show_exact_location ? "O endereço completo você combina com o anunciante." : "Área aproximada. A localização exata é passada pelo anunciante."}
               </p>
             </section>
           )}
@@ -205,17 +213,20 @@ export function ListingView({
             )}
             {action && <div className="mt-6">{action}</div>}
 
-            {host && (
-              // O bloco inteiro leva ao perfil público do anfitrião (a página vem depois).
+            {host?.public_id && host.public_name && (
+              // O bloco inteiro leva ao perfil público do anunciante. A checagem evita quebrar com resposta antiga em cache.
               <Link
-                href={`/anfitriao/${host.host_id}`}
+                href={`/u/${host.public_id}`}
                 className="group focus-ring -mx-2 mt-4 flex items-center gap-3 rounded-card border-t border-ink-200 px-2 pt-5 pb-1"
               >
-                <span className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-600 text-lg font-bold text-white" aria-hidden>
-                  {host.first_name.charAt(0).toUpperCase()}
-                </span>
+                <ProfileAvatar name={host.public_name} path={host.avatar_path} size={44} />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-bold text-ink-900 group-hover:text-brand-700">Anunciado por {host.first_name}</span>
+                  <span className="flex items-center gap-1 text-sm font-bold text-ink-900 group-hover:text-brand-700">
+                    Anunciado por {host.public_name}
+                    {host.identity_verified_at && (
+                      <SealCheckIcon className="size-4 text-brand-600" weight="fill" aria-label="Identidade verificada" />
+                    )}
+                  </span>
                   <span className="block text-xs text-ink-600">
                     {host.active_listings} {host.active_listings === 1 ? "anúncio" : "anúncios"} ・ desde {new Date(host.member_since).getFullYear()}
                   </span>

@@ -5,12 +5,14 @@ import { useActionState, useId, useState } from "react";
 import { CircleNotchIcon } from "@phosphor-icons/react";
 import { signOut } from "@/app/actions/auth";
 import { saveProfile, type ProfileState } from "@/app/actions/profile";
+import { BIO_MAX, WHATSAPP_CONSENT } from "@/lib/public-profile";
+import { AvatarPicker } from "./avatar-picker";
 import { buttonClasses } from "./ui";
 
 const INPUT_CLASSES =
   "mt-2 h-12 w-full rounded-control border bg-white px-4 text-base text-ink-900 shadow-xs outline-none transition-colors placeholder:text-ink-400 focus:border-brand-600 focus:ring-3 focus:ring-brand-600/15";
 
-/** Cadastro do primeiro acesso: nome, WhatsApp e aceite dos termos. */
+/** Cadastro do primeiro acesso: nome, foto, apresentação, WhatsApp e aceite dos termos. */
 export function ProfileForm({
   email,
   defaultName,
@@ -26,7 +28,20 @@ export function ProfileForm({
   const errors = state.status === "error" ? state.fields : {};
   const values = state.status === "error" ? state.values : null;
   const [whatsapp, setWhatsapp] = useState(values?.whatsapp ?? "");
-  const ids = { name: useId(), nameHint: useId(), phone: useId(), phoneHint: useId(), terms: useId() };
+  const [name, setName] = useState(values?.display_name ?? defaultName);
+  const [avatarPath, setAvatarPath] = useState(values?.avatar_path ?? "");
+  const [bio, setBio] = useState(values?.bio ?? "");
+  const ids = {
+    name: useId(),
+    nameHint: useId(),
+    phone: useId(),
+    phoneHint: useId(),
+    terms: useId(),
+    bio: useId(),
+    bioHint: useId(),
+    showPhone: useId(),
+    showPhoneHint: useId(),
+  };
 
   return (
     <div className="w-full">
@@ -46,6 +61,7 @@ export function ProfileForm({
 
       <form action={formAction} noValidate className="mt-8 space-y-6">
         <input type="hidden" name="next" value={next} />
+        <input type="hidden" name="avatar_path" value={avatarPath} />
 
         {state.status === "error" && state.error && (
           <p role="alert" className="rounded-control bg-danger-600/6 px-3 py-2.5 text-sm text-ink-800">
@@ -64,14 +80,53 @@ export function ProfileForm({
             autoComplete="name"
             required
             maxLength={80}
-            defaultValue={values?.display_name ?? defaultName}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
             aria-invalid={Boolean(errors.display_name)}
             aria-describedby={ids.nameHint}
             className={`${INPUT_CLASSES} ${errors.display_name ? "border-danger-600" : "border-ink-300"}`}
           />
           <FieldHint id={ids.nameHint} error={errors.display_name}>
-            Aparece no anúncio como anfitrião.
+            No seu perfil e nos anúncios aparece o primeiro nome e a inicial do último, como “Ana S.”.
           </FieldHint>
+        </div>
+
+        <fieldset>
+          <legend className="block text-sm font-bold text-ink-800">
+            Foto <span className="font-normal text-ink-500">(opcional)</span>
+          </legend>
+          <div className="mt-3">
+            <AvatarPicker name={name} initialPath={avatarPath || null} onChange={(path) => setAvatarPath(path ?? "")} />
+          </div>
+        </fieldset>
+
+        <div>
+          <label htmlFor={ids.bio} className="block text-sm font-bold text-ink-800">
+            Apresentação <span className="font-normal text-ink-500">(opcional)</span>
+          </label>
+          <textarea
+            id={ids.bio}
+            name="bio"
+            rows={4}
+            maxLength={BIO_MAX}
+            value={bio}
+            onChange={(event) => setBio(event.target.value)}
+            placeholder="Ex.: Psicóloga há 8 anos. Divido meu consultório na Zona 7 nos turnos em que não atendo."
+            aria-invalid={Boolean(errors.bio)}
+            aria-describedby={ids.bioHint}
+            className={`mt-2 w-full resize-y rounded-control border bg-white px-4 py-3 text-base leading-relaxed text-ink-900 shadow-xs outline-none transition-colors placeholder:text-ink-400 focus:border-brand-600 focus:ring-3 focus:ring-brand-600/15 ${
+              errors.bio ? "border-danger-600" : "border-ink-300"
+            }`}
+          />
+          <div className="flex items-start justify-between gap-4">
+            <FieldHint id={ids.bioHint} error={errors.bio}>
+              Aparece no seu perfil público. Não coloque telefone, e-mail, documentos nem links. Se divulgar
+              serviços de saúde, valem as regras de publicidade do seu conselho.
+            </FieldHint>
+            <span className="mt-2 shrink-0 text-xs text-ink-500 tabular-nums">
+              {bio.length}/{BIO_MAX}
+            </span>
+          </div>
         </div>
 
         <div>
@@ -96,6 +151,29 @@ export function ProfileForm({
             Quem se interessar pela sala fala com você por aqui. O número só aparece quando a pessoa
             clica no botão do anúncio.
           </FieldHint>
+
+          {/* Consentimento separado dos Termos e desligado por padrão (LGPD, art. 8º). */}
+          <label htmlFor={ids.showPhone} className="mt-4 flex cursor-pointer items-start gap-4 rounded-card border border-ink-200 p-4">
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-bold text-ink-900">{WHATSAPP_CONSENT.label}</span>
+              <span id={ids.showPhoneHint} className="mt-1 block text-sm text-ink-600">
+                {WHATSAPP_CONSENT.description}
+              </span>
+            </span>
+            <input
+              id={ids.showPhone}
+              name="show_whatsapp"
+              type="checkbox"
+              role="switch"
+              defaultChecked={values?.show_whatsapp ?? false}
+              aria-describedby={ids.showPhoneHint}
+              className="peer sr-only"
+            />
+            <span
+              aria-hidden
+              className="relative mt-0.5 h-8 w-13 shrink-0 rounded-full bg-ink-300 transition-colors peer-checked:bg-brand-600 peer-focus-visible:ring-3 peer-focus-visible:ring-brand-600/30 after:absolute after:top-1 after:left-1 after:size-6 after:rounded-full after:bg-white after:shadow-xs after:transition-transform peer-checked:after:translate-x-5"
+            />
+          </label>
         </div>
 
         <div className="space-y-4">

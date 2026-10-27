@@ -28,13 +28,15 @@ async function getPublicListing(slug: string) {
   return data;
 }
 
-// Primeiro nome, anúncios no ar e ano de entrada do anfitrião. Fica em cache junto do anúncio.
+// Nome público, foto, anúncios no ar e ano de entrada do anunciante. Fica em cache junto do anúncio
+// e também sob a etiqueta do anunciante, que muda quando ele troca foto ou nome.
 async function getPublicHost(listingId: string, slug: string) {
   "use cache";
   cacheTag(`listing:${slug}`);
   cacheLife("hours");
 
   const { data } = await createPublicClient().rpc("listing_host", { p_listing_id: listingId }).maybeSingle();
+  if (data) cacheTag(`profile:${data.public_id}`);
   return data;
 }
 

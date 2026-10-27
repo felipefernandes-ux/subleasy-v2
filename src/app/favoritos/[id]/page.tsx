@@ -90,7 +90,7 @@ async function FavoriteList({ id }: { id: string }) {
                 </span>
               </div>
               <p className="mt-3 truncate font-bold text-ink-500">{item.title ?? "Sala indisponível"}</p>
-              <p className="mt-0.5 text-sm text-ink-500">O anfitrião pausou ou encerrou o anúncio.</p>
+              <p className="mt-0.5 text-sm text-ink-500">O anunciante pausou ou encerrou o anúncio.</p>
               <div className="absolute top-3 right-3">
                 <RemoveFavoriteButton listId={list.id} listingId={item.listing_id} title={item.title ?? "sala indisponível"} />
               </div>

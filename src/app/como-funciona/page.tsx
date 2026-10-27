@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 const FACTS = [
   { big: "Hora, turno, dia ou mês", body: "Quem anuncia escolhe como cobrar. Quem aluga paga só pela parte da agenda que usa." },
   { big: "R$ 0", body: "para anunciar. O Subleasy não cobra comissão sobre o aluguel." },
-  { big: "Direto", body: "Você fala com o anfitrião pelo WhatsApp ou por mensagem e combina contrato e pagamento com ele." },
+  { big: "Direto", body: "Você fala com o anunciante pelo WhatsApp ou por mensagem e combina contrato e pagamento com ele." },
   { big: "Revisado", body: "Antes de entrar na busca, cada anúncio passa pela equipe do Subleasy." },
 ];
 
@@ -74,13 +74,13 @@ const SEEKER_STEPS = [
     meta: "Fotos e turnos",
   },
   {
-    title: "Fale com o anfitrião",
+    title: "Fale com o anunciante",
     body: "Chame no WhatsApp ou envie uma mensagem que já vem escrita com os dados da sala.",
     meta: "Contato direto",
   },
   {
     title: "Visite e combine",
-    body: "Conheça a sala, confira o que precisa para o seu atendimento e acerte turnos, valor e contrato com o anfitrião.",
+    body: "Conheça a sala, confira o que precisa para o seu atendimento e acerte turnos, valor e contrato com o anunciante.",
     meta: "Sem taxa",
   },
 ] as const;
@@ -156,7 +156,7 @@ const FAQ = [
   {
     question: "Como é feito o pagamento da sublocação?",
     answer:
-      "O pagamento é combinado direto entre anfitrião e profissional, assim como o contrato. O Subleasy aproxima as duas partes e não intermedeia o pagamento.",
+      "O pagamento é combinado direto entre anunciante e profissional, assim como o contrato. O Subleasy aproxima as duas partes e não intermedeia o pagamento.",
   },
   {
     question: "Qual a diferença entre alugar consultório por hora e por turno?",
@@ -256,7 +256,7 @@ export default function ComoFuncionaPage() {
               </p>
 
               <div className="mt-8 flex animate-fade-up flex-col gap-3 sm:flex-row" style={{ animationDelay: "240ms" }}>
-                <a href="#anfitriao" className={buttonClasses("primary", "lg")}>
+                <a href="#anunciante" className={buttonClasses("primary", "lg")}>
                   Tenho uma sala
                   <ArrowRightIcon />
                 </a>
@@ -293,7 +293,7 @@ export default function ComoFuncionaPage() {
 
         {/* ── Os dois caminhos ─────────────────────────────────── */}
         <section aria-labelledby="passos-titulo" className="relative scroll-mt-16 border-y border-ink-200 bg-ink-50">
-          <span id="anfitriao" className="absolute -top-16" aria-hidden />
+          <span id="anunciante" className="absolute -top-16" aria-hidden />
           <span id="profissional" className="absolute -top-16" aria-hidden />
           <div className="container-page py-20 sm:py-24">
             <Reveal className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
@@ -312,7 +312,7 @@ export default function ComoFuncionaPage() {
               <GuidePaths
                 paths={[
                   {
-                    id: "anfitriao",
+                    id: "anunciante",
                     tab: "Tenho uma sala",
                     title: "Como sublocar seu consultório no Subleasy",
                     steps: HOST_STEPS,

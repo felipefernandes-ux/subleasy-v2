@@ -4,7 +4,7 @@ import type { Database } from "./database.types";
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./env";
 
 /**
- * Cliente com a sessão do usuário logado (painel do anfitrião, cadastro).
+ * Cliente com a sessão do usuário logado (painel do anunciante, cadastro).
  * Lê cookies, então a rota passa a ser dinâmica: use só onde precisa de login.
  */
 export async function createClient() {

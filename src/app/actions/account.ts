@@ -1,8 +1,10 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { refresh, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { recordWhatsAppConsent } from "@/lib/consent-log";
+import { bioProblem, isOwnAvatarPath } from "@/lib/public-profile";
 import { PHOTO_BUCKET, toBrazilianWhatsApp } from "@/lib/listing-options";
 import { getOrigin } from "@/lib/origin";
 import { createClient } from "@/lib/supabase/server";
@@ -18,14 +20,68 @@ async function session() {
   return { supabase, user };
 }
 
-/** Nome exibido: só o primeiro aparece nos anúncios. */
+/** O perfil público fica em cache: muda o perfil, renova a página dele e o bloco do anunciante nas salas. */
+async function refreshPublicProfile(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
+  const { data } = await supabase.from("profiles").select("public_id").eq("id", userId).maybeSingle();
+  if (data) updateTag(`profile:${data.public_id}`);
+}
+
+/** Nome exibido: no perfil e nos anúncios aparece o primeiro nome e a inicial do último. */
 export async function updateName(name: string): Promise<FieldResult> {
   const parsed = z.string().trim().min(2).max(80).safeParse(name);
   if (!parsed.success) return { ok: false, error: "Use de 2 a 80 caracteres." };
   const { supabase, user } = await session();
   const { error } = await supabase.from("profiles").update({ display_name: parsed.data }).eq("id", user.id);
   if (error) return { ok: false, error: "Não foi possível salvar. Tente de novo." };
+  await refreshPublicProfile(supabase, user.id);
   refresh();
+  return { ok: true };
+}
+
+/** Apresentação do perfil público. Vazia apaga. */
+export async function updateBio(raw: string): Promise<FieldResult> {
+  const bio = raw.trim();
+  const problem = bioProblem(bio);
+  if (problem) return { ok: false, error: problem };
+  const { supabase, user } = await session();
+  const { error } = await supabase.from("profiles").update({ bio: bio || null }).eq("id", user.id);
+  if (error) return { ok: false, error: "Não foi possível salvar. Tente de novo." };
+  await refreshPublicProfile(supabase, user.id);
+  refresh();
+  return { ok: true };
+}
+
+/** Troca a foto do perfil (já enviada ao Storage pelo navegador) e apaga a anterior. Sem caminho, remove a foto. */
+export async function updateAvatar(path: string | null): Promise<FieldResult> {
+  const { supabase, user } = await session();
+  if (path && !isOwnAvatarPath(path, user.id)) return { ok: false, error: "Foto inválida. Envie de novo." };
+  const { data: current } = await supabase.from("profiles").select("avatar_path").eq("id", user.id).maybeSingle();
+  const { error } = await supabase.from("profiles").update({ avatar_path: path }).eq("id", user.id);
+  if (error) return { ok: false, error: "Não foi possível salvar a foto. Tente de novo." };
+  if (current?.avatar_path && current.avatar_path !== path) await supabase.storage.from(PHOTO_BUCKET).remove([current.avatar_path]);
+  await refreshPublicProfile(supabase, user.id);
+  refresh();
+  return { ok: true };
+}
+
+/**
+ * Liga ou desliga o WhatsApp no perfil público. Cada mudança entra no registro de consentimentos
+ * (LGPD, art. 8º). Desligar vale na hora: o número só sai no clique, nunca do cache.
+ */
+export async function setShowWhatsApp(value: boolean): Promise<FieldResult> {
+  const { supabase, user } = await session();
+  // Primeiro a prova, depois a mudança: sem registro, o número não vai a público.
+  const logError = await recordWhatsAppConsent(supabase, user.id, value, "configuracoes");
+  if (logError) {
+    console.error("[setShowWhatsApp] registro de consentimento", logError);
+    return { ok: false, error: "Não foi possível salvar. Tente de novo." };
+  }
+  const { error } = await supabase
+    .from("profiles")
+    .update({ show_whatsapp: value, show_whatsapp_at: value ? new Date().toISOString() : null })
+    .eq("id", user.id);
+  if (error) return { ok: false, error: "Não foi possível salvar. Tente de novo." };
+  await refreshPublicProfile(supabase, user.id);
   return { ok: true };
 }
 

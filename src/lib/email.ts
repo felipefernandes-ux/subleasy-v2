@@ -9,7 +9,7 @@ const RESEND_URL = "https://api.resend.com/emails";
 // e ele só entrega para o e-mail da própria conta do Resend.
 const FROM = process.env.EMAIL_FROM ?? "Subleasy <onboarding@resend.dev>";
 
-/** Prazo prometido ao anfitrião. Mude aqui se a rotina de revisão mudar. */
+/** Prazo prometido ao anunciante. Mude aqui se a rotina de revisão mudar. */
 export const REVIEW_TIME = "1 dia útil";
 
 type Email = {
@@ -75,7 +75,7 @@ export function adminNewListingEmail(
     heading: "Novo anúncio para aprovar",
     paragraphs: [
       `“${listing.title}”`,
-      `Anfitrião: ${listing.host} (${listing.hostEmail})`,
+      `Anunciante: ${listing.host} (${listing.hostEmail})`,
       `Local: ${listing.place}`,
       `Preço: ${listing.price}`,
       `Fotos: ${listing.photos}`,

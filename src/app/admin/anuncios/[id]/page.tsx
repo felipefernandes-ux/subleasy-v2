@@ -67,7 +67,7 @@ async function AdminReview({
           <StatusChip status={listing.status} />
         </div>
         <dl className="mt-4 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
-          <Info label="Anfitrião" value={owner?.display_name ?? "Sem perfil"} />
+          <Info label="Anunciante" value={owner?.display_name ?? "Sem perfil"} />
           <Info label="E-mail" value={owner?.email ?? "-"} />
           <Info label="WhatsApp do anúncio" value={contact ? formatWhatsApp(contact.whatsapp_number) : "-"} />
           <Info label="Endereço (privado)" value={contact?.street_address ?? "Não informado"} />

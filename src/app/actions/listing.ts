@@ -88,7 +88,7 @@ const draftSchema = z.object({
 
 /**
  * Salva a revisão do anúncio. Com intent=submit, também confere o que falta
- * para publicar, envia para análise e avisa o anfitrião e o admin por e-mail.
+ * para publicar, envia para análise e avisa o anunciante e o admin por e-mail.
  */
 export async function saveListing(
   listingId: string,
@@ -255,7 +255,7 @@ async function requireAdmin() {
   return supabase;
 }
 
-/** Publica o anúncio e avisa o anfitrião com o link para compartilhar. */
+/** Publica o anúncio e avisa o anunciante com o link para compartilhar. */
 export async function approveListing(listingId: string) {
   const supabase = await requireAdmin();
   // Alteração de um anúncio que já estava no ar: mantém a data de publicação e o prazo.
@@ -303,7 +303,7 @@ export async function returnListing(
 ): Promise<ReturnListingState> {
   const note = String(formData.get("note") ?? "").trim();
   if (note.length < 10) {
-    return { status: "error", error: "Explique em uma frase o que o anfitrião precisa ajustar." };
+    return { status: "error", error: "Explique em uma frase o que o anunciante precisa ajustar." };
   }
 
   const supabase = await requireAdmin();
@@ -336,7 +336,7 @@ export async function returnListing(
 const VISITOR_COOKIE = "sl_vid";
 
 /**
- * Entrega o link do WhatsApp do anfitrião e registra o clique.
+ * Entrega o link do WhatsApp do anunciante e registra o clique.
  * O número só sai do banco por esta ação, como pede a LGPD.
  */
 export async function getWhatsAppLink(listingId: string, title: string) {
@@ -348,7 +348,7 @@ export async function getWhatsAppLink(listingId: string, title: string) {
   });
   if (!number) return null;
 
-  // A oferta vai escrita na mensagem: o anfitrião sabe de onde veio o contato e o que prometeu.
+  // A oferta vai escrita na mensagem: o anunciante sabe de onde veio o contato e o que prometeu.
   const { data: listing } = await supabase.from("listings").select("offers").eq("id", listingId).maybeSingle();
   const offers = (listing?.offers ?? []).filter((key): key is Offer => key in OFFERS).map((key) => `“${OFFERS[key].title}”`);
   const message = offers.length
@@ -369,7 +369,7 @@ const inquirySchema = z.object({
 export type InquiryState = { status: "idle" } | { status: "sent" } | { status: "error"; error: string };
 
 /**
- * Mensagem de um interessado pelo formulário do anúncio. Fica guardada para o anfitrião
+ * Mensagem de um interessado pelo formulário do anúncio. Fica guardada para o anunciante
  * ver no painel e chega para ele por e-mail, com resposta direto para quem escreveu.
  */
 export async function submitInquiry(listingId: string, title: string, _previous: InquiryState, formData: FormData): Promise<InquiryState> {
@@ -437,7 +437,7 @@ async function getVisitorId() {
   return visitorId;
 }
 
-// ── Painel do anfitrião ────────────────────────────────────
+// ── Painel do anunciante ────────────────────────────────────
 
 async function ownListing(listingId: string) {
   const supabase = await createClient();

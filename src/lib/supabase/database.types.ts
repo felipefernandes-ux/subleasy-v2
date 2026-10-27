@@ -29,6 +29,42 @@ export type Database = {
         }
         Relationships: []
       }
+      consent_events: {
+        Row: {
+          channel: string
+          created_at: string
+          granted: boolean
+          id: number
+          ip: unknown
+          purpose: string
+          text_version: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          granted: boolean
+          id?: never
+          ip?: unknown
+          purpose: string
+          text_version: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          granted?: boolean
+          id?: never
+          ip?: unknown
+          purpose?: string
+          text_version?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       favorite_items: {
         Row: {
           created_at: string
@@ -358,42 +394,63 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_path: string | null
+          bio: string | null
           created_at: string
           display_name: string
           id: string
+          identity_verified_at: string | null
           marketing_opt_in: boolean
           marketing_opt_in_at: string | null
           notify_expiration: boolean
           notify_listing_updates: boolean
           notify_messages: boolean
+          public_id: string
+          roles: string[]
+          show_whatsapp: boolean
+          show_whatsapp_at: string | null
           terms_accepted_at: string
           terms_version: string
           updated_at: string
           whatsapp_number: string
         }
         Insert: {
+          avatar_path?: string | null
+          bio?: string | null
           created_at?: string
           display_name: string
           id: string
+          identity_verified_at?: string | null
           marketing_opt_in?: boolean
           marketing_opt_in_at?: string | null
           notify_expiration?: boolean
           notify_listing_updates?: boolean
           notify_messages?: boolean
+          public_id?: string
+          roles?: string[]
+          show_whatsapp?: boolean
+          show_whatsapp_at?: string | null
           terms_accepted_at: string
           terms_version: string
           updated_at?: string
           whatsapp_number: string
         }
         Update: {
+          avatar_path?: string | null
+          bio?: string | null
           created_at?: string
           display_name?: string
           id?: string
+          identity_verified_at?: string | null
           marketing_opt_in?: boolean
           marketing_opt_in_at?: string | null
           notify_expiration?: boolean
           notify_listing_updates?: boolean
           notify_messages?: boolean
+          public_id?: string
+          roles?: string[]
+          show_whatsapp?: boolean
+          show_whatsapp_at?: string | null
           terms_accepted_at?: string
           terms_version?: string
           updated_at?: string
@@ -411,14 +468,17 @@ export type Database = {
         Args: { p_listing_id: string; p_visitor_id: string }
         Returns: string
       }
+      get_profile_whatsapp: { Args: { p_public_id: string }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
       listing_host: {
         Args: { p_listing_id: string }
         Returns: {
           active_listings: number
-          first_name: string
-          host_id: string
+          avatar_path: string
+          identity_verified_at: string
           member_since: string
+          public_id: string
+          public_name: string
         }[]
       }
       listing_owner: {
@@ -427,6 +487,36 @@ export type Database = {
           display_name: string
           email: string
           whatsapp_number: string
+        }[]
+      }
+      public_name: { Args: { p_name: string }; Returns: string }
+      public_profile: {
+        Args: { p_public_id: string }
+        Returns: {
+          active_listings: number
+          avatar_path: string
+          bio: string
+          cities: string[]
+          identity_verified_at: string
+          member_since: string
+          public_id: string
+          public_name: string
+          roles: string[]
+          show_whatsapp: boolean
+        }[]
+      }
+      public_profile_listings: {
+        Args: { p_public_id: string }
+        Returns: {
+          billing_type: string
+          city: string
+          neighborhood: string
+          photo_sizes: Json
+          photos: string[]
+          price: number
+          slug: string
+          space_type: string
+          title: string
         }[]
       }
       record_listing_view: {

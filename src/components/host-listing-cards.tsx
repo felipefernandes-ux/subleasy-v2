@@ -37,7 +37,7 @@ const CHIP: Record<Phase, { label: (daysLeft: number | null) => string; classNam
 };
 
 /**
- * Os anúncios do anfitrião: foto, título e ações em cima; na última linha, as métricas
+ * Os anúncios do anunciante: foto, título e ações em cima; na última linha, as métricas
  * à esquerda e as datas à direita, em fonte pequena. No celular, a foto vira capa.
  */
 export function HostListingCards({ listings }: { listings: HostListing[] }) {

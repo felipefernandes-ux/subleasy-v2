@@ -47,11 +47,11 @@ export function FinalCta() {
 
 const FOOTER_LINKS = [
   {
-    title: "Anfitriões",
+    title: "Anunciantes",
     links: [
       { href: "/anunciar", label: "Anunciar sala" },
       { href: "/como-funciona", label: "Como funciona" },
-      { href: "#painel", label: "Painel do anfitrião" },
+      { href: "#painel", label: "Painel do anunciante" },
     ],
   },
   {

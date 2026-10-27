@@ -16,7 +16,7 @@ export default function AdminListingsPage({ searchParams }: PageProps<"/admin/an
   return (
     <HostShell admin>
       <PageIntro eyebrow="Admin" title="Anúncios para aprovar">
-        Confira fotos, preço e descrição. Aprovar coloca a sala no ar e avisa o anfitrião por e-mail.
+        Confira fotos, preço e descrição. Aprovar coloca a sala no ar e avisa o anunciante por e-mail.
       </PageIntro>
       <Suspense fallback={<Skeleton />}>
         <PendingListings searchParams={searchParams} />
@@ -37,7 +37,7 @@ async function PendingListings({ searchParams }: { searchParams: PageProps<"/adm
     .eq("status", "pending_approval")
     .order("submitted_at", { ascending: true });
 
-  const notice = params.aprovado ? "Anúncio aprovado. O anfitrião recebeu o link por e-mail." : params.devolvido ? "Anúncio devolvido. O anfitrião recebeu o pedido de ajuste por e-mail." : null;
+  const notice = params.aprovado ? "Anúncio aprovado. O anunciante recebeu o link por e-mail." : params.devolvido ? "Anúncio devolvido. O anunciante recebeu o pedido de ajuste por e-mail." : null;
 
   return (
     <>

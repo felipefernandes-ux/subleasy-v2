@@ -8,7 +8,7 @@ import { WhatsAppIcon, buttonClasses } from "./ui";
 
 /**
  * Busca o número só no clique (LGPD) e abre a conversa numa nova aba, com mensagem pronta.
- * O e-mail, quando o anfitrião informou, fica como segunda opção: o formulário abre no
+ * O e-mail, quando o anunciante informou, fica como segunda opção: o formulário abre no
  * próprio bloco, no lugar dos botões.
  */
 export function WhatsAppButton({ listingId, title, about, email = false }: { listingId: string; title: string; about: string; email?: boolean }) {
@@ -51,7 +51,7 @@ export function WhatsAppButton({ listingId, title, about, email = false }: { lis
         </button>
       )}
       <p className="mt-3 text-center text-xs text-ink-500" aria-live="polite">
-        {failed ? "Esta sala não está recebendo contatos agora." : "Você fala direto com o anfitrião. Sem comissão."}
+        {failed ? "Esta sala não está recebendo contatos agora." : "Você fala direto com o anunciante. Sem comissão."}
       </p>
     </div>
   );

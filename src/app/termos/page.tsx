@@ -18,7 +18,7 @@ export default function TermosPage() {
         <ul>
           <li>O Subleasy é um classificado. Ele aproxima quem tem uma sala de quem precisa de uma.</li>
           <li>Publicar anúncio é grátis e não cobramos comissão sobre a locação.</li>
-          <li>O acordo, o contrato e o pagamento são combinados direto entre anfitrião e profissional.</li>
+          <li>O acordo, o contrato e o pagamento são combinados direto entre anunciante e profissional.</li>
           <li>Quem anuncia responde pelas informações do anúncio e pela autorização para sublocar.</li>
           <li>O texto que a IA escreve é uma sugestão. Você revisa antes de publicar.</li>
         </ul>
@@ -38,11 +38,11 @@ export default function TermosPage() {
       <h2 id="o-que-e">1. O que o Subleasy faz</h2>
       <p>
         O Subleasy publica anúncios de consultórios, salas terapêuticas e espaços de bem-estar
-        para locação por hora, turno, dia ou mês. Chamamos de <strong>anfitrião</strong> quem
+        para locação por hora, turno, dia ou mês. Chamamos de <strong>anunciante</strong> quem
         anuncia a sala e de <strong>profissional</strong> quem procura uma.
       </p>
       <p>
-        Nós exibimos os anúncios e levamos o profissional até o WhatsApp do anfitrião. A partir
+        Nós exibimos os anúncios e levamos o profissional até o WhatsApp do anunciante. A partir
         daí, a negociação, o contrato de locação e o pagamento ficam entre os dois. O Subleasy
         também não administra as salas anunciadas.
       </p>
@@ -64,7 +64,7 @@ export default function TermosPage() {
         </li>
       </ul>
 
-      <h2 id="anfitriao">3. Regras para quem anuncia</h2>
+      <h2 id="anunciante">3. Regras para quem anuncia</h2>
       <p>Ao publicar um anúncio, você declara que:</p>
       <ul>
         <li>
@@ -105,7 +105,7 @@ export default function TermosPage() {
       <h2 id="profissional">5. Regras para quem procura</h2>
       <ul>
         <li>
-          Use o contato do anfitrião só para tratar da locação da sala. Enviar propaganda ou
+          Use o contato do anunciante só para tratar da locação da sala. Enviar propaganda ou
           repassar o número a terceiros é proibido.
         </li>
         <li>
@@ -113,7 +113,7 @@ export default function TermosPage() {
           escrito. Recomendamos um contrato simples com valor, turnos, prazo e regras de uso.
         </li>
         <li>
-          Pagamentos são combinados direto com o anfitrião. O Subleasy não recebe nem repassa
+          Pagamentos são combinados direto com o anunciante. O Subleasy não recebe nem repassa
           valores.
         </li>
       </ul>

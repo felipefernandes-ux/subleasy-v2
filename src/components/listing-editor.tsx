@@ -99,7 +99,7 @@ const FIELD_STEP: Record<ListingField, number> = {
   contact_email: 4,
 };
 
-/** Revisão do anúncio em 5 passos: o anfitrião confere o que a IA preencheu, adiciona fotos e envia. */
+/** Revisão do anúncio em 5 passos: o anunciante confere o que a IA preencheu, adiciona fotos e envia. */
 /**
  * Com published, edita um anúncio que já estava no ar: não há rascunho, e as
  * alterações voltam para a revisão da equipe antes de aparecerem.

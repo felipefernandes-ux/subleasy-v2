@@ -9,7 +9,7 @@ export const FAQ_ITEMS = [
   {
     question: "Como funciona a sublocação de um consultório por turno?",
     answer:
-      "O dono da sala informa os turnos livres na semana (manhã, tarde ou noite) e o preço por hora, turno, dia ou mês. Quem procura entra em contato direto pelo WhatsApp e combina as condições com o anfitrião.",
+      "O dono da sala informa os turnos livres na semana (manhã, tarde ou noite) e o preço por hora, turno, dia ou mês. Quem procura entra em contato direto pelo WhatsApp e combina as condições com o anunciante.",
   },
   {
     question: "A IA publica o anúncio sozinha?",
@@ -24,7 +24,7 @@ export const FAQ_ITEMS = [
   {
     question: "Preciso ter CRP, CRM ou CRO para alugar uma sala?",
     answer:
-      "Cada anfitrião define quem pode usar a sala e quais atendimentos são permitidos. Muitos pedem o registro no conselho da sua profissão antes de fechar o aluguel.",
+      "Cada anunciante define quem pode usar a sala e quais atendimentos são permitidos. Muitos pedem o registro no conselho da sua profissão antes de fechar o aluguel.",
   },
   {
     question: "Em quais cidades o Subleasy funciona?",

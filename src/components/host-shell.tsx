@@ -4,7 +4,7 @@ import { PlusIcon } from "@phosphor-icons/react/ssr";
 import { AccountMenu } from "./account-menu";
 import { Logo, buttonClasses } from "./ui";
 
-/** Moldura das telas do anfitrião e do admin: logo, atalhos e fundo neutro. */
+/** Moldura das telas do anunciante e do admin: logo, atalhos e fundo neutro. */
 export function HostShell({
   children,
   admin = false,

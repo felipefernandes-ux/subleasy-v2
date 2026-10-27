@@ -95,7 +95,7 @@ const copySchema = z.object({ title: z.string(), short_summary: z.string(), desc
 
 /**
  * Primeira versão de título, resumo e descrição, numa chamada só, a partir do que o
- * anfitrião respondeu no cadastro (tipo, local, comodidades, destaques). Ele edita depois.
+ * anunciante respondeu no cadastro (tipo, local, comodidades, destaques). Ele edita depois.
  */
 export async function suggestListingCopy(facts: string): Promise<ListingCopyResult> {
   const supabase = await createClient();

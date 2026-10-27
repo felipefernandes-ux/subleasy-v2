@@ -5,7 +5,7 @@ import { CircleNotchIcon } from "@phosphor-icons/react";
 import { returnListing, type ReturnListingState } from "@/app/actions/listing";
 import { buttonClasses } from "./ui";
 
-/** Devolve o anúncio ao anfitrião com o que precisa mudar. O recado vai por e-mail. */
+/** Devolve o anúncio ao anunciante com o que precisa mudar. O recado vai por e-mail. */
 export function AdminReturnForm({ listingId }: { listingId: string }) {
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState<ReturnListingState, FormData>(
@@ -25,7 +25,7 @@ export function AdminReturnForm({ listingId }: { listingId: string }) {
   return (
     <form action={formAction} className="w-full">
       <label htmlFor={noteId} className="block text-sm font-bold text-ink-800">
-        O que o anfitrião precisa ajustar?
+        O que o anunciante precisa ajustar?
       </label>
       <textarea
         id={noteId}

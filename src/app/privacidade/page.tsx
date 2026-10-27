@@ -17,7 +17,8 @@ export default function PrivacidadePage() {
       summary={
         <ul>
           <li>Pedimos só nome, e-mail e WhatsApp para criar sua conta. Não pedimos CPF.</li>
-          <li>Seu WhatsApp aparece apenas quando alguém clica em &quot;Falar no WhatsApp&quot; no seu anúncio.</li>
+          <li>Seu WhatsApp aparece apenas quando alguém clica em &quot;Falar no WhatsApp&quot; no seu anúncio, ou no seu perfil público se você ligar essa opção.</li>
+          <li>Seu perfil público mostra o primeiro nome com a inicial do último, a foto e a apresentação que você escolher e, se você anuncia, os seus anúncios no ar.</li>
           <li>O endereço completo da sala fica guardado e não é publicado.</li>
           <li>Não vendemos seus dados. Só mandamos novidades por e-mail se você autorizar.</li>
           <li>Você pode pedir acesso, correção ou exclusão dos seus dados a qualquer momento.</li>
@@ -47,7 +48,7 @@ export default function PrivacidadePage() {
           <strong>E-mail</strong>, para você entrar e receber avisos da conta.
         </li>
         <li>
-          <strong>Nome</strong>, que aparece no anúncio como anfitrião. Pode ser o nome da
+          <strong>Nome</strong>, que aparece no anúncio como anunciante. Pode ser o nome da
           clínica.
         </li>
         <li>
@@ -78,6 +79,37 @@ export default function PrivacidadePage() {
         </li>
       </ul>
 
+      <h3>Seu perfil público</h3>
+      <p>
+        Cada conta tem uma página pública, com endereço formado por um código aleatório, sem seu
+        nome. Ela só é encontrada por quem tem o link (fica fora dos buscadores) e mostra:
+      </p>
+      <ul>
+        <li>
+          <strong>Primeiro nome e inicial do último</strong> (como &quot;Ana S.&quot;) e o mês e o ano em
+          que você entrou no Subleasy.
+        </li>
+        <li>
+          <strong>Se você anuncia</strong>: quantos anúncios tem no ar, as cidades deles e os próprios
+          anúncios. O link para o seu perfil aparece nas páginas das suas salas.
+        </li>
+        <li>
+          <strong>Foto e apresentação</strong>, se você preencher. As duas são opcionais e você muda
+          ou apaga quando quiser em Configurações.
+        </li>
+        <li>
+          <strong>O que o Subleasy confirmou</strong>: e-mail confirmado, revisão dos anúncios pela
+          equipe e, quando houver, a data em que conferimos sua identidade com documento e selfie.
+          Não guardamos as imagens dessa conferência depois da análise.
+        </li>
+        <li>
+          <strong>Seu WhatsApp</strong>, só se você ligar &quot;Exibir meu WhatsApp a todos os visitantes do
+          meu perfil&quot;. A opção vem desligada. Guardamos quando você ligou ou desligou, com a versão
+          do texto que você leu. Desligar vale na hora.
+        </li>
+      </ul>
+      <p>O perfil não mostra e-mail, CPF, endereço da sala nem endereço pessoal.</p>
+
       <h3>Quando você visita o site</h3>
       <ul>
         <li>
@@ -107,16 +139,18 @@ export default function PrivacidadePage() {
         </li>
         <li>
           <strong>Legítimo interesse</strong> (art. 7º, IX): mostrar no seu painel quantas
-          pessoas viram e contataram cada anúncio, melhorar o site e prevenir fraude e abuso.
+          pessoas viram e contataram cada anúncio, mostrar no seu perfil público o nome, a data de
+          entrada, os anúncios no ar e o que confirmamos sobre a conta, para que quem procura sala
+          confie em quem anuncia, melhorar o site e prevenir fraude e abuso.
         </li>
         <li>
           <strong>Cumprir a lei</strong> (art. 7º, II): guardar registros de acesso, como manda o
           Marco Civil da Internet.
         </li>
         <li>
-          <strong>Consentimento</strong> (art. 7º, I): enviar novidades e dicas por e-mail. Você
-          pode retirar o consentimento quando quiser, pelo link em cada e-mail ou escrevendo para
-          nós.
+          <strong>Consentimento</strong> (art. 7º, I): enviar novidades e dicas por e-mail e mostrar
+          seu WhatsApp no perfil público. Você pode retirar o consentimento quando quiser, pela
+          chave em Configurações, pelo link em cada e-mail ou escrevendo para nós.
         </li>
       </ul>
 

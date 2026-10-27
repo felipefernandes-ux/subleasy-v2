@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { BellIcon, GearSixIcon, HeartIcon, ListIcon, SignOutIcon, SquaresFourIcon } from "@phosphor-icons/react";
 import { signOut } from "@/app/actions/auth";
+import { PROFILE_CHANGED_EVENT } from "@/lib/public-profile";
 import { createClient } from "@/lib/supabase/client";
+import { ProfileAvatar } from "./profile-avatar";
 import { buttonClasses } from "./ui";
 
-type Account = { name: string; email: string };
+type Account = { name: string; email: string; avatarPath: string | null };
 
 /**
  * Entrar, para quem não está logado; menu da conta, para quem está.
@@ -27,16 +29,19 @@ export function AccountMenu({ showSignIn = true }: { showSignIn?: boolean }) {
       } = await supabase.auth.getUser();
       if (!active) return;
       if (!user) return setAccount(null);
-      const { data: profile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
-      if (active) setAccount({ name: profile?.display_name ?? user.email ?? "", email: user.email ?? "" });
+      const { data: profile } = await supabase.from("profiles").select("display_name, avatar_path").eq("id", user.id).maybeSingle();
+      if (active) setAccount({ name: profile?.display_name ?? user.email ?? "", email: user.email ?? "", avatarPath: profile?.avatar_path ?? null });
     }
 
     load();
     // Entrar ou sair em outra aba (ou pelo modal de favoritos) atualiza o cabeçalho.
     const { data } = supabase.auth.onAuthStateChange(() => load());
+    // Foto trocada nas configurações aparece no menu sem recarregar a página.
+    window.addEventListener(PROFILE_CHANGED_EVENT, load);
     return () => {
       active = false;
       data.subscription.unsubscribe();
+      window.removeEventListener(PROFILE_CHANGED_EVENT, load);
     };
   }, []);
 
@@ -97,9 +102,7 @@ function Menu({ account }: { account: Account }) {
         className={`focus-ring flex h-11 items-center gap-2.5 rounded-full py-1 pr-1 pl-3.5 ring-1 ring-ink-300 transition-shadow hover:shadow-raised ${open ? "shadow-raised" : ""}`}
       >
         <ListIcon className="size-4.5 text-ink-700" weight="bold" aria-hidden />
-        <span className="grid size-8 place-items-center rounded-full bg-brand-600 text-sm font-bold text-white" aria-hidden>
-          {firstName.charAt(0).toUpperCase()}
-        </span>
+        <ProfileAvatar name={firstName} path={account.avatarPath} size={32} />
       </button>
 
       {open && (

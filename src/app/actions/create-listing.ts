@@ -83,7 +83,7 @@ export async function createListing(input: NewListing): Promise<CreateListingRes
   } = await supabase.auth.getUser();
   if (!user) redirect("/entrar?next=/anunciar");
 
-  // Fotos só valem se estiverem na pasta deste anúncio, do próprio anfitrião.
+  // Fotos só valem se estiverem na pasta deste anúncio, do próprio anunciante.
   const folder = `${user.id}/${data.id}/`;
   const photos = data.photos.filter((path) => path.startsWith(folder));
   if (photos.length < MIN_PHOTOS) return { ok: false, error: "Adicione pelo menos uma foto da sala.", step: 3 };

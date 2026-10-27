@@ -4,11 +4,11 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowRightIcon, buttonClasses } from "./ui";
 
 export type GuideStep = { title: string; body: string; meta: string };
-type Path = { id: "anfitriao" | "profissional"; tab: string; title: string; steps: readonly GuideStep[]; cta: { href: string; label: string } };
+type Path = { id: "anunciante" | "profissional"; tab: string; title: string; steps: readonly GuideStep[]; cta: { href: string; label: string } };
 
 /**
  * Os dois lados da sublocação em abas. Os dois painéis ficam no HTML (o inativo com `hidden`),
- * e os links #anfitriao e #profissional abrem a aba certa.
+ * e os links #anunciante e #profissional abrem a aba certa.
  */
 export function GuidePaths({ paths }: { paths: readonly [Path, Path] }) {
   const [active, setActive] = useState<Path["id"]>(paths[0].id);

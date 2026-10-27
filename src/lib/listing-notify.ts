@@ -15,11 +15,11 @@ type Submitted = {
   photos: number;
 };
 
-/** Avisa o anfitrião e o admin por e-mail que um anúncio foi enviado para análise. */
+/** Avisa o anunciante e o admin por e-mail que um anúncio foi enviado para análise. */
 export async function notifySubmitted(supabase: Awaited<ReturnType<typeof createClient>>, user: User, listing: Submitted) {
   const origin = await getOrigin();
   const { data: profile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
-  const hostName = profile?.display_name ?? user.email ?? "anfitrião";
+  const hostName = profile?.display_name ?? user.email ?? "anunciante";
 
   await Promise.all([
     user.email && sendEmail(listingSubmittedEmail(user.email, hostName, listing.title, `${origin}/painel/anuncios/${listing.id}`)),

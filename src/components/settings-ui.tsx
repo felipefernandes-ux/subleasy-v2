@@ -10,6 +10,8 @@ import {
   deleteAccount,
   disconnectGoogle,
   setNotification,
+  setShowWhatsApp,
+  updateBio,
   updateEmail,
   updateName,
   updateWhatsApp,
@@ -53,10 +55,11 @@ export function SettingsNav() {
   );
 }
 
-const SAVE: Record<"name" | "email" | "whatsapp", (value: string) => Promise<FieldResult>> = {
+const SAVE: Record<"name" | "email" | "whatsapp" | "bio", (value: string) => Promise<FieldResult>> = {
   name: updateName,
   email: updateEmail,
   whatsapp: updateWhatsApp,
+  bio: updateBio,
 };
 
 /**
@@ -71,6 +74,7 @@ export function EditableRow({
   initial,
   type = "text",
   placeholder,
+  maxLength,
 }: {
   field: keyof typeof SAVE;
   label: string;
@@ -79,8 +83,10 @@ export function EditableRow({
   hint?: string;
   /** O que entra no campo ao editar. */
   initial: string;
-  type?: "text" | "email" | "tel";
+  /** "textarea" abre um campo de várias linhas, com contador quando há maxLength. */
+  type?: "text" | "email" | "tel" | "textarea";
   placeholder?: string;
+  maxLength?: number;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(initial);
@@ -92,7 +98,7 @@ export function EditableRow({
       <div className="flex items-start justify-between gap-6">
         <div className="min-w-0">
           <p className="font-bold text-ink-900">{label}</p>
-          {!editing && <p className="mt-1 text-ink-600">{value || "Não informado"}</p>}
+          {!editing && <p className="mt-1 whitespace-pre-line text-ink-600">{value || "Não informado"}</p>}
           {editing && hint && <p className="mt-1 text-sm text-ink-600">{hint}</p>}
         </div>
         <button
@@ -120,18 +126,42 @@ export function EditableRow({
             });
           }}
         >
-          <input
-            autoFocus
-            type={type}
-            value={draft}
-            placeholder={placeholder}
-            onChange={(event) => setDraft(event.target.value)}
-            aria-label={label}
-            aria-invalid={result?.ok === false}
-            className={`h-12 w-full rounded-control border bg-white px-4 text-base text-ink-900 shadow-xs outline-none focus:border-brand-600 focus:ring-3 focus:ring-brand-600/15 ${
-              result?.ok === false ? "border-danger-600" : "border-ink-300"
-            }`}
-          />
+          {type === "textarea" ? (
+            <>
+              <textarea
+                autoFocus
+                rows={5}
+                value={draft}
+                maxLength={maxLength}
+                placeholder={placeholder}
+                onChange={(event) => setDraft(event.target.value)}
+                aria-label={label}
+                aria-invalid={result?.ok === false}
+                className={`w-full resize-y rounded-control border bg-white px-4 py-3 text-base leading-relaxed text-ink-900 shadow-xs outline-none focus:border-brand-600 focus:ring-3 focus:ring-brand-600/15 ${
+                  result?.ok === false ? "border-danger-600" : "border-ink-300"
+                }`}
+              />
+              {maxLength && (
+                <p className="mt-1 text-right text-xs text-ink-500 tabular-nums">
+                  {draft.length}/{maxLength}
+                </p>
+              )}
+            </>
+          ) : (
+            <input
+              autoFocus
+              type={type}
+              value={draft}
+              maxLength={maxLength}
+              placeholder={placeholder}
+              onChange={(event) => setDraft(event.target.value)}
+              aria-label={label}
+              aria-invalid={result?.ok === false}
+              className={`h-12 w-full rounded-control border bg-white px-4 text-base text-ink-900 shadow-xs outline-none focus:border-brand-600 focus:ring-3 focus:ring-brand-600/15 ${
+                result?.ok === false ? "border-danger-600" : "border-ink-300"
+              }`}
+            />
+          )}
           {result && (
             <p role={result.ok ? "status" : "alert"} className={`mt-2 text-sm ${result.ok ? "text-mint-700" : "text-danger-600"}`}>
               {result.ok ? result.message : result.error}
@@ -147,8 +177,21 @@ export function EditableRow({
   );
 }
 
-/** Linha com chave liga/desliga, que salva na hora. */
-export function ToggleRow({ setting, label, description, initial }: { setting: NotificationKey; label: string; description: string; initial: boolean }) {
+/**
+ * Linha com chave liga/desliga, que salva na hora. "show_whatsapp" é o consentimento para
+ * mostrar o WhatsApp no perfil público, que fica registrado a cada mudança.
+ */
+export function ToggleRow({
+  setting,
+  label,
+  description,
+  initial,
+}: {
+  setting: NotificationKey | "show_whatsapp";
+  label: string;
+  description: string;
+  initial: boolean;
+}) {
   const [on, setOn] = useState(initial);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -178,7 +221,7 @@ export function ToggleRow({ setting, label, description, initial }: { setting: N
             setOn(next);
             setError(null);
             startTransition(async () => {
-              const result = await setNotification(setting, next);
+              const result = setting === "show_whatsapp" ? await setShowWhatsApp(next) : await setNotification(setting, next);
               if (!result.ok) {
                 setOn(!next);
                 setError(result.error);

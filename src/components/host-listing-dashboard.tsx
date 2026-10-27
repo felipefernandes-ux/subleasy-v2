@@ -25,7 +25,7 @@ export type DashboardMetrics = { views: number; views7: number; whatsapp: number
 
 export type Inquiry = { id: string; name: string; email: string; phone: string | null; message: string; sentOn: string };
 
-/** O anúncio publicado visto pelo anfitrião: ações, prazo, métricas completas e mensagens recebidas. */
+/** O anúncio publicado visto pelo anunciante: ações, prazo, métricas completas e mensagens recebidas. */
 export function ListingDashboard({ listing, metrics, inquiries }: { listing: DashboardListing; metrics: DashboardMetrics; inquiries: Inquiry[] }) {
   const phase = phaseOf(listing.status, listing.daysLeft);
   const contacts = metrics.whatsapp + metrics.messages;

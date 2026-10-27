@@ -92,7 +92,7 @@ export const OFFERS = {
 export type Offer = keyof typeof OFFERS;
 export const OFFER_KEYS = Object.keys(OFFERS) as [Offer, ...Offer[]];
 
-/** Ponto público do mapa: exato, ou arredondado (~1 km) quando o anfitrião prefere área aproximada. */
+/** Ponto público do mapa: exato, ou arredondado (~1 km) quando o anunciante prefere área aproximada. */
 export function publicPoint(lat: number, lng: number, exact: boolean) {
   if (exact) return { latitude: lat, longitude: lng };
   return { latitude: Math.round(lat * 100) / 100, longitude: Math.round(lng * 100) / 100 };

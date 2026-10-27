@@ -98,7 +98,7 @@ export function HostDashboard() {
     >
       <div className="container-page grid items-center gap-14 py-20 sm:py-24 lg:grid-cols-2">
         <div className="max-w-lg">
-          <p className="text-sm font-bold text-mint-400">Painel do anfitrião</p>
+          <p className="text-sm font-bold text-mint-400">Painel do anunciante</p>
           <h2
             id="painel-titulo"
             className="mt-3 text-[2rem] leading-tight font-bold tracking-[-0.02em] sm:text-h1"
@@ -123,7 +123,7 @@ export function HostDashboard() {
 
         <figure className="rounded-panel bg-white p-5 text-ink-900 shadow-brand sm:p-6">
           <figcaption className="sr-only">
-            Exemplo do painel do anfitrião com visualizações, cliques no
+            Exemplo do painel do anunciante com visualizações, cliques no
             WhatsApp, comparação de preço e uma recomendação da IA.
           </figcaption>
           <div className="flex items-center justify-between">

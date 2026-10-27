@@ -3,11 +3,13 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { safeNextPath } from "@/lib/auth-redirect";
+import { recordWhatsAppConsent } from "@/lib/consent-log";
+import { bioProblem, isOwnAvatarPath } from "@/lib/public-profile";
 import { TERMS_VERSION } from "@/lib/legal";
 import { toBrazilianWhatsApp } from "@/lib/listing-options";
 import { createClient } from "@/lib/supabase/server";
 
-type ProfileField = "display_name" | "whatsapp" | "terms";
+type ProfileField = "display_name" | "whatsapp" | "terms" | "bio";
 
 export type ProfileState =
   | { status: "idle" }
@@ -15,13 +17,14 @@ export type ProfileState =
       status: "error";
       error?: string;
       fields: Partial<Record<ProfileField, string>>;
-      values: { display_name: string; whatsapp: string; terms: boolean; marketing: boolean };
+      values: { display_name: string; whatsapp: string; terms: boolean; marketing: boolean; bio: string; avatar_path: string; show_whatsapp: boolean };
     };
 
 const FIELD_ERRORS: Record<ProfileField, string> = {
   display_name: "Digite seu nome ou o nome da clínica.",
   whatsapp: "Digite o WhatsApp com DDD, como (44) 99999-9999.",
   terms: "Para continuar, aceite os Termos de uso e a Política de privacidade.",
+  bio: "Revise a apresentação.",
 };
 
 const profileSchema = z.object({
@@ -41,6 +44,9 @@ export async function saveProfile(
     whatsapp: String(formData.get("whatsapp") ?? ""),
     terms: formData.get("terms") === "on",
     marketing: formData.get("marketing") === "on",
+    bio: String(formData.get("bio") ?? "").trim(),
+    avatar_path: String(formData.get("avatar_path") ?? ""),
+    show_whatsapp: formData.get("show_whatsapp") === "on",
   };
   const next = safeNextPath(formData.get("next"));
 
@@ -53,12 +59,25 @@ export async function saveProfile(
     }
     return { status: "error", fields, values };
   }
+  const bioError = bioProblem(values.bio);
+  if (bioError) return { status: "error", fields: { bio: bioError }, values };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect(`/entrar?next=${encodeURIComponent(`/cadastro?next=${next}`)}`);
+
+  const avatarPath = values.avatar_path && isOwnAvatarPath(values.avatar_path, user.id) ? values.avatar_path : null;
+
+  // WhatsApp no perfil público: o registro do consentimento vem antes (LGPD, art. 8º, §2º).
+  if (values.show_whatsapp) {
+    const logError = await recordWhatsAppConsent(supabase, user.id, true, "cadastro");
+    if (logError) {
+      console.error("[saveProfile] registro de consentimento", logError);
+      return { status: "error", error: "Não foi possível salvar seu cadastro. Tente de novo.", fields: {}, values };
+    }
+  }
 
   const now = new Date().toISOString();
   const { error } = await supabase.from("profiles").upsert({
@@ -69,6 +88,10 @@ export async function saveProfile(
     terms_accepted_at: now,
     marketing_opt_in: parsed.data.marketing,
     marketing_opt_in_at: parsed.data.marketing ? now : null,
+    bio: values.bio || null,
+    avatar_path: avatarPath,
+    show_whatsapp: values.show_whatsapp,
+    show_whatsapp_at: values.show_whatsapp ? now : null,
   });
 
   if (error) {

@@ -5,7 +5,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "@/lib/supabase/env";
 
 /**
- * Renova a sessão do Supabase a cada requisição e protege as rotas do anfitrião:
+ * Renova a sessão do Supabase a cada requisição e protege as rotas do anunciante:
  * sem conta, /anunciar e /painel levam para /entrar?next=<rota>; com conta mas
  * sem perfil, levam para /cadastro?next=<rota>.
  */
