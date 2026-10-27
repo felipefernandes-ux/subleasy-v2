@@ -14,26 +14,27 @@ export function HeroSection() {
     <section className="relative isolate overflow-hidden border-b border-ink-200 bg-white">
       <GridBackdrop />
 
-      <div className="container-page grid items-center gap-14 pt-14 pb-20 sm:pt-20 lg:grid-cols-[1.05fr_1fr] lg:gap-12 lg:pt-24 lg:pb-28">
+      <div className="container-page grid items-center gap-10 pt-8 pb-14 sm:gap-14 sm:pt-20 sm:pb-20 lg:grid-cols-[1.05fr_1fr] lg:gap-12 lg:pt-24 lg:pb-28">
         <div className="max-w-[38rem]">
-          <p className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white py-1 pr-3 pl-1 text-sm text-ink-700 shadow-xs">
-            <span className="rounded-full bg-mint-400 px-2 py-0.5 text-xs font-bold text-brand-900">
+          {/* Compacto no celular: uma linha, texto de 12px. Cresce a partir de sm. */}
+          <p className="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-white py-0.5 pr-2.5 pl-0.5 text-xs text-ink-700 shadow-xs sm:gap-2 sm:py-1 sm:pr-3 sm:pl-1 sm:text-sm">
+            <span className="rounded-full bg-mint-400 px-1.5 py-px text-[0.6875rem] font-bold text-brand-900 sm:px-2 sm:py-0.5 sm:text-xs">
               Novo
             </span>
             Anúncio escrito com IA, revisado por você
           </p>
 
-          <h1 className="mt-6 text-[2.5rem] leading-[1.08] font-bold tracking-[-0.02em] text-ink-900 sm:text-5xl lg:text-display">
+          <h1 className="mt-4 text-display font-bold text-balance text-ink-900 sm:mt-6">
             Sua sala vazia vira renda. Anúncio pronto em 3 minutos.
           </h1>
 
-          <p className="mt-6 text-lg leading-relaxed text-ink-600">
+          <p className="mt-4 text-base leading-relaxed text-ink-600 sm:mt-6 sm:text-lg">
             Sublocação de consultórios e salas de saúde por turno. Envie fotos,
             responda 5 perguntas e a IA escreve o anúncio. Você revisa, publica
             de graça e vê quantas pessoas chamaram no WhatsApp.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row">
             <a href="/anunciar" className={buttonClasses("primary", "lg")}>
               Anunciar minha sala grátis
               <ArrowRightIcon />
@@ -44,7 +45,7 @@ export function HeroSection() {
             </a>
           </div>
 
-          <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-600">
+          <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-600 sm:mt-8">
             {TRUST.map((item) => (
               <li key={item} className="flex items-center gap-1.5">
                 <CheckIcon className="size-4 text-mint-700" />
@@ -204,7 +205,7 @@ function GridBackdrop() {
         className="absolute inset-0 [mask-image:radial-gradient(ellipse_70%_60%_at_70%_30%,black,transparent)]"
         style={{
           backgroundImage:
-            "linear-gradient(to right, #eaecf0 1px, transparent 1px), linear-gradient(to bottom, #eaecf0 1px, transparent 1px)",
+            "linear-gradient(to right, var(--color-ink-200) 1px, transparent 1px), linear-gradient(to bottom, var(--color-ink-200) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
         }}
       />

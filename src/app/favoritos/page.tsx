@@ -21,7 +21,7 @@ export default function FavoritosPage() {
     <>
       <SiteHeader />
       <main className="container-page flex-1 pt-8 pb-24 sm:pt-12">
-        <h1 className="text-h2 font-bold text-ink-900 sm:text-h1">Favoritos</h1>
+        <h1 className="text-h2 font-bold text-ink-900">Favoritos</h1>
         <Suspense fallback={<div className="mt-8 h-64 animate-pulse rounded-panel bg-ink-100" />}>
           <Lists />
         </Suspense>

@@ -31,7 +31,7 @@ export function HowItWorks() {
             <Eyebrow>Para quem tem sala</Eyebrow>
             <h2
               id="como-funciona-titulo"
-              className="mt-3 text-[2rem] leading-tight font-bold tracking-[-0.02em] text-ink-900 sm:text-h1"
+              className="mt-3 text-h1 font-bold text-ink-900"
             >
               Publique sua sala em 3 minutos, pelo celular
             </h2>
@@ -101,7 +101,7 @@ export function HostDashboard() {
           <p className="text-sm font-bold text-mint-400">Painel do anunciante</p>
           <h2
             id="painel-titulo"
-            className="mt-3 text-[2rem] leading-tight font-bold tracking-[-0.02em] sm:text-h1"
+            className="mt-3 text-h1 font-bold"
           >
             Saiba quantas pessoas viram sua sala e chamaram no WhatsApp
           </h2>

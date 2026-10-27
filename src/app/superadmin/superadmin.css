@@ -63,8 +63,7 @@
 
 @layer components {
   .sa-root {
-    /* --font-sa-inter é definida pelo next/font no wrapper do layout; por isso é lida aqui, não no @theme. */
-    font-family: var(--font-sa-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: var(--font-sans);
     /* Peso 500 é a voz padrão da interface no Attio; ss03 ativa as alternativas geométricas. */
     font-weight: 500;
     font-feature-settings: "ss03" 1, "calt" 1;

@@ -3,8 +3,10 @@
 
 /*
  * Subleasy 2.0 — design tokens
- * Base: tema atual de subleasy.com.br (#3818d9 + #25edb1, Area Normal, raio 8px,
- * container 1280px). A escala antiga --brand-* (#534AB7) foi descartada.
+ * Marca do subleasy.com.br (#3818d9 + #25edb1, container 1280px) sobre o design system do
+ * Super Admin, que replica o do Attio: neutros frios, Inter, espaçamento compacto, raios
+ * 7/10/12/14 e sombras azuladas de baixa opacidade. O Super Admin só acrescenta os tokens
+ * "sa-*" (superadmin/superadmin.css); aqui os mesmos valores vivem nos nomes ink-* do site.
  * Documentação: docs/design-system/README.md
  */
 
@@ -28,17 +30,18 @@
   --color-mint-500: #11d096;
   --color-mint-700: #047857;
 
-  /* Neutros — títulos 900, corpo 600, bordas 300 e 200. */
-  --color-ink-900: #101828;
-  --color-ink-800: #1d2939;
-  --color-ink-700: #344054;
-  --color-ink-600: #475467;
-  --color-ink-500: #667085;
-  --color-ink-400: #98a2b3;
-  --color-ink-300: #d0d5dd;
-  --color-ink-200: #eaecf0;
-  --color-ink-100: #f2f4f7;
-  --color-ink-50: #f9fafb;
+  /* Neutros do Attio. Títulos 900, corpo 700 e 600, bordas 300 e 200. O 500 foi escurecido
+     (o #6f7988 do Attio dá ~4,3:1 no branco) para texto pequeno passar AA. */
+  --color-ink-900: #1c1d1f;
+  --color-ink-800: #2e3238;
+  --color-ink-700: #505967;
+  --color-ink-600: #5f6978;
+  --color-ink-500: #646e7d;
+  --color-ink-400: #9fa1a7;
+  --color-ink-300: #cad0d9;
+  --color-ink-200: #e4e7ec;
+  --color-ink-100: #eeeff1;
+  --color-ink-50: #f4f5f6;
 
   /* Reservado para o botão de contato. Texto sempre ink-900 (contraste AA). */
   --color-whatsapp: #25d366;
@@ -50,32 +53,40 @@
   /* Texto de alerta sobre fundo claro: o 500 não passa no contraste AA em fonte pequena. */
   --color-warning-700: #b54708;
 
-  /* Tipografia: Area Normal em tudo (títulos, corpo, botões e menu).
-     O kit tem só 400 e 700, então o sistema usa font-normal e font-bold. */
-  --font-sans: "area-normal", ui-sans-serif, system-ui, sans-serif;
+  /* Tipografia: Inter em tudo, a mesma do Attio. O InterDisplay dele é o eixo óptico (opsz)
+     da Inter, que o navegador aplica sozinho conforme o tamanho (font-optical-sizing).
+     --font-inter vem do next/font no <html>, então é lida aqui no mesmo elemento. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-  --text-display: 3.25rem;
+  /* Peso 500 é a voz padrão da interface no Attio e 600 é o negrito. As classes
+     font-normal e font-bold continuam valendo em todo o site, com esses pesos. */
+  --font-weight-normal: 500;
+  --font-weight-bold: 600;
+
+  /* Títulos fluidos: cada um cresce com a largura da tela entre o piso (celular) e o teto
+     (desktop). Em 375px: display 33px, h1 28px, h2 22px, h3 17px. Tracking como o do Attio. */
+  --text-display: clamp(2rem, 1.55rem + 2.2vw, 3.25rem);
   --text-display--line-height: 1.08;
-  --text-display--letter-spacing: -0.02em;
-  --text-h1: 2.5rem;
+  --text-display--letter-spacing: -0.025em;
+  --text-h1: clamp(1.75rem, 1.45rem + 1.3vw, 2.5rem);
   --text-h1--line-height: 1.12;
   --text-h1--letter-spacing: -0.02em;
-  --text-h2: 2rem;
+  --text-h2: clamp(1.375rem, 1.2rem + 0.8vw, 2rem);
   --text-h2--line-height: 1.2;
   --text-h2--letter-spacing: -0.015em;
-  --text-h3: 1.25rem;
+  --text-h3: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
   --text-h3--line-height: 1.3;
   --text-h3--letter-spacing: -0.01em;
 
-  /* Raios: controles 8px (como no site atual), cards 12px, painéis 20px. */
-  --radius-control: 8px;
+  /* Raios do Attio: controles 10px, cards 12px, painéis 14px. Selos usam 7px. */
+  --radius-control: 10px;
   --radius-card: 12px;
-  --radius-panel: 20px;
+  --radius-panel: 14px;
 
-  /* Sombras */
-  --shadow-xs: 0 1px 2px rgb(16 24 40 / 0.05);
-  --shadow-card: 0 1px 3px rgb(16 24 40 / 0.06), 0 1px 2px rgb(16 24 40 / 0.04);
-  --shadow-raised: 0 12px 32px -12px rgb(16 24 40 / 0.18), 0 4px 8px -4px rgb(16 24 40 / 0.06);
+  /* Sombras azuladas de baixa opacidade, como as do Attio. Nunca cinza quente nem preto puro. */
+  --shadow-xs: 0 1px 2px rgb(28 40 64 / 0.05);
+  --shadow-card: 0 2px 3px -2px rgb(28 40 64 / 0.1), 0 4px 6px -2px rgb(28 40 64 / 0.04);
+  --shadow-raised: 0 2px 6px 0 rgb(28 40 64 / 0.06), 0 6px 20px -2px rgb(28 40 64 / 0.08);
   --shadow-brand: 0 24px 48px -20px rgb(56 24 217 / 0.45);
 
   /* Layout: 1280px com 32px de margem (20px no mobile). */
@@ -93,6 +104,72 @@
   --animate-wipe-from-left: wipe-from-left 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   --animate-wipe-from-right: wipe-from-right 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   --animate-ping-soft: ping-soft 2.4s ease-out infinite;
+  /* Menu em tela cheia da tab bar: o painel entra da esquerda com fade, os itens vêm em seguida,
+     um a um, e a estrela de IA acende uma vez. Sai mais rápido do que entra. */
+  --animate-drawer-in: drawer-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-drawer-out: drawer-out 0.26s cubic-bezier(0.5, 0, 0.75, 0) both;
+  --animate-veil-in: veil-in 0.3s ease-out both;
+  --animate-veil-out: veil-out 0.26s ease-in both;
+  --animate-item-in: item-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-spark: spark 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+  --animate-fade-short: veil-in 0.15s ease-out both;
+
+  @keyframes drawer-in {
+    from {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes drawer-out {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes veil-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes veil-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes item-in {
+    from {
+      opacity: 0;
+      transform: translateX(-14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes spark {
+    0% {
+      opacity: 0;
+      transform: scale(0.2) rotate(-50deg);
+    }
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
 
   @keyframes cell-in {
     from {
@@ -203,6 +280,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  /* ss03 e calt: as alternativas geométricas da Inter que o Attio ativa. */
+  font-feature-settings: "ss03" 1, "calt" 1;
+  font-optical-sizing: auto;
+  letter-spacing: -0.01em;
+  -webkit-text-size-adjust: 100%;
 }
 
 ::selection {
@@ -218,6 +300,26 @@ body {
 
   @media (width >= 40rem) {
     padding-inline: 2rem;
+  }
+}
+
+/* Quem pede menos movimento recebe o menu só com um fade curto, sem deslocamento. O fim da
+   animação ainda dispara, então o menu fecha normalmente. */
+@media (prefers-reduced-motion: reduce) {
+  .menu-panel,
+  .menu-panel::backdrop {
+    animation-name: veil-in !important;
+    animation-duration: 0.15s !important;
+  }
+  .menu-panel[data-closing] {
+    animation-name: veil-out !important;
+  }
+  .menu-panel[data-closing]::backdrop {
+    animation-name: veil-out !important;
+  }
+  .menu-item,
+  .menu-spark {
+    animation: none !important;
   }
 }
 

@@ -229,7 +229,7 @@ function Header({ greeting, period }: { greeting: string; period?: Period }) {
     <div className="flex flex-wrap items-end justify-between gap-4 pb-2">
       <div>
         <p className="text-sm font-bold text-brand-600">{greeting}</p>
-        <h1 className="mt-1 text-h2 font-bold tracking-[-0.02em] text-ink-900 sm:text-h1">Painel</h1>
+        <h1 className="mt-1 text-h2 font-bold text-ink-900">Painel</h1>
       </div>
       {period && (
         <nav aria-label="Período" className="flex rounded-full bg-white p-1 shadow-card ring-1 ring-ink-900/6">

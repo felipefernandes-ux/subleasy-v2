@@ -387,7 +387,7 @@ function Wizard({
           <p className="text-sm font-bold text-brand-600">
             {PHASES[STEPS[step].phase]}
           </p>
-          <h1 className="mt-2 text-h2 font-bold text-ink-900 sm:text-[2.25rem] sm:leading-tight">{STEPS[step].title}</h1>
+          <h1 className="mt-2 text-h1 font-bold text-ink-900">{STEPS[step].title}</h1>
           <p className="mt-2 text-ink-600">{STEPS[step].text}</p>
 
           {step === 0 && saved && pristine && (

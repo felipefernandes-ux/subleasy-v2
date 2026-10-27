@@ -64,7 +64,7 @@ export function PageIntro({ eyebrow, title, children }: { eyebrow?: string; titl
   return (
     <div className="mb-8">
       {eyebrow && <p className="text-sm font-bold text-brand-600">{eyebrow}</p>}
-      <h1 className="mt-1 text-h2 font-bold text-ink-900 sm:text-h1">{title}</h1>
+      <h1 className="mt-1 text-h2 font-bold text-ink-900">{title}</h1>
       {children && <div className="mt-3 max-w-2xl text-ink-600">{children}</div>}
     </div>
   );

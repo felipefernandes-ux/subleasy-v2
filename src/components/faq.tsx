@@ -41,7 +41,7 @@ export function Faq() {
           <Eyebrow>Perguntas frequentes</Eyebrow>
           <h2
             id="perguntas-titulo"
-            className="mt-3 text-[2rem] leading-tight font-bold tracking-[-0.02em] text-ink-900 sm:text-h1"
+            className="mt-3 text-h1 font-bold text-ink-900"
           >
             Antes de anunciar ou alugar
           </h2>

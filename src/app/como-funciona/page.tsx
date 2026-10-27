@@ -211,7 +211,7 @@ const structuredData = {
   ],
 };
 
-const H2 = "text-[2rem] leading-tight font-bold tracking-[-0.02em] text-balance text-ink-900 sm:text-h1";
+const H2 = "text-h1 font-bold text-balance text-ink-900";
 
 export default function ComoFuncionaPage() {
   return (
@@ -244,7 +244,7 @@ export default function ComoFuncionaPage() {
                 Uma sala, muitas agendas
               </p>
               <h1
-                className="mt-4 animate-fade-up text-[2.5rem] leading-[1.06] font-bold tracking-[-0.025em] text-ink-900 sm:text-5xl lg:text-[3.5rem]"
+                className="mt-4 animate-fade-up text-display font-bold text-balance text-ink-900"
                 style={{ animationDelay: "80ms" }}
               >
                 Como funciona a sublocação de consultório
@@ -393,7 +393,7 @@ export default function ComoFuncionaPage() {
           <div className="container-page grid gap-12 py-20 sm:py-24 lg:grid-cols-[1fr_1.5fr] lg:gap-16">
             <Reveal>
               <p className="text-sm font-bold text-mint-400">Antes de decidir</p>
-              <h2 id="comparar-titulo" className="mt-3 text-[2rem] leading-tight font-bold tracking-[-0.02em] sm:text-h1">
+              <h2 id="comparar-titulo" className="mt-3 text-h1 font-bold">
                 Sublocação ou aluguel tradicional?
               </h2>
               <p className="mt-4 text-lg text-brand-100">
@@ -503,7 +503,7 @@ export default function ComoFuncionaPage() {
               <Reveal className="relative isolate overflow-hidden rounded-panel bg-brand-600 p-8 text-white sm:p-12">
                 <AgendaTexture tone="dark" />
                 <p className="text-sm font-bold text-mint-400">Tenho uma sala</p>
-                <p className="mt-3 text-[1.75rem] leading-tight font-bold tracking-[-0.02em] sm:text-h2">
+                <p className="mt-3 text-h2 font-bold">
                   Sua sala tem horários livres na semana?
                 </p>
                 <p className="mt-3 max-w-md text-brand-100">Publique em 3 minutos, de graça, e receba contatos de profissionais da sua cidade.</p>
@@ -514,7 +514,7 @@ export default function ComoFuncionaPage() {
               </Reveal>
               <Reveal delay={120} className="relative overflow-hidden rounded-panel bg-ink-50 p-8 ring-1 ring-ink-200 sm:p-12">
                 <p className="text-sm font-bold text-brand-600">Procuro uma sala</p>
-                <p className="mt-3 text-[1.75rem] leading-tight font-bold tracking-[-0.02em] text-ink-900 sm:text-h2">
+                <p className="mt-3 text-h2 font-bold text-ink-900">
                   Precisa de um lugar para atender?
                 </p>
                 <p className="mt-3 max-w-md text-ink-600">Busque por bairro, tipo de sala ou turno e fale direto com quem anuncia.</p>

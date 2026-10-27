@@ -60,7 +60,7 @@ async function FavoriteList({ id }: { id: string }) {
         <ArrowLeftIcon className="size-4" aria-hidden />
         Favoritos
       </Link>
-      <h1 className="mt-3 text-h2 font-bold text-ink-900 sm:text-h1">{list.name}</h1>
+      <h1 className="mt-3 text-h2 font-bold text-ink-900">{list.name}</h1>
       <p className="mt-1 text-ink-600">
         {count} {count === 1 ? "sala salva" : "salas salvas"}
       </p>

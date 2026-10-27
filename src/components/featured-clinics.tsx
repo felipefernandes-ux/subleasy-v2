@@ -32,7 +32,7 @@ export async function FeaturedClinics() {
           <Eyebrow>Para quem procura sala</Eyebrow>
           <h2
             id="buscar-titulo"
-            className="mt-3 text-[2rem] leading-tight font-bold tracking-[-0.02em] text-ink-900 sm:text-h1"
+            className="mt-3 text-h1 font-bold text-ink-900"
           >
             Encontre sala para atender por turno em Maringá
           </h2>

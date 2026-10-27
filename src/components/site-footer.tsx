@@ -9,7 +9,7 @@ export function FinalCta() {
           <div className="p-8 sm:p-12">
             <h2
               id="cta-titulo"
-              className="text-[2rem] leading-tight font-bold tracking-[-0.02em] sm:text-h1"
+              className="text-h1 font-bold"
             >
               Tem horários vagos na sua sala?
             </h2>

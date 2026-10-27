@@ -1,10 +1,16 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-// Area Normal vem do mesmo kit do Adobe Fonts usado em subleasy.com.br.
-// A licença do Adobe Fonts não permite hospedar os arquivos no projeto.
-const ADOBE_FONTS_KIT = "https://use.typekit.net/neq4bmy.css";
+// Mesma família do Attio: Inter para a interface e o InterDisplay para títulos. O InterDisplay é o
+// eixo óptico (opsz) da Inter, então uma só fonte variável cobre as duas. Hospedada pelo next/font.
+const inter = Inter({
+  subsets: ["latin"],
+  axes: ["opsz"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 const title = "Sublocação de Consultórios por Turno ou Hora | Subleasy";
 const description =
@@ -61,13 +67,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className="h-full antialiased">
-      <head>
-        <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://p.typekit.net" crossOrigin="anonymous" />
-        <link rel="stylesheet" href={ADOBE_FONTS_KIT} />
-      </head>
-      <body className="flex min-h-full flex-col">{children}</body>
+    <html lang="pt-BR" className={`${inter.variable} h-full antialiased`}>
+      <body className="flex min-h-full flex-col">
+{children}</body>
     </html>
   );
 }

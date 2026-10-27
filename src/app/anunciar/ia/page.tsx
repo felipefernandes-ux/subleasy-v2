@@ -30,7 +30,7 @@ export default function AnunciarPage() {
 
       <main className="flex flex-1 flex-col justify-center px-5 pt-8 pb-24 sm:px-8">
         <div className="mx-auto w-full max-w-3xl">
-          <h1 className="animate-fade-up text-center text-[1.625rem] leading-[1.15] font-bold tracking-[-0.02em] text-ink-900 sm:text-h1">
+          <h1 className="animate-fade-up text-center text-h1 font-bold text-balance text-ink-900">
             Descreva sua sala.{" "}
             <span className="bg-[linear-gradient(100deg,var(--color-brand-600),var(--color-brand-400)_55%,var(--color-mint-500))] bg-clip-text text-transparent block">
               A{" "}IA monta o anúncio.
