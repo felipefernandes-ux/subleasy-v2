@@ -1,0 +1,246 @@
+/*
+ * Design system do Super Admin — referência: Attio (neutros frios, espaçamento
+ * compacto de 4px, raios 7/10/12, sombras azuladas de baixa opacidade).
+ * Mantém do Subleasy: roxo (brand-*), menta (mint-*), estados (danger/warning)
+ * e a fonte Area Normal. Tudo prefixado com "sa-" para não vazar para o site.
+ * Importado uma vez em globals.css, depois do @import "tailwindcss".
+ */
+
+@theme {
+  /* Neutros (Attio) */
+  --color-sa-canvas: #ffffff;
+  --color-sa-paper: #f4f5f6;
+  --color-sa-haze: #eeeff1;
+  --color-sa-line: #e4e7ec;
+  --color-sa-line-strong: #cad0d9;
+  --color-sa-faint: #9fa1a7;
+  --color-sa-subtle: #8f99a8;
+  /* Slate 600 do Attio (#6f7988) fica em ~4,3:1; escurecido para passar AA em 12-13px. */
+  --color-sa-muted: #5f6978;
+  --color-sa-body: #2e3238;
+  --color-sa-ink: #1c1d1f;
+  --color-sa-graphite: #232529;
+
+  /* Raios: botões e campos 10, selos 7, cards 12, painéis 14 */
+  --radius-sa-badge: 7px;
+  --radius-sa-control: 10px;
+  --radius-sa-card: 12px;
+  --radius-sa-panel: 14px;
+
+  /* Sombras azuladas, nunca cinza quente nem preto puro */
+  --shadow-sa-hairline: inset 0 0 0 1px #eeeff1;
+  --shadow-sa-card: 0 2px 3px -2px rgb(28 40 64 / 0.1), 0 4px 6px -2px rgb(28 40 64 / 0.04);
+  --shadow-sa-raised: 0 2px 6px 0 rgb(28 40 64 / 0.06), 0 6px 20px -2px rgb(28 40 64 / 0.08);
+  --shadow-sa-float: 0 12px 30px 0 rgb(0 0 0 / 0.04);
+  --shadow-sa-focus: 0 0 0 4px rgb(56 24 217 / 0.18);
+
+  /* Tipografia: Inter. Tracking do Attio: -0.02em em 14px, -0.01em em 16px, 0 em 12px */
+  --text-sa-micro: 0.625rem;
+  --text-sa-micro--line-height: 1.4;
+  --text-sa-xs: 0.75rem;
+  --text-sa-xs--line-height: 1.33;
+  --text-sa-sm: 0.8125rem;
+  --text-sa-sm--line-height: 1.38;
+  --text-sa-sm--letter-spacing: -0.015em;
+  --text-sa-base: 0.875rem;
+  --text-sa-base--line-height: 1.43;
+  --text-sa-base--letter-spacing: -0.02em;
+  --text-sa-lg: 1rem;
+  --text-sa-lg--line-height: 1.38;
+  --text-sa-lg--letter-spacing: -0.01em;
+  --text-sa-title: 1.25rem;
+  --text-sa-title--line-height: 1.3;
+  --text-sa-title--letter-spacing: -0.01em;
+  --text-sa-h1: 1.75rem;
+  --text-sa-h1--line-height: 1.19;
+  --text-sa-h1--letter-spacing: -0.02em;
+  --text-sa-stat: 2rem;
+  --text-sa-stat--line-height: 1.1;
+  --text-sa-stat--letter-spacing: -0.02em;
+
+  --container-sa-page: 90rem;
+}
+
+@layer components {
+  .sa-root {
+    /* --font-sa-inter é definida pelo next/font no wrapper do layout; por isso é lida aqui, não no @theme. */
+    font-family: var(--font-sa-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    /* Peso 500 é a voz padrão da interface no Attio; ss03 ativa as alternativas geométricas. */
+    font-weight: 500;
+    font-feature-settings: "ss03" 1, "calt" 1;
+    font-optical-sizing: auto;
+    font-size: var(--text-sa-base);
+    line-height: var(--text-sa-base--line-height);
+    letter-spacing: -0.02em;
+    color: var(--color-sa-ink);
+    background: var(--color-sa-canvas);
+  }
+
+  /* Títulos em InterDisplay: eixo óptico no máximo, 600, tracking apertado */
+  .sa-display {
+    font-variation-settings: "opsz" 32;
+    font-weight: 600;
+  }
+
+  /* Foco de links e botões: anel roxo suave. Os campos de texto cuidam do próprio foco (.sa-input). */
+  .sa-root :is(a, button, summary, [type="checkbox"], [type="file"]):focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-sa-focus);
+  }
+
+  /* Botões: 36px de altura, raio 10 */
+  .sa-btn {
+    display: inline-flex;
+    height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    border-radius: var(--radius-sa-control);
+    padding-inline: 0.75rem;
+    font-size: var(--text-sa-sm);
+    font-weight: 500;
+    transition: background-color 0.15s, box-shadow 0.15s, color 0.15s;
+    cursor: pointer;
+  }
+  .sa-btn:disabled,
+  .sa-btn[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .sa-btn-primary {
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+  .sa-btn-primary:hover:not(:disabled) {
+    background: var(--color-brand-700);
+  }
+  .sa-btn-outline {
+    background: var(--color-sa-canvas);
+    color: var(--color-sa-ink);
+    box-shadow: inset 0 0 0 1px var(--color-sa-line), 0 1px 2px 0 rgb(28 40 64 / 0.05);
+  }
+  .sa-btn-outline:hover:not(:disabled) {
+    background: var(--color-sa-paper);
+  }
+  .sa-btn-ghost {
+    color: var(--color-sa-body);
+  }
+  .sa-btn-ghost:hover:not(:disabled) {
+    background: var(--color-sa-haze);
+  }
+  .sa-btn-danger {
+    background: var(--color-danger-600);
+    color: #fff;
+  }
+  .sa-btn-danger:hover:not(:disabled) {
+    background: #b42318;
+  }
+  .sa-btn-sm {
+    height: 1.75rem;
+    padding-inline: 0.625rem;
+    font-size: var(--text-sa-xs);
+  }
+
+  /* Campos: 36px, borda hairline, placeholder fog */
+  .sa-input {
+    height: 2.25rem;
+    width: 100%;
+    border-radius: var(--radius-sa-control);
+    background: var(--color-sa-canvas);
+    padding-inline: 0.75rem;
+    font-size: var(--text-sa-base);
+    color: var(--color-sa-ink);
+    box-shadow: inset 0 0 0 1px var(--color-sa-line), 0 1px 2px 0 rgb(28 40 64 / 0.05);
+    transition: box-shadow 0.15s;
+  }
+  textarea.sa-input {
+    height: auto;
+    padding-block: 0.5rem;
+  }
+  .sa-input::placeholder {
+    color: var(--color-sa-faint);
+  }
+  .sa-input:hover {
+    box-shadow: inset 0 0 0 1px var(--color-sa-line-strong), 0 1px 2px 0 rgb(28 40 64 / 0.05);
+  }
+  /* Select: sem a seta nativa (que encosta na borda); seta própria a 12px da borda. */
+  select.sa-input {
+    appearance: none;
+    padding-right: 2.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 256 256' fill='none' stroke='%238f99a8' stroke-width='24' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='208 96 128 176 48 96'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    cursor: pointer;
+  }
+
+  /* Todo campo em foco: borda na cor primária, com o halo semitransparente em volta. */
+  .sa-input:focus,
+  .sa-input:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 1px var(--color-brand-600), var(--shadow-sa-focus);
+  }
+
+  /* Cards: 12px, hairline + sombra azulada mínima */
+  .sa-card {
+    border-radius: var(--radius-sa-card);
+    background: var(--color-sa-canvas);
+    box-shadow: inset 0 0 0 1px var(--color-sa-line), var(--shadow-sa-card);
+  }
+
+  /* Tabelas densas: linha de 40px, cabeçalho em paper */
+  .sa-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-size: var(--text-sa-sm);
+    border: 1px solid var(--color-sa-line);
+  }
+
+  .sa-table thead {
+    border: 1px solid var(--color-sa-line);
+    background: var(--color-sa-paper);
+    border-top-left-radius: var(--radius-sa-card);
+    border-top-right-radius: var(--radius-sa-card);
+    overflow: hidden;
+  }
+
+  .sa-table thead th {
+    position: sticky;
+    top: 0;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-size: var(--text-sa-xs);
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--color-sa-muted);
+    
+    white-space: nowrap;
+  }
+  .sa-table tbody td {
+    padding: 0.5rem 0.75rem;
+    height: 2.75rem;
+    border-bottom: 1px solid var(--color-sa-haze);
+    vertical-align: middle;
+  }
+  .sa-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .sa-table tbody tr:hover td {
+    background: var(--color-sa-paper);
+  }
+
+  /* Selos: raio 7, 11-12px */
+  .sa-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: var(--radius-sa-badge);
+    padding: 0.125rem 0.5rem;
+    font-size: var(--text-sa-xs);
+    line-height: 1.33;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+}
