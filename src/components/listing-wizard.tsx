@@ -375,7 +375,7 @@ function Wizard({
               <span className="max-sm:hidden">Preencher com IA</span>
               <span className="sm:hidden">IA</span>
             </Link>
-            <Link href="/painel" className={`${buttonClasses("secondary")} max-sm:px-3`}>
+            <Link href="/painel/anuncios" className={`${buttonClasses("secondary")} max-sm:px-3`}>
               Salvar e sair
             </Link>
           </div>

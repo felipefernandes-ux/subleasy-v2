@@ -35,7 +35,7 @@ export function ListingDashboard({ listing, metrics, inquiries }: { listing: Das
 
   return (
     <div className="space-y-6">
-      <Link href="/painel" className={`${buttonClasses("ghost", "sm")} -ml-3`}>
+      <Link href="/painel/anuncios" className={`${buttonClasses("ghost", "sm")} -ml-3`}>
         <ArrowLeftIcon className="size-4" aria-hidden />
         Meus anúncios
       </Link>

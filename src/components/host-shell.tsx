@@ -13,7 +13,8 @@ export function HostShell({
 }: {
   children: ReactNode;
   admin?: boolean;
-  wide?: boolean;
+  /** true: listas e formulários largos; "xl": o painel de métricas. */
+  wide?: boolean | "xl";
   /** Fundo branco, como a lista de anúncios: os filtros em cinza se destacam melhor. */
   white?: boolean;
 }) {
@@ -35,6 +36,9 @@ export function HostShell({
             ) : (
               <>
                 <Link href="/painel" className={buttonClasses("ghost")}>
+                  Painel
+                </Link>
+                <Link href="/painel/anuncios" className={buttonClasses("ghost")}>
                   Meus anúncios
                 </Link>
                 <Link href="/anunciar" className={`${buttonClasses("primary")} max-sm:px-3`}>
@@ -50,7 +54,7 @@ export function HostShell({
         </div>
       </header>
       <main className="flex-1 px-5 pt-8 pb-16 sm:px-8 sm:pt-12">
-        <div className={`mx-auto w-full ${wide ? "max-w-5xl" : "max-w-3xl"}`}>{children}</div>
+        <div className={`mx-auto w-full ${wide === "xl" ? "max-w-6xl" : wide ? "max-w-5xl" : "max-w-3xl"}`}>{children}</div>
       </main>
     </div>
   );

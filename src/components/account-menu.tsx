@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { BellIcon, GearSixIcon, HeartIcon, ListIcon, SignOutIcon, SquaresFourIcon } from "@phosphor-icons/react";
+import { BellIcon, ChartLineUpIcon, GearSixIcon, HeartIcon, ListIcon, SignOutIcon, SquaresFourIcon } from "@phosphor-icons/react";
 import { signOut } from "@/app/actions/auth";
 import { PROFILE_CHANGED_EVENT } from "@/lib/public-profile";
 import { createClient } from "@/lib/supabase/client";
@@ -117,7 +117,10 @@ function Menu({ account }: { account: Account }) {
             <p className="truncate text-sm text-ink-500">{account.email}</p>
           </div>
           <div className="py-1.5">
-            <Item href="/painel" icon={<SquaresFourIcon className="size-5" aria-hidden />} onSelect={() => setOpen(false)}>
+            <Item href="/painel" icon={<ChartLineUpIcon className="size-5" aria-hidden />} onSelect={() => setOpen(false)}>
+              Painel
+            </Item>
+            <Item href="/painel/anuncios" icon={<SquaresFourIcon className="size-5" aria-hidden />} onSelect={() => setOpen(false)}>
               Meus anúncios
             </Item>
             <Item href="/favoritos" icon={<HeartIcon className="size-5" aria-hidden />} onSelect={() => setOpen(false)}>

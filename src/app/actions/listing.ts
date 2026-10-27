@@ -444,7 +444,7 @@ async function ownListing(listingId: string) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/entrar?next=/painel");
+  if (!user) redirect("/entrar?next=/painel/anuncios");
   const { data: listing } = await supabase
     .from("listings")
     .select("id, slug, status, photos, published_at")
@@ -536,7 +536,7 @@ export async function deleteListing(listingId: string, survey: RemovalSurvey): P
   }
   updateTag(`listing:${listing.slug}`);
   updateTag("listings");
-  redirect("/painel?excluido=1");
+  redirect("/painel/anuncios?excluido=1");
 }
 
 /** Tira o anúncio do ar sem perder nada. Reativar leva um clique. */

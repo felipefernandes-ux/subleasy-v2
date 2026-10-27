@@ -35,7 +35,7 @@ export function SubmittedPanel({ title, email }: { title: string; email: string 
         </ol>
 
         <div className="mt-8 flex flex-col gap-2 sm:flex-row">
-          <Link href="/painel" className={buttonClasses("secondary", "lg")}>
+          <Link href="/painel/anuncios" className={buttonClasses("secondary", "lg")}>
             Ver meus anúncios
           </Link>
           <Link href="/anunciar" className={buttonClasses("ghost", "lg")}>

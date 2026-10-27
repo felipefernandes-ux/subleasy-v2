@@ -119,6 +119,24 @@ export type Database = {
         }
         Relationships: []
       }
+      insight_dismissals: {
+        Row: {
+          dismissed_at: string
+          insight_key: string
+          user_id: string
+        }
+        Insert: {
+          dismissed_at?: string
+          insight_key: string
+          user_id: string
+        }
+        Update: {
+          dismissed_at?: string
+          insight_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       listing_contacts: {
         Row: {
           contact_email: string | null
@@ -487,6 +505,31 @@ export type Database = {
           display_name: string
           email: string
           whatsapp_number: string
+        }[]
+      }
+      owner_contact_pattern: {
+        Args: { p_since: string }
+        Returns: {
+          dow: number
+          hour: number
+          total: number
+        }[]
+      }
+      owner_daily_metrics: {
+        Args: { p_since: string }
+        Returns: {
+          day: string
+          kind: string
+          listing_id: string
+          total: number
+        }[]
+      }
+      owner_listing_favorites: {
+        Args: { p_since?: string }
+        Returns: {
+          listing_id: string
+          since_count: number
+          total: number
         }[]
       }
       public_name: { Args: { p_name: string }; Returns: string }
