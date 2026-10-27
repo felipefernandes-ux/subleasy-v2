@@ -49,7 +49,8 @@ export function AccountMenu({ showSignIn = true }: { showSignIn?: boolean }) {
   if (account === undefined) return <span className="h-11 w-20" aria-hidden />;
   if (account === null) {
     return showSignIn ? (
-      <a href="/entrar" className={`${buttonClasses("ghost")} hidden sm:inline-flex`}>
+      // No celular (abaixo de sm) o cabeçalho não tem "Entrar": o acesso fica em Menu > Minha conta.
+      <a href="/entrar" className={`${buttonClasses("ghost")} max-sm:hidden`}>
         Entrar
       </a>
     ) : null;

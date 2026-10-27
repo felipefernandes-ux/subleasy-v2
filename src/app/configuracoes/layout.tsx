@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SettingsNav } from "@/components/settings-ui";
 import { AccountMenu } from "@/components/account-menu";
-import { Logo, buttonClasses } from "@/components/ui";
+import { AnnounceCta } from "@/components/announce-cta";
+import { Logo } from "@/components/ui";
 
 export const metadata: Metadata = {
   // Mantém o "| Subleasy" do título das abas.
@@ -21,9 +22,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
             <Logo />
           </Link>
           <div className="flex items-center gap-2">
-            <Link href="/anunciar" className={buttonClasses("primary")}>
-              Anunciar grátis
-            </Link>
+            <AnnounceCta />
             <AccountMenu />
           </div>
         </div>

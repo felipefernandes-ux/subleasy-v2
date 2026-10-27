@@ -69,14 +69,14 @@ export function SearchResults({ results }: { results: SearchResult[] }) {
 
       {/* Celular: o mapa abre por cima da lista, como no Airbnb. */}
       {mobileMap && (
-        <div className="fixed inset-x-0 top-[8.25rem] bottom-0 z-20 lg:hidden">
+        <div className="fixed inset-x-0 top-[8.25rem] bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 lg:hidden">
           <ResultsMap results={results} highlighted={highlighted} onHover={setHighlighted} />
         </div>
       )}
       <button
         type="button"
         onClick={() => setMobileMap((current) => !current)}
-        className="focus-ring fixed bottom-6 left-1/2 z-30 inline-flex h-12 -translate-x-1/2 items-center gap-2 rounded-full bg-ink-900 px-5 text-sm font-bold text-white shadow-raised lg:hidden"
+        className="focus-ring fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-1/2 z-30 inline-flex h-12 -translate-x-1/2 items-center gap-2 rounded-full bg-ink-900 px-5 text-sm font-bold text-white shadow-raised lg:hidden"
       >
         {mobileMap ? <ListIcon className="size-4.5" aria-hidden /> : <MapTrifoldIcon className="size-4.5" aria-hidden />}
         {mobileMap ? "Ver lista" : "Ver mapa"}

@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { AccountMenu } from "./account-menu";
+import { AnnounceCta } from "./announce-cta";
 import { SearchNavMenu } from "./search-nav-menu";
-import { Logo, buttonClasses } from "./ui";
+import { Logo } from "./ui";
 
 // "Buscar salas" vem antes, com o menu dos tipos de sala (SearchNavMenu).
 // O blog é outro site, por isso abre em nova aba.
 const NAV = [
   { href: "/como-funciona", label: "Como funciona" },
-  { href: "/sobre", label: "Sobre" },
   { href: "https://blog.subleasy.com.br/", label: "Blog", newTab: true },
   { href: "/#perguntas", label: "FAQ" },
 ];
@@ -36,9 +36,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <a href="/anunciar" className={buttonClasses("primary")}>
-            Anunciar grátis
-          </a>
+          <AnnounceCta />
           <AccountMenu />
         </div>
       </div>
