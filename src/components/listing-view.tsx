@@ -90,12 +90,13 @@ export function ListingView({
       {/* Título e preço acima das fotos; compartilhar e salvar à direita. */}
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div className="min-w-0">
-          <h1 className="text-h2 font-bold text-ink-900 sm:text-[2rem] sm:leading-tight">{listing.title}</h1>
-          <p className="mt-1 text-lg">
-            {price}
-            <span className="text-ink-600">
-              {" "}
-              ・ {listing.neighborhood ? `${listing.neighborhood}, ` : ""}
+          <h1 className="text-h2 font-bold text-balance text-ink-900">{listing.title}</h1>
+          {/* Celular: preço em destaque e o local numa linha própria, menor. Daí em diante, numa linha só. */}
+          <p className="mt-1.5 sm:mt-1 sm:text-lg">
+            <span className="text-lg sm:text-[1em]">{price}</span>
+            <span className="mt-0.5 block text-sm text-ink-600 sm:mt-0 sm:inline sm:text-[1em]">
+              <span className="hidden sm:inline"> ・ </span>
+              {listing.neighborhood ? `${listing.neighborhood}, ` : ""}
               {listing.city} {listing.state}
             </span>
           </p>

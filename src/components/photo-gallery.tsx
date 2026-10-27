@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CaretLeftIcon, CaretRightIcon, SquaresFourIcon, XIcon } from "@phosphor-icons/react";
 import { FramedPhoto } from "./framed-photo";
 
@@ -18,8 +18,9 @@ const LAYOUT: Record<number, string[]> = {
 };
 
 /**
- * Fotos do anúncio no topo da página: grade com a principal e mais 4, e um overlay
- * com a foto ampliada ao clicar em qualquer uma. No celular, só a capa com o contador.
+ * Fotos do anúncio no topo da página. No celular, um carrossel que desliza com o dedo e trava
+ * em cada foto; a partir do tablet, a grade com a principal e mais 4. Em ambos, tocar numa
+ * foto abre o overlay com ela ampliada.
  */
 export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title: string }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -39,18 +40,7 @@ export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title:
   return (
     <>
       <div className="relative">
-        {/* Celular: só a capa, com o contador. */}
-        <button
-          type="button"
-          onClick={() => open(0)}
-          aria-label={`Ampliar a foto 1 de ${photos.length}`}
-          className="group relative block aspect-[4/3] w-full cursor-zoom-in overflow-hidden rounded-panel bg-ink-100 sm:hidden"
-        >
-          <FramedPhoto src={photos[0].src} alt={`Foto principal: ${title}`} size={photos[0].size} priority sizes="100vw" />
-          <span className="absolute right-3 bottom-3 rounded-full bg-ink-900/75 px-2.5 py-1 text-xs font-bold text-white tabular-nums">
-            1 / {photos.length}
-          </span>
-        </button>
+        <Carousel photos={photos} title={title} onOpen={open} />
 
         {/* A partir do tablet: a grade. */}
         <div className="hidden h-[clamp(20rem,38vw,30rem)] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-panel sm:grid">
@@ -89,6 +79,97 @@ export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title:
 
       <Lightbox dialogRef={dialogRef} photos={photos} title={title} index={index} setIndex={setIndex} />
     </>
+  );
+}
+
+/** Celular: as fotos lado a lado, uma por tela, com o próximo slide espiando e o dedo arrastando. */
+function Carousel({ photos, title, onOpen }: { photos: GalleryPhoto[]; title: string; onOpen: (at: number) => void }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [current, setCurrent] = useState(0);
+  const many = photos.length > 1;
+
+  // A foto atual é a que está mais perto do início da trilha.
+  const onScroll = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    setCurrent(Math.round(track.scrollLeft / track.clientWidth));
+  }, []);
+
+  const goTo = (at: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const next = Math.min(Math.max(at, 0), photos.length - 1);
+    track.scrollTo({ left: next * track.clientWidth, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  };
+
+  return (
+    <div className="relative sm:hidden" role="group" aria-roledescription="carrossel" aria-label={`Fotos: ${title}`}>
+      <div
+        ref={trackRef}
+        onScroll={onScroll}
+        className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain rounded-panel bg-ink-100 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {photos.map((photo, position) => (
+          <button
+            key={photo.src}
+            type="button"
+            onClick={() => onOpen(position)}
+            aria-label={`Ampliar a foto ${position + 1} de ${photos.length}`}
+            className="relative block aspect-[4/3] w-full shrink-0 snap-center cursor-zoom-in overflow-hidden"
+          >
+            <FramedPhoto
+              src={photo.src}
+              alt={position === 0 ? `Foto principal: ${title}` : `Foto ${position + 1} da sala`}
+              size={photo.size}
+              priority={position === 0}
+              sizes="100vw"
+            />
+          </button>
+        ))}
+      </div>
+
+      {many && (
+        <>
+          <p
+            className="pointer-events-none absolute top-3 right-3 rounded-full bg-ink-900/70 px-2.5 py-1 text-xs font-bold text-white tabular-nums"
+            aria-live="polite"
+          >
+            {current + 1} / {photos.length}
+          </p>
+
+          {/* Setas para quem usa mouse ou teclado; no toque o dedo basta. */}
+          {current > 0 && (
+            <button
+              type="button"
+              onClick={() => goTo(current - 1)}
+              aria-label="Foto anterior"
+              className="focus-ring absolute top-1/2 left-2 hidden size-9 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-ink-900 shadow-card pointer-fine:grid"
+            >
+              <CaretLeftIcon className="size-4" weight="bold" aria-hidden />
+            </button>
+          )}
+          {current < photos.length - 1 && (
+            <button
+              type="button"
+              onClick={() => goTo(current + 1)}
+              aria-label="Próxima foto"
+              className="focus-ring absolute top-1/2 right-2 hidden size-9 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-ink-900 shadow-card pointer-fine:grid"
+            >
+              <CaretRightIcon className="size-4" weight="bold" aria-hidden />
+            </button>
+          )}
+
+          <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center gap-1.5" aria-hidden>
+            {photos.map((photo, position) => (
+              <span
+                key={photo.src}
+                className={`h-1.5 rounded-full bg-white shadow-xs transition-all duration-200 ${position === current ? "w-4 opacity-100" : "w-1.5 opacity-60"}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
