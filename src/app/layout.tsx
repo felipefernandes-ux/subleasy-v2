@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import { TabBarGate } from "@/components/mobile-tab-bar";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
@@ -73,7 +74,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="pt-BR" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         {children}
-        <TabBarGate />
+        {/* usePathname lê a rota em tempo de execução; no Suspense, o resto da página continua pré-renderizado. */}
+        <Suspense fallback={null}>
+          <TabBarGate />
+        </Suspense>
       </body>
     </html>
   );
