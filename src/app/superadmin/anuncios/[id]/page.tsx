@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArrowSquareOutIcon, CheckIcon, PauseIcon, ArrowClockwiseIcon, PencilSimpleIcon } from "@phosphor-icons/react/ssr";
 import { ConfirmDialog } from "@/components/superadmin/confirm-dialog";
+import { DeleteListingsDialog } from "@/components/superadmin/delete-listings-dialog";
 import {
   Avatar,
   Button,
@@ -13,30 +15,25 @@ import {
   OriginLabel,
   PageHeader,
 } from "@/components/superadmin/ui";
-import { LISTINGS, USERS } from "../../_data/mock";
+import { requireAdmin } from "@/lib/superadmin/auth";
+import { loadAdminListings } from "@/lib/superadmin/listings";
 
 export const metadata: Metadata = { title: "Anúncio" };
 
-// Slug fictício a partir do título; no banco é o slug real do anúncio.
-const slugify = (text: string) =>
-  text
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-
-// Ids conhecidos em tempo de build: a rota é pré-renderizada em vez de esperar o runtime.
-export function generateStaticParams() {
-  return LISTINGS.map(({ id }) => ({ id }));
+export default function ListingDetailPage({ params }: PageProps<"/superadmin/anuncios/[id]">) {
+  return (
+    <Suspense fallback={<p className="py-10 text-center text-sa-muted">Carregando anúncio…</p>}>
+      <ListingDetail params={params} />
+    </Suspense>
+  );
 }
 
-export default async function ListingDetailPage({ params }: PageProps<"/superadmin/anuncios/[id]">) {
+async function ListingDetail({ params }: { params: PageProps<"/superadmin/anuncios/[id]">["params"] }) {
   const { id } = await params;
-  const listing = LISTINGS.find((item) => item.id === id);
+  await requireAdmin(`/superadmin/anuncios/${id}`);
+  const [listing] = await loadAdminListings(id);
   if (!listing) notFound();
 
-  const owner = USERS.find((user) => user.email === listing.ownerEmail);
   const inReview = listing.status === "em_revisao";
 
   return (
@@ -51,7 +48,7 @@ export default async function ListingDetailPage({ params }: PageProps<"/superadm
               Voltar
             </ButtonLink>
             {/* /sala/[slug] mostra uma prévia para o admin mesmo se o anúncio não estiver no ar. */}
-            <ButtonLink href={`/sala/${slugify(listing.title)}`} target="_blank" rel="noopener">
+            <ButtonLink href={`/sala/${listing.slug}`} target="_blank" rel="noopener">
               <ArrowSquareOutIcon className="size-4" weight="bold" aria-hidden />
               Ver ao vivo
             </ButtonLink>
@@ -66,18 +63,28 @@ export default async function ListingDetailPage({ params }: PageProps<"/superadm
       <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
           <Card className="overflow-hidden">
-            <div className="grid grid-cols-4 grid-rows-2 gap-1 bg-sa-haze p-1">
-              <div className="col-span-2 row-span-2 aspect-[4/3] rounded-sa-badge bg-sa-line" />
-              {[0, 1, 2, 3].map((index) => (
-                <div key={index} className="aspect-[4/3] rounded-sa-badge bg-sa-line/70" />
-              ))}
-            </div>
+            {listing.photoUrls.length > 0 ? (
+              <div className="grid grid-cols-2 gap-1 bg-sa-haze p-1 sm:grid-cols-4">
+                {listing.photoUrls.map((url, index) => (
+                  // eslint-disable-next-line @next/next/no-img-element -- miniatura de revisão do admin, sem otimização
+                  <img
+                    key={url}
+                    src={url}
+                    alt={`Foto ${index + 1} de ${listing.photoUrls.length}`}
+                    loading="lazy"
+                    className={`aspect-[4/3] w-full rounded-sa-badge object-cover ${index === 0 ? "col-span-2 row-span-2 sm:col-span-2 sm:row-span-2" : ""}`}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="bg-sa-paper px-5 py-8 text-center text-sa-sm text-sa-muted">Este anúncio não tem fotos.</p>
+            )}
             <div className="space-y-3 p-5 text-sa-base text-sa-body">
-              <p>
-                Sala silenciosa e bem iluminada, com mobiliário completo, ar-condicionado e recepção compartilhada. Atendimento
-                por turno ou por hora, de segunda a sábado. Estacionamento conveniado na esquina.
-              </p>
-              <p className="text-sa-sm text-sa-muted">Texto de exemplo. O conteúdo real do anúncio aparece aqui.</p>
+              {listing.summary && <p className="font-semibold text-sa-ink">{listing.summary}</p>}
+              <p className="whitespace-pre-line">{listing.description || "Sem descrição."}</p>
+              {listing.reviewNote && (
+                <p className="rounded-sa-card bg-sa-paper p-3 text-sa-sm text-sa-muted">Nota da revisão: {listing.reviewNote}</p>
+              )}
             </div>
           </Card>
 
@@ -85,7 +92,7 @@ export default async function ListingDetailPage({ params }: PageProps<"/superadm
             <CardHeader title="Histórico" />
             <ol className="divide-y divide-sa-haze text-sa-base">
               {[
-                ["Enviado para revisão", listing.submitted],
+                ["Enviado / criado", listing.submitted],
                 ["Anúncio criado", listing.createdBy],
               ].map(([label, meta]) => (
                 <li key={label} className="flex justify-between gap-4 px-5 py-3">
@@ -99,7 +106,7 @@ export default async function ListingDetailPage({ params }: PageProps<"/superadm
 
         <div className="space-y-6">
           <Card>
-            <CardHeader title="Ações" description="Remover e devolver pedem motivo e vão para a auditoria." />
+            <CardHeader title="Ações" description="Remover apaga o anúncio e as fotos de vez, e pede confirmação." />
             <div className="flex flex-col gap-2 p-5">
               {inReview && (
                 <>
@@ -131,13 +138,11 @@ export default async function ListingDetailPage({ params }: PageProps<"/superadm
                 <ArrowClockwiseIcon className="size-4" weight="bold" aria-hidden />
                 Renovar por 30 dias
               </Button>
-              <ConfirmDialog
-                trigger="Remover anúncio"
-                triggerVariant="danger"
-                title="Remover anúncio"
-                description="O anúncio sai do ar e o anunciante é avisado. O motivo fica no registro de auditoria."
-                confirmLabel="Remover"
-                danger
+              <DeleteListingsDialog
+                listings={[listing]}
+                label="Remover anúncio"
+                small={false}
+                redirectTo="/superadmin/anuncios"
               />
             </div>
           </Card>
@@ -150,11 +155,6 @@ export default async function ListingDetailPage({ params }: PageProps<"/superadm
                 <p className="truncate font-semibold">{listing.owner}</p>
                 <p className="truncate text-sa-sm text-sa-muted">{listing.ownerEmail}</p>
               </div>
-              {owner && (
-                <ButtonLink href={`/superadmin/usuarios/${owner.id}`} small className="ml-auto">
-                  Ficha
-                </ButtonLink>
-              )}
             </div>
             <DefinitionList
               items={[

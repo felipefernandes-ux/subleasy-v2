@@ -68,6 +68,7 @@ export function SoonBadge({ className }: { className?: string }) {
 }
 
 const LISTING_STATUS: Record<ListingStatus, [string, Tone]> = {
+  rascunho: ["Rascunho", "neutral"],
   em_revisao: ["Em revisão", "warning"],
   no_ar: ["No ar", "success"],
   pausado: ["Pausado", "neutral"],

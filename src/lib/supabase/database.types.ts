@@ -201,6 +201,50 @@ export type Database = {
           },
         ]
       }
+      listing_imports: {
+        Row: {
+          extras: Json
+          imported_at: string
+          listing_id: string
+          source_id: string
+          source_slug: string | null
+          source_status: string
+          source_url: string
+          updated_at: string
+          wp_status: string
+        }
+        Insert: {
+          extras?: Json
+          imported_at?: string
+          listing_id: string
+          source_id: string
+          source_slug?: string | null
+          source_status: string
+          source_url: string
+          updated_at?: string
+          wp_status: string
+        }
+        Update: {
+          extras?: Json
+          imported_at?: string
+          listing_id?: string
+          source_id?: string
+          source_slug?: string | null
+          source_status?: string
+          source_url?: string
+          updated_at?: string
+          wp_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_imports_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: true
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_inquiries: {
         Row: {
           created_at: string
@@ -495,7 +539,7 @@ export type Database = {
           avatar_path: string
           identity_verified_at: string
           member_since: string
-          public_id: string
+          public_id: string | null
           public_name: string
         }[]
       }

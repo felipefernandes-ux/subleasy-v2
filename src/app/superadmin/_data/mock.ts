@@ -1,6 +1,6 @@
 /** Dados fictícios só para o visual do Super Admin. Nada aqui vem do banco. */
 
-export type ListingStatus = "em_revisao" | "no_ar" | "pausado" | "devolvido" | "convite_pendente" | "removido";
+export type ListingStatus = "rascunho" | "em_revisao" | "no_ar" | "pausado" | "devolvido" | "convite_pendente" | "removido";
 export type ListingOrigin = "anunciante" | "admin" | "importado";
 
 export type Listing = {
