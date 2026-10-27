@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -17,21 +18,27 @@ import {
   SoonBadge,
   UserStatusBadge,
 } from "@/components/superadmin/ui";
-import { LISTINGS, USERS } from "../../_data/mock";
+import { requireAdmin } from "@/lib/superadmin/auth";
+import { loadAdminListings } from "@/lib/superadmin/listings";
+import { loadAdminUsers } from "@/lib/superadmin/users";
 
 export const metadata: Metadata = { title: "Ficha do usuário" };
 
-// Ids conhecidos em tempo de build: a rota é pré-renderizada em vez de esperar o runtime.
-export function generateStaticParams() {
-  return USERS.map(({ id }) => ({ id }));
+export default function UserDetailPage({ params }: PageProps<"/superadmin/usuarios/[id]">) {
+  return (
+    <Suspense fallback={<p className="py-10 text-center text-sa-muted">Carregando ficha…</p>}>
+      <UserDetail params={params} />
+    </Suspense>
+  );
 }
 
-export default async function UserDetailPage({ params }: PageProps<"/superadmin/usuarios/[id]">) {
+async function UserDetail({ params }: { params: PageProps<"/superadmin/usuarios/[id]">["params"] }) {
   const { id } = await params;
-  const user = USERS.find((item) => item.id === id);
+  await requireAdmin(`/superadmin/usuarios/${id}`);
+  const [user] = await loadAdminUsers(id);
   if (!user) notFound();
 
-  const listings = LISTINGS.filter((listing) => listing.ownerEmail === user.email);
+  const listings = (await loadAdminListings()).filter((listing) => listing.ownerId === user.id);
   const suspended = user.status === "suspenso";
 
   return (
@@ -72,6 +79,8 @@ export default async function UserDetailPage({ params }: PageProps<"/superadmin/
                 ["Cidade", user.city],
                 ["Cadastro", user.joined],
                 ["Anúncios", user.listings],
+                ["Último acesso", user.lastSignIn ?? "Nunca entrou"],
+                ["Entrada", user.provider === "google" ? "Google" : "Link por e-mail"],
               ]}
             />
           </Card>
@@ -98,12 +107,12 @@ export default async function UserDetailPage({ params }: PageProps<"/superadmin/
             <CardHeader title="Consentimentos" description="Prova de consentimento, guardada separada do perfil." />
             <DefinitionList
               items={[
-                ["Termos de uso", `Aceitos em ${user.joined}`],
+                ["Termos de uso", user.termsAcceptedAt ? `Aceitos em ${user.termsAcceptedAt}` : "Ainda não aceitos"],
                 [
                   "Novidades por e-mail",
                   user.marketing ? (
                     <Badge tone="success" dot>
-                      Aceitou em {user.joined}
+                      Aceitou em {user.marketingAt ?? user.joined}
                     </Badge>
                   ) : (
                     <Badge>Não aceitou</Badge>
