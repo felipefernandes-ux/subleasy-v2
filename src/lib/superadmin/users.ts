@@ -33,14 +33,17 @@ export async function loadAdminUsers(onlyId?: string): Promise<AdminUser[]> {
       .from("profiles")
       .select("id, display_name, whatsapp_number, roles, marketing_opt_in, marketing_opt_in_at, terms_accepted_at, created_at"),
     db.from("admin_users").select("user_id"),
-    db.from("listings").select("owner_id, city"),
+    db.from("listings").select("owner_id, city, status, expires_at"),
   ]);
   if (auth.error) throw new Error(`Não foi possível ler os usuários: ${auth.error.message}`);
 
   const profileById = new Map((profiles.data ?? []).map((row) => [row.id, row]));
   const adminIds = new Set((admins.data ?? []).map((row) => row.user_id));
   const citiesByOwner = new Map<string, string[]>();
+  // Quem tem anúncio no ar já está ativo, mesmo sem ter entrado ainda (anúncios importados).
+  const withLiveListing = new Set<string>();
   for (const row of listings.data ?? []) {
+    if (row.status === "active" && row.expires_at && Date.parse(row.expires_at) > Date.now()) withLiveListing.add(row.owner_id);
     citiesByOwner.set(row.owner_id, [...(citiesByOwner.get(row.owner_id) ?? []), row.city]);
   }
 
@@ -55,7 +58,7 @@ export async function loadAdminUsers(onlyId?: string): Promise<AdminUser[]> {
       if (adminIds.has(user.id)) roles.add("admin");
 
       const banned = user.banned_until ? Date.parse(user.banned_until) > Date.now() : false;
-      const status: UserStatus = banned ? "suspenso" : profile || user.last_sign_in_at ? "ativo" : "convite_pendente";
+      const status: UserStatus = banned ? "suspenso" : profile || user.last_sign_in_at || withLiveListing.has(user.id) ? "ativo" : "convite_pendente";
 
       return {
         id: user.id,
