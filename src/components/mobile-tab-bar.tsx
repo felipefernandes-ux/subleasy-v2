@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import {
   ArrowSquareOutIcon,
   CaretRightIcon,
@@ -19,6 +19,7 @@ import {
   type Icon,
 } from "@phosphor-icons/react";
 import { signOut } from "@/app/actions/auth";
+import { isAdminHost } from "@/lib/admin-host";
 import { useSignedIn } from "@/lib/use-signed-in";
 import { AnnounceAiIcon } from "./announce-ai-icon";
 import { AnnounceButton } from "./announce-button";
@@ -33,7 +34,14 @@ const TAB_BAR_HIDDEN = [/^\/painel\/anuncios\/[^/]+\/editar/];
 /** Mostra a barra só nas rotas de TAB_BAR_ROUTES e na home. Vive no layout raiz, então não some ao navegar. */
 export function TabBarGate() {
   const pathname = usePathname();
+  // No admin.<domínio> a raiz e /configuracoes são do Super Admin, que tem a própria barra.
+  const onAdminHost = useSyncExternalStore(
+    () => () => {},
+    () => isAdminHost(window.location.host),
+    () => false,
+  );
   const show =
+    !onAdminHost &&
     (pathname === "/" || TAB_BAR_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`))) &&
     !TAB_BAR_HIDDEN.some((pattern) => pattern.test(pathname));
   if (!show) return null;
