@@ -3,8 +3,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
 const dir = new URL(".", import.meta.url);
-// Uso: node docs/email/preview.mjs [ativacao|convite]   (padrão: convite)
+// Uso: node docs/email/preview.mjs [ativacao|convite|vem-ai] [--sem-anuncio]   (padrão: convite)
+// --sem-anuncio testa o fallback do título ("sua sala") para quem não tem anúncio.
 const name = process.argv[2] ?? "convite";
+const semAnuncio = process.argv.includes("--sem-anuncio");
 const html = readFileSync(new URL(`${name}.html`, dir), "utf8");
 
 const sample = {
@@ -14,6 +16,7 @@ const sample = {
   "contact.INTEREST_URL": "#",
   "params.URL_SITE": "https://subleasy.com.br",
   "params.LOGO_URL": "../../public/logo-subleasy.svg",
+  "params.HERO_URL": "assets/vem-ai-hero.png",
   "contact.FIRSTNAME": "Mariana",
   "contact.AD_URL": "#",
   "contact.AD_IMAGE": "../../public/salas/consultorio-odontologico-maringa.jpg",
@@ -32,6 +35,9 @@ const sample = {
   unsubscribe: "#",
 };
 
-const out = html.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (m, key) => sample[key] ?? m);
+if (semAnuncio) delete sample["contact.AD_TITLE"];
+
+// Aceita {{ chave }} e {{ chave | default: "valor" }}, como o Brevo.
+const out = html.replace(/\{\{\s*([\w.]+)\s*(?:\|\s*default:\s*(?:"([^"]*)"|'([^']*)'))?\s*\}\}/g, (m, key, d1, d2) => sample[key] ?? d1 ?? d2 ?? m);
 writeFileSync(new URL(`preview-${name}.html`, dir), out);
 console.log(`docs/email/preview-${name}.html gerado`);

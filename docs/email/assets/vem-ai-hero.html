@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<!--
+  Imagem de abertura do e-mail "Vem aí" (576 × 336 px, renderizada em 2x → 1152 × 672).
+  Gerada por docs/email/assets/render-hero.sh. Tokens copiados de src/app/globals.css.
+  Linguagem "Turno Aberto" (docs/design-system/philosophy.md): grade de células, roxo = ocupado,
+  cinza = livre, um único ponto menta. Unidade base 8.
+  Fonte: Inter Tight local, porque a Inter não está instalada nesta máquina (tracking +0.01em compensa).
+-->
+<style>
+  :root {
+    --brand-50: #f4f1ff; --brand-100: #e9e3fe; --brand-200: #d3c8fd; --brand-500: #583be9;
+    --brand-600: #3818d9; --brand-700: #2c12b3; --brand-900: #1a0b66;
+    --mint-400: #25edb1;
+    --ink-900: #1c1d1f; --ink-800: #2e3238; --ink-700: #505967; --ink-500: #646e7d;
+    --ink-300: #cad0d9; --ink-200: #e4e7ec; --ink-100: #eeeff1; --ink-50: #f4f5f6;
+    --whatsapp: #25d366;
+    --radius-control: 10px; --radius-card: 12px; --radius-panel: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 576px; height: 336px; overflow: hidden; }
+  body {
+    font-family: "Inter Tight", "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: 0.01em;
+    background: var(--brand-50);
+    color: var(--ink-900);
+    position: relative;
+  }
+
+  /* Coluna esquerda: marca + selo + grade de turnos */
+  .left { position: absolute; left: 32px; top: 32px; bottom: 32px; width: 240px; }
+  .logo { display: block; height: 28px; width: auto; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 24px;
+    height: 32px; padding: 0 12px; border-radius: 999px;
+    background: var(--mint-400); color: var(--brand-900);
+    font-size: 13px; font-weight: 700; letter-spacing: 0.02em;
+  }
+  .pill i { width: 6px; height: 6px; border-radius: 50%; background: var(--brand-900); display: block; }
+  .headline {
+    margin-top: 16px; font-size: 40px; line-height: 1.08; font-weight: 700;
+    letter-spacing: -0.025em; color: var(--ink-900);
+  }
+  .headline em { font-style: normal; color: var(--brand-600); }
+
+  /* Grade 7 dias × 3 turnos, células 8px com respiro de 8px */
+  .grid { position: absolute; left: 0; bottom: 0; display: grid; grid-template-columns: repeat(14, 8px); gap: 8px; }
+  .grid b { display: block; width: 8px; height: 8px; border-radius: 3px; background: var(--ink-100); box-shadow: inset 0 0 0 1px var(--ink-200); }
+  .grid b.on { background: var(--brand-600); box-shadow: none; }
+  .grid b.mint { background: var(--mint-400); box-shadow: none; }
+
+  /* Celular: nasce da borda inferior, cortado */
+  .phone {
+    position: absolute; right: 32px; bottom: -48px; width: 228px; height: 360px;
+    background: #fff; border-radius: 36px 36px 0 0;
+    border: 8px solid var(--ink-900); border-bottom: 0;
+    box-shadow: 0 24px 48px -20px rgb(56 24 217 / 0.45);
+    overflow: hidden;
+  }
+  .screen { padding: 16px 12px 0; }
+  .bar { display: flex; align-items: center; justify-content: space-between; height: 24px; }
+  .bar img { height: 14px; width: auto; display: block; }
+  .bar span { width: 24px; height: 24px; border-radius: 50%; background: var(--brand-100); display: block; }
+
+  .card { margin-top: 12px; border: 1px solid var(--ink-200); border-radius: var(--radius-card); overflow: hidden; background: #fff; }
+  .photo { position: relative; height: 84px; background: url("../../../public/salas/sala-psicologia-maringa.webp") center/cover; }
+  .ai {
+    position: absolute; left: 8px; top: 8px; display: inline-flex; align-items: center; gap: 4px;
+    height: 18px; padding: 0 7px 0 5px; border-radius: 999px; background: var(--brand-50);
+    box-shadow: 0 0 0 1px var(--brand-100); color: var(--brand-700); font-size: 9px; font-weight: 700;
+  }
+  .ai svg { width: 9px; height: 9px; fill: currentColor; }
+  .body { padding: 10px 10px 12px; }
+  .title { font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink-900); }
+  .where { margin-top: 2px; font-size: 10px; line-height: 14px; color: var(--ink-500); }
+
+  .seg { margin-top: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; padding: 2px; border-radius: var(--radius-control); background: var(--ink-100); }
+  .seg span { height: 20px; display: grid; place-items: center; font-size: 9px; font-weight: 700; color: var(--ink-500); border-radius: 8px; }
+  .seg span.act { background: #fff; color: var(--brand-700); box-shadow: 0 1px 2px rgb(28 40 64 / 0.1); }
+
+  .price { margin-top: 10px; display: flex; align-items: baseline; gap: 4px; }
+  .price strong { font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em; }
+  .price small { font-size: 10px; color: var(--ink-500); }
+
+  .metrics { margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .metrics div { border: 1px solid var(--ink-200); border-radius: var(--radius-control); padding: 6px 8px; }
+  .metrics b { display: block; font-size: 13px; line-height: 16px; font-weight: 700; letter-spacing: -0.01em; }
+  .metrics span { display: block; font-size: 8px; line-height: 11px; color: var(--ink-500); }
+  .wa { margin-top: 8px; height: 28px; border-radius: var(--radius-control); background: var(--whatsapp); color: var(--ink-900); font-size: 10px; font-weight: 700; display: grid; place-items: center; }
+</style>
+</head>
+<body>
+
+<div class="left">
+  <img class="logo" src="../../../public/logo-subleasy.svg" alt="Subleasy">
+  <div class="pill"><i></i>Vem aí · 2.0</div>
+  <div class="headline">Sua sala no<br><em>turno certo.</em></div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="phone">
+  <div class="screen">
+    <div class="bar">
+      <img src="../../../public/logo-subleasy.svg" alt="">
+      <span></span>
+    </div>
+    <div class="card">
+      <div class="photo">
+        <div class="ai">
+          <svg viewBox="0 0 16 16"><path d="M8 1.5c.3 0 .5.2.6.5l.8 2.6c.2.6.7 1.1 1.3 1.3l2.6.8c.3.1.5.3.5.6s-.2.5-.5.6l-2.6.8c-.6.2-1.1.7-1.3 1.3l-.8 2.6c-.1.3-.3.5-.6.5s-.5-.2-.6-.5l-.8-2.6c-.2-.6-.7-1.1-1.3-1.3L2.2 8.3c-.3-.1-.5-.3-.5-.6s.2-.5.5-.6l2.6-.8c.6-.2 1.1-.7 1.3-1.3L7 2c.1-.3.3-.5.6-.5Z"/></svg>
+          Sugestão
+        </div>
+      </div>
+      <div class="body">
+        <div class="title">Sala de psicologia mobiliada</div>
+        <div class="where">Zona 7 · Maringá, PR</div>
+        <div class="seg"><span>Hora</span><span class="act">Turno</span><span>Dia</span><span>Mês</span></div>
+        <div class="price"><strong>R$ 90</strong><small>por turno</small></div>
+        <div class="metrics">
+          <div><b>128</b><span>visualizações</span></div>
+          <div><b>23</b><span>cliques no WhatsApp</span></div>
+        </div>
+        <div class="wa">Chamar no WhatsApp</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Ocupação cresce da esquerda para a direita; uma única célula menta (a "hora que virou renda").
+  // Pseudoaleatório fixo para o render ser idêntico a cada execução.
+  const cols = 14, rows = 3, g = document.getElementById("grid");
+  let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const b = document.createElement("b");
+    const p = 0.06 + 0.84 * Math.pow(c / (cols - 1), 1.35);
+    if (r === 1 && c === 11) b.className = "mint";
+    else if (rnd() < p) b.className = "on";
+    g.appendChild(b);
+  }
+</script>
+</body>
+</html>
