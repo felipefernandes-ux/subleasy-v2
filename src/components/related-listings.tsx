@@ -25,7 +25,7 @@ export function ListingCard({ listing, corner }: { listing: RelatedListing; corn
   const sizes = parsePhotoSizes(listing.photo_sizes);
   return (
     <div className="relative">
-      <Link href={`/sala/${listing.slug}`} className="group focus-ring block rounded-card">
+      <Link href={`/espaco/${listing.slug}`} className="group focus-ring block rounded-card">
         <span className="relative grid aspect-[4/3] place-items-center overflow-hidden rounded-card bg-ink-100">
           {cover ? (
             <span className="absolute inset-0 transition-transform duration-300 group-hover:scale-[1.03]">

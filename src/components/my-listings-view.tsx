@@ -70,7 +70,7 @@ async function withMetrics(owner: PanelOwner, listings: Row[]): Promise<HostList
     const expires = listing.expires_at ? new Date(listing.expires_at).getTime() : null;
     return {
       ...listing,
-      url: `${origin}/sala/${listing.slug}`,
+      url: `${origin}/espaco/${listing.slug}`,
       updatedOn: formatDate(listing.updated_at),
       submittedOn: listing.submitted_at ? formatDate(listing.submitted_at) : null,
       publishedOn: listing.published_at ? formatDate(listing.published_at) : null,

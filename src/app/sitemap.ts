@@ -1,10 +1,19 @@
 import type { MetadataRoute } from "next";
 import { TERMS_VERSION } from "@/lib/legal";
 import { SITE_URL } from "@/lib/site";
+import { createPublicClient } from "@/lib/supabase/public";
 
-// Cresce com as páginas por cidade e tipo de sala (fase 2) e com os anúncios
-// migrados do WordPress, que precisam manter as URLs ou ter 301.
-export default function sitemap(): MetadataRoute.Sitemap {
+// Cresce com as páginas por cidade e tipo de espaço (fase 2). Os anúncios no ar entram aqui;
+// as URLs antigas do WordPress têm 301 (next.config.ts e src/app/anuncios).
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const { data: listings } = await createPublicClient()
+    .from("listings")
+    .select("slug, updated_at")
+    .eq("status", "active")
+    .gt("expires_at", new Date().toISOString())
+    .order("published_at", { ascending: false })
+    .limit(5000);
+
   return [
     {
       url: SITE_URL,
@@ -12,6 +21,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1,
     },
+    {
+      url: `${SITE_URL}/espacos`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    ...(listings ?? []).map((listing) => ({
+      url: `${SITE_URL}/espaco/${listing.slug}`,
+      lastModified: new Date(listing.updated_at),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
     {
       url: `${SITE_URL}/como-funciona`,
       lastModified: new Date("2026-10-26"),

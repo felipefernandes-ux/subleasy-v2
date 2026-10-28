@@ -124,7 +124,7 @@ export async function DashboardView({ searchParams, owner }: { searchParams: Pro
       title: listing.title,
       status: listing.status,
       photos: listing.photos,
-      url: `${origin}/sala/${listing.slug}`,
+      url: `${origin}/espaco/${listing.slug}`,
       photo: listing.photo,
       neighborhood: listing.neighborhood,
       city: listing.city,

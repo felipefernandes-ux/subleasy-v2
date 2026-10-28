@@ -28,7 +28,7 @@ Fonte: Google Search Console de subleasy.com.br, 26/07 a 24/10/2026. O Semrush f
 - Meta description: 150 caracteres, com a palavra-chave e os dois públicos
 - H1 com a palavra-chave exata e definição nas primeiras 60 palavras
 - Dados estruturados: `WebPage`, `BreadcrumbList` e `FAQPage`
-- Links internos: cabeçalho e rodapé apontam para `/como-funciona`; a seção da home leva ao guia completo; a página leva a `/anunciar` e `/salas`
+- Links internos: cabeçalho e rodapé apontam para `/como-funciona`; a seção da home leva ao guia completo; a página leva a `/anunciar` e `/espacos`
 - Entrou no `sitemap.xml`
 
 ## Depois de publicar

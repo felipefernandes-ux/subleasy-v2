@@ -288,7 +288,7 @@ export async function approveListing(listingId: string) {
   ]);
   if (owner?.email) {
     await sendEmail(
-      listingPublishedEmail(owner.email, owner.display_name ?? "", listing.title, `${origin}/sala/${listing.slug}`),
+      listingPublishedEmail(owner.email, owner.display_name ?? "", listing.title, `${origin}/espaco/${listing.slug}`),
     );
   }
   redirect("/admin/anuncios?aprovado=1");
@@ -358,7 +358,7 @@ export async function getWhatsAppLink(listingId: string, title: string) {
     ? `Olá! Vi a sala “${title}” no Subleasy, com a oferta ${offers.join(" e ")}, e quero saber mais.`
     : `Olá! Vi a sala “${title}” no Subleasy e quero saber mais.`;
   // O link do anúncio vai no fim, para o anunciante saber exatamente de qual sala se trata.
-  const message = listing?.slug ? `${intro}\n${await getOrigin()}/sala/${listing.slug}` : intro;
+  const message = listing?.slug ? `${intro}\n${await getOrigin()}/espaco/${listing.slug}` : intro;
   return `https://wa.me/${number.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`;
 }
 

@@ -96,7 +96,7 @@ export function generateInsights(input: InsightInput): Insight[] {
         ...about(listing),
         title: "Ainda sem visitas",
         body: `Ninguém abriu este anúncio ${last}. Divulgue o link para colegas e grupos da sua área e confira se a primeira foto mostra bem a sala.`,
-        action: { label: "Abrir anúncio", href: `/sala/${listing.slug}` },
+        action: { label: "Abrir anúncio", href: `/espaco/${listing.slug}` },
       });
     } else if (views >= 20 && contacts === 0) {
       found.push({
@@ -307,7 +307,7 @@ function generalTips(listings: InsightListing[]): Insight[] {
     }),
     tip("divulgue", "Divulgue o link da sua sala", "Envie para colegas de profissão e grupos da sua área. A indicação de quem conhece você é um dos caminhos mais curtos para dividir a sala.", {
       label: first ? "Abrir anúncio" : "Anunciar sala",
-      href: first ? `/sala/${first.slug}` : "/anunciar",
+      href: first ? `/espaco/${first.slug}` : "/anunciar",
     }),
   ];
 }

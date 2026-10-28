@@ -50,7 +50,7 @@ async function Lists() {
         <HeartIcon className="size-10 text-ink-400" aria-hidden />
         <h2 className="mt-4 text-h3 font-bold text-ink-900">Crie sua primeira lista</h2>
         <p className="mt-2 text-ink-600">Enquanto procura sala, toque em Salvar para guardar as que você gostou e comparar depois.</p>
-        <Link href="/salas" className={`${buttonClasses("primary", "lg")} mt-6`}>
+        <Link href="/espacos" className={`${buttonClasses("primary", "lg")} mt-6`}>
           Buscar salas
         </Link>
       </div>

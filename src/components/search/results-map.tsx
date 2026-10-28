@@ -63,7 +63,7 @@ export function ResultsMap({ results, highlighted, onHover }: { results: SearchR
         })
           .on("mouseover", () => onHoverRef.current(result.id))
           .on("mouseout", () => onHoverRef.current(null))
-          .on("click", () => window.open(`/sala/${result.slug}`, "_blank", "noopener"))
+          .on("click", () => window.open(`/espaco/${result.slug}`, "_blank", "noopener"))
           .addTo(map);
         markers.set(result.id, { marker, html });
       }

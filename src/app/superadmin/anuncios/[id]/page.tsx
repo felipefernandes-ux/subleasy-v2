@@ -68,8 +68,8 @@ async function ListingDetail({
             <ButtonLink href="/anuncios" variant="ghost">
               Voltar
             </ButtonLink>
-            {/* /sala/[slug] mostra uma prévia para o admin mesmo se o anúncio não estiver no ar. */}
-            <ButtonLink href={`${publicOrigin}/sala/${listing.slug}`} target="_blank" rel="noopener">
+            {/* /espaco/[slug] mostra uma prévia para o admin mesmo se o anúncio não estiver no ar. */}
+            <ButtonLink href={`${publicOrigin}/espaco/${listing.slug}`} target="_blank" rel="noopener">
               <ArrowSquareOutIcon className="size-4" weight="bold" aria-hidden />
               Ver ao vivo
             </ButtonLink>
@@ -216,7 +216,7 @@ async function ListingDetail({
                 ["Válido até", dateTime(row.expires_at)],
                 ["Última alteração", dateTime(row.updated_at)],
                 ["Criado por", listing.createdBy],
-                ["Endereço da página", `/sala/${row.slug}`],
+                ["Endereço da página", `/espaco/${row.slug}`],
               ].map(([label, meta]) => (
                 <li key={label} className="flex justify-between gap-4 px-5 py-3">
                   <span>{label}</span>

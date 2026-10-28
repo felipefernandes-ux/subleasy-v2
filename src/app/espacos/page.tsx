@@ -14,10 +14,10 @@ import { createPublicClient } from "@/lib/supabase/public";
 export const metadata: Metadata = {
   title: "Buscar salas",
   description: "Consultórios e salas para sublocar por hora, turno, dia ou mês. Filtre por tipo, preço e comodidades e veja no mapa.",
-  alternates: { canonical: "/salas" },
+  alternates: { canonical: "/espacos" },
 };
 
-export default function SalasPage({ searchParams }: PageProps<"/salas">) {
+export default function SalasPage({ searchParams }: PageProps<"/espacos">) {
   // A casca (cabeçalho, filtros, áreas de lista e mapa) é estática e sai na hora;
   // só os anúncios esperam pelo banco e mostram o esqueleto enquanto isso.
   return (
@@ -36,7 +36,7 @@ export default function SalasPage({ searchParams }: PageProps<"/salas">) {
   );
 }
 
-async function Results({ params }: { params: Awaited<PageProps<"/salas">["searchParams"]> }) {
+async function Results({ params }: { params: Awaited<PageProps<"/espacos">["searchParams"]> }) {
   // Resultado sempre na hora: anúncios entram e expiram a todo momento.
   await connection();
   const results = await search(params);
@@ -51,7 +51,7 @@ const many = (value: string | string[] | undefined) => one(value).split(",").fil
  * Salas no ar e no prazo, com os filtros da URL. Valores fora da lista conhecida são
  * ignorados, e o texto do local perde os caracteres que mudariam a consulta.
  */
-async function search(params: Awaited<PageProps<"/salas">["searchParams"]>): Promise<SearchResult[]> {
+async function search(params: Awaited<PageProps<"/espacos">["searchParams"]>): Promise<SearchResult[]> {
   const tipos = many(params.tipo).filter((value) => (SPACE_TYPE_KEYS as string[]).includes(value));
   const cobranca = one(params.cobranca);
   const comodidades = many(params.comodidades).filter((value) => value in AMENITIES);

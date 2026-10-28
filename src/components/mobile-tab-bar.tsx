@@ -28,7 +28,7 @@ import { Logo } from "./ui";
 // Páginas de navegação, públicas e da área logada (painel e configurações), onde a barra aparece.
 // Ficam de fora as que já têm uma barra fixa própria (a página do anúncio tem a de contato; o editor
 // de anúncio tem a de salvar), os fluxos de formulário (anunciar, entrar, cadastro) e o Super Admin.
-const TAB_BAR_ROUTES = ["/salas", "/favoritos", "/como-funciona", "/u", "/painel", "/configuracoes"];
+const TAB_BAR_ROUTES = ["/espacos", "/favoritos", "/como-funciona", "/u", "/painel", "/configuracoes"];
 const TAB_BAR_HIDDEN = [/^\/painel\/anuncios\/[^/]+\/editar/];
 
 /** Mostra a barra só nas rotas de TAB_BAR_ROUTES e na home. Vive no layout raiz, então não some ao navegar. */
@@ -73,7 +73,7 @@ export function MobileTabBar() {
       >
         <ul className="mx-auto grid h-16 max-w-lg grid-cols-5">
           <Tab href="/" label="Home" active={is("/")} icon={HouseIcon} />
-          <Tab href="/salas" label="Buscar" active={is("/salas")} icon={MagnifyingGlassIcon} />
+          <Tab href="/espacos" label="Buscar" active={is("/espacos")} icon={MagnifyingGlassIcon} />
           {/* Anunciar: o ícone com a estrela avisa que a IA escreve o anúncio. */}
           <Tab href="/anunciar" label="Anunciar" hint="com IA" active={is("/anunciar")} icon={AnnounceAiIcon} />
           <Tab href="/favoritos" label="Favoritos" active={is("/favoritos")} icon={HeartIcon} />

@@ -43,7 +43,7 @@ export function ListingPreview({ listing }: { listing: PublicListing }) {
         <span className="size-2.5 rounded-full bg-ink-300" />
         <span className="size-2.5 rounded-full bg-ink-300" />
         <span className="size-2.5 rounded-full bg-ink-300" />
-        <span className="ml-2 truncate rounded-full bg-white px-3 py-1 text-xs text-ink-500 ring-1 ring-ink-200">subleasy.com.br/sala/…</span>
+        <span className="ml-2 truncate rounded-full bg-white px-3 py-1 text-xs text-ink-500 ring-1 ring-ink-200">subleasy.com.br/espaco/…</span>
       </div>
       <div ref={outerRef} className="relative max-h-[36rem] overflow-hidden" style={{ height: height * scale || undefined }} aria-label="Prévia do anúncio" role="img">
         <div ref={innerRef} inert className="origin-top-left bg-white p-8 select-none" style={{ width, transform: `scale(${scale})` }}>

@@ -57,8 +57,8 @@ const FOOTER_LINKS = [
   {
     title: "Profissionais",
     links: [
-      { href: "/salas/maringa", label: "Salas em Maringá" },
-      { href: "/salas/maringa/psicologia", label: "Salas para psicólogos" },
+      { href: "/espacos?local=Maring%C3%A1", label: "Salas em Maringá" },
+      { href: "/espacos?tipo=psicologia&local=Maring%C3%A1", label: "Salas para psicólogos" },
       { href: "/blog", label: "Blog" },
     ],
   },

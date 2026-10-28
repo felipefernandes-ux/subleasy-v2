@@ -42,7 +42,7 @@ export function SearchResults({ results, areaPoints }: { results: SearchResult[]
           <div className="mt-10 max-w-md">
             <p className="text-h3 font-bold text-ink-900">Nenhuma sala com esses filtros</p>
             <p className="mt-2 text-ink-600">Tente outro bairro ou cidade, uma faixa de preço maior ou menos comodidades.</p>
-            <Link href="/salas" className="focus-ring mt-4 inline-block rounded-sm font-bold text-brand-600 hover:text-brand-700">
+            <Link href="/espacos" className="focus-ring mt-4 inline-block rounded-sm font-bold text-brand-600 hover:text-brand-700">
               Ver todas as salas
             </Link>
           </div>

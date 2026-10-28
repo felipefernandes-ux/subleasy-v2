@@ -52,7 +52,7 @@ export function SearchNavMenu() {
         <div className="absolute top-full left-0 z-50 pt-2">
           <ul className="w-72 animate-fade-up rounded-card bg-white py-2 shadow-raised ring-1 ring-ink-900/8 [animation-duration:0.2s]">
             <li>
-              <Link href="/salas" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-sm font-bold text-ink-900 hover:bg-ink-100 hover:text-brand-700">
+              <Link href="/espacos" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-sm font-bold text-ink-900 hover:bg-ink-100 hover:text-brand-700">
                 Todas as salas
               </Link>
             </li>
@@ -62,7 +62,7 @@ export function SearchNavMenu() {
               return (
                 <li key={key}>
                   <Link
-                    href={`/salas?tipo=${key}`}
+                    href={`/espacos?tipo=${key}`}
                     onClick={() => setOpen(false)}
                     className="group flex items-center gap-3 px-4 py-2.5 text-sm text-ink-800 hover:bg-ink-100 hover:text-brand-700"
                   >

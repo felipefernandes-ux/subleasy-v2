@@ -69,7 +69,7 @@ async function FavoriteList({ id }: { id: string }) {
         <div className="mt-10 max-w-md">
           <HeartIcon className="size-10 text-ink-400" aria-hidden />
           <p className="mt-4 text-ink-600">Esta lista está vazia. Toque em Salvar na página de uma sala para guardá-la aqui.</p>
-          <Link href="/salas" className={`${buttonClasses("primary", "lg")} mt-6`}>
+          <Link href="/espacos" className={`${buttonClasses("primary", "lg")} mt-6`}>
             Buscar salas
           </Link>
         </div>

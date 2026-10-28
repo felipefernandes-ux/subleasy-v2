@@ -323,7 +323,7 @@ export default function ComoFuncionaPage() {
                     tab: "Procuro uma sala",
                     title: "Como encontrar uma sala para sublocação",
                     steps: SEEKER_STEPS,
-                    cta: { href: "/salas", label: "Buscar salas" },
+                    cta: { href: "/espacos", label: "Buscar salas" },
                   },
                 ]}
               />
@@ -518,7 +518,7 @@ export default function ComoFuncionaPage() {
                   Precisa de um lugar para atender?
                 </p>
                 <p className="mt-3 max-w-md text-ink-600">Busque por bairro, tipo de sala ou turno e fale direto com quem anuncia.</p>
-                <a href="/salas" className={`${buttonClasses("primary", "lg")} mt-8`}>
+                <a href="/espacos" className={`${buttonClasses("primary", "lg")} mt-8`}>
                   <SearchIcon className="size-4.5" />
                   Buscar salas
                 </a>

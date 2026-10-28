@@ -1,5 +1,5 @@
 // Frase livre da busca da home ("sala para psicologia na Zona 7, por hora") vira os
-// filtros da página /salas. Só o que dá para reconhecer com segurança; o resto vira local.
+// filtros da página /espacos. Só o que dá para reconhecer com segurança; o resto vira local.
 
 const TYPES: { key: string; pattern: RegExp }[] = [
   { key: "psicologia", pattern: /psic|terapia\b/ },
@@ -47,5 +47,5 @@ export function searchUrl(text: string) {
   // Nada reconhecido: a frase inteira vira busca por cidade ou bairro ("Maringá").
   if (params.size === 0 && query) params.set("local", query);
 
-  return `/salas${params.size ? `?${params}` : ""}`;
+  return `/espacos${params.size ? `?${params}` : ""}`;
 }

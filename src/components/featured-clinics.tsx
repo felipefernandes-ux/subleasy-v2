@@ -66,7 +66,7 @@ export async function FeaturedClinics() {
             <div className="flex items-end justify-between gap-4 sm:pr-28">
               <h3 className="text-h3 font-bold text-ink-900">Salas disponíveis</h3>
               <a
-                href="/salas"
+                href="/espacos"
                 className="focus-ring inline-flex items-center gap-1 rounded-control text-sm font-bold text-brand-600 hover:text-brand-500"
               >
                 Ver todas

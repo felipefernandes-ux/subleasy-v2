@@ -34,7 +34,7 @@ export function ResultCard({ listing, onHover, priority }: { listing: SearchResu
   const photos = listing.photos.slice(0, MAX_PHOTOS);
   const trackRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
-  const href = `/sala/${listing.slug}`;
+  const href = `/espaco/${listing.slug}`;
   const unit = BILLING_UNIT[listing.billing_type as BillingType] ?? listing.billing_type;
 
   const show = (next: number) => {

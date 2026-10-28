@@ -68,7 +68,7 @@ async function getRelated(listing: { id: string; city: string; space_type: strin
   return (data ?? []).sort((a, b) => score(b) - score(a)).slice(0, 4);
 }
 
-export async function generateMetadata({ params }: PageProps<"/sala/[slug]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/espaco/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const listing = await getPublicListing(slug);
   if (!listing) return { title: "Sala não encontrada" };
@@ -78,13 +78,13 @@ export async function generateMetadata({ params }: PageProps<"/sala/[slug]">): P
   return {
     title: listing.title,
     description,
-    alternates: { canonical: `/sala/${slug}` },
-    openGraph: { title: listing.title, description, url: `/sala/${slug}`, images: image ? [{ url: image }] : undefined },
+    alternates: { canonical: `/espaco/${slug}` },
+    openGraph: { title: listing.title, description, url: `/espaco/${slug}`, images: image ? [{ url: image }] : undefined },
     twitter: { card: "summary_large_image", title: listing.title, description, images: image ? [image] : undefined },
   };
 }
 
-export default function SalaPage({ params }: PageProps<"/sala/[slug]">) {
+export default function SalaPage({ params }: PageProps<"/espaco/[slug]">) {
   return (
     <>
       <SiteHeader />

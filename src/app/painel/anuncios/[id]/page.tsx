@@ -46,7 +46,7 @@ async function ListingReview({ params }: { params: PageProps<"/painel/anuncios/[
   ]);
   if (!listing) notFound();
 
-  const publicUrl = `${await getOrigin()}/sala/${listing.slug}`;
+  const publicUrl = `${await getOrigin()}/espaco/${listing.slug}`;
 
   if (listing.status === "pending_approval") {
     return (
