@@ -1,7 +1,9 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { SearchResults } from "@/components/search/search-results";
+import { ResultsSkeleton } from "@/components/search/results-skeleton";
+import { SearchLayout } from "@/components/search/search-layout";
+import { SearchResults, type AreaPoints } from "@/components/search/search-results";
 import type { SearchResult } from "@/components/search/result-card";
 import { SiteHeader } from "@/components/site-header";
 import { geocodeArea, spread } from "@/lib/geocode";
@@ -16,15 +18,19 @@ export const metadata: Metadata = {
 };
 
 export default function SalasPage({ searchParams }: PageProps<"/salas">) {
+  // A casca (cabeçalho, filtros, áreas de lista e mapa) é estática e sai na hora;
+  // só os anúncios esperam pelo banco e mostram o esqueleto enquanto isso.
   return (
     <>
       <SiteHeader />
       <main className="flex-1">
-        <Suspense fallback={<div className="h-[60vh] animate-pulse bg-ink-50" />}>
-          {searchParams.then((params) => (
-            <Results params={params} />
-          ))}
-        </Suspense>
+        <SearchLayout>
+          <Suspense fallback={<ResultsSkeleton />}>
+            {searchParams.then((params) => (
+              <Results params={params} />
+            ))}
+          </Suspense>
+        </SearchLayout>
       </main>
     </>
   );
@@ -33,7 +39,9 @@ export default function SalasPage({ searchParams }: PageProps<"/salas">) {
 async function Results({ params }: { params: Awaited<PageProps<"/salas">["searchParams"]> }) {
   // Resultado sempre na hora: anúncios entram e expiram a todo momento.
   await connection();
-  return <SearchResults results={await search(params)} />;
+  const results = await search(params);
+  // A busca de coordenadas por bairro é lenta; a lista não espera por ela.
+  return <SearchResults results={results} areaPoints={locateAreas(results)} />;
 }
 
 const one = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value) ?? "";
@@ -67,17 +75,22 @@ async function search(params: Awaited<PageProps<"/salas">["searchParams"]>): Pro
   const { data, error } = await query.order("published_at", { ascending: false, nullsFirst: false }).order("created_at", { ascending: false }).limit(60);
   if (error) console.error("[salas]", error);
 
-  // Sala sem localização no mapa aparece na área do bairro. Uma consulta por vez,
-  // como pede o OpenStreetMap; as áreas já vistas voltam do cache na hora.
-  const results: SearchResult[] = [];
-  for (const listing of data ?? []) {
-    let point: [number, number] | null = listing.latitude !== null && listing.longitude !== null ? [listing.latitude, listing.longitude] : null;
-    const approximate = point === null;
-    if (!point) {
-      const area = await geocodeArea(listing.neighborhood, listing.city, listing.state);
-      point = area ? spread(area, listing.id) : null;
-    }
-    results.push({ ...listing, photo_sizes: parsePhotoSizes(listing.photo_sizes), latitude: point?.[0] ?? null, longitude: point?.[1] ?? null, approximate });
+  return (data ?? []).map((listing) => ({ ...listing, photo_sizes: parsePhotoSizes(listing.photo_sizes), approximate: listing.latitude === null || listing.longitude === null }));
+}
+
+/**
+ * Sala sem localização no mapa aparece na área do bairro. Uma consulta por área, uma de
+ * cada vez, como pede o OpenStreetMap; as áreas já vistas voltam do cache na hora.
+ */
+async function locateAreas(results: SearchResult[]): Promise<AreaPoints> {
+  const areas = new Map<string, [number, number] | null>();
+  const points: AreaPoints = {};
+  for (const listing of results) {
+    if (!listing.approximate) continue;
+    const key = `${listing.neighborhood}|${listing.city}|${listing.state}`;
+    if (!areas.has(key)) areas.set(key, await geocodeArea(listing.neighborhood, listing.city, listing.state));
+    const area = areas.get(key);
+    if (area) points[listing.id] = spread(area, listing.id);
   }
-  return results;
+  return points;
 }

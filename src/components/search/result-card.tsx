@@ -30,7 +30,7 @@ const MAX_PHOTOS = 4;
  * Cartão da busca: até 4 fotos num carrossel (o resto fica no anúncio) e tudo abre
  * o anúncio numa nova aba, para a pessoa não perder a busca.
  */
-export function ResultCard({ listing, onHover }: { listing: SearchResult; onHover?: (id: string | null) => void }) {
+export function ResultCard({ listing, onHover, priority }: { listing: SearchResult; onHover?: (id: string | null) => void; priority?: boolean }) {
   const photos = listing.photos.slice(0, MAX_PHOTOS);
   const trackRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
@@ -62,7 +62,7 @@ export function ResultCard({ listing, onHover }: { listing: SearchResult; onHove
                 aria-label={position === 0 ? `${listing.title} (abre em nova aba)` : undefined}
                 className="relative block size-full shrink-0 snap-center"
               >
-                <FramedPhoto src={photoUrl(path)} alt="" size={listing.photo_sizes[path]} sizes="(min-width: 1280px) 22vw, (min-width: 640px) 45vw, 100vw" />
+                <FramedPhoto src={photoUrl(path)} alt="" priority={priority && position === 0} size={listing.photo_sizes[path]} sizes="(min-width: 1280px) 22vw, (min-width: 640px) 45vw, 100vw" />
                 {/* Última foto do carrossel: convite para ver o resto no anúncio. */}
                 {photos.length > 1 && position === photos.length - 1 && (
                   <span className="absolute inset-0 grid place-items-center bg-brand-600/55 backdrop-blur-md">
