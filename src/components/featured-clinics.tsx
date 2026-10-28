@@ -1,5 +1,6 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { parsePhotoSizes } from "@/lib/listing-options";
+import { buildSuggestions } from "@/lib/search-suggestions";
 import { createPublicClient } from "@/lib/supabase/public";
 import { ListingsCarousel } from "./listings-carousel";
 import { RoomSearch } from "./room-search";
@@ -23,8 +24,23 @@ async function getActiveListings(): Promise<SearchResult[]> {
   return (data ?? []).map((listing) => ({ ...listing, photo_sizes: parsePhotoSizes(listing.photo_sizes) }));
 }
 
+// Sugestões da busca a partir de todos os anúncios no ar, com a mesma renovação da lista.
+async function getSearchSuggestions(): Promise<string[]> {
+  "use cache";
+  cacheTag("listings");
+  cacheLife("hours");
+
+  const { data } = await createPublicClient()
+    .from("listings")
+    .select("space_type, city, neighborhood, billing_type")
+    .eq("status", "active")
+    .gt("expires_at", new Date().toISOString())
+    .limit(500);
+  return buildSuggestions(data ?? []);
+}
+
 export async function FeaturedClinics() {
-  const listings = await getActiveListings();
+  const [listings, suggestions] = await Promise.all([getActiveListings(), getSearchSuggestions()]);
   return (
     <section id="buscar" aria-labelledby="buscar-titulo" className="scroll-mt-16 bg-ink-50">
       <div className="container-page py-20 sm:py-24">
@@ -42,7 +58,7 @@ export async function FeaturedClinics() {
         </div>
 
         <div className="mx-auto mt-10 max-w-3xl">
-          <RoomSearch />
+          <RoomSearch suggestions={suggestions} />
         </div>
 
         {listings.length > 0 && (
