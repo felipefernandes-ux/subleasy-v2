@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowSquareOutIcon, CheckIcon, PauseIcon, ArrowClockwiseIcon, PencilSimpleIcon } from "@phosphor-icons/react/ssr";
 import { ConfirmDialog } from "@/components/superadmin/confirm-dialog";
+import { ReturnListingDialog } from "@/components/superadmin/return-listing-dialog";
 import { DeleteListingsDialog } from "@/components/superadmin/delete-listings-dialog";
 import {
   Avatar,
@@ -44,7 +45,9 @@ async function ListingDetail({
   searchParams: PageProps<"/superadmin/anuncios/[id]">["searchParams"];
 }) {
   const { id } = await params;
-  const saved = (await searchParams).salvo === "1";
+  const query = await searchParams;
+  const saved = query.salvo === "1";
+  const returned = query.devolvido === "1";
   await requireAdmin(`/anuncios/${id}`);
   const [[listing], full] = await Promise.all([loadAdminListings(id), loadListingFull(id)]);
   if (!listing || !full) notFound();
@@ -81,6 +84,12 @@ async function ListingDetail({
       {saved && (
         <p role="status" className="mb-6 rounded-sa-card bg-mint-100 p-4 text-sa-base text-[#064e3b]">
           Anúncio salvo.
+        </p>
+      )}
+
+      {returned && (
+        <p role="status" className="mb-6 rounded-sa-card bg-mint-100 p-4 text-sa-base text-[#064e3b]">
+          Anúncio devolvido. O anunciante recebeu a nota por e-mail.
         </p>
       )}
 
@@ -228,13 +237,7 @@ async function ListingDetail({
                     <CheckIcon className="size-4" weight="bold" aria-hidden />
                     Aprovar e colocar no ar
                   </Button>
-                  <ConfirmDialog
-                    trigger="Devolver com nota"
-                    title="Devolver com nota"
-                    description="O anunciante recebe a nota por e-mail e pode ajustar o anúncio."
-                    confirmLabel="Devolver anúncio"
-                    reasonLabel="Nota para o anunciante"
-                  />
+                  <ReturnListingDialog listingId={row.id} />
                 </>
               )}
               <ConfirmDialog

@@ -20,7 +20,7 @@ import {
   type Offer,
 } from "@/lib/listing-options";
 import { notifySubmitted } from "@/lib/listing-notify";
-import { getOrigin } from "@/lib/origin";
+import { getOrigin, getPublicOrigin } from "@/lib/origin";
 import { createClient } from "@/lib/supabase/server";
 
 export type ListingField =
@@ -283,7 +283,7 @@ export async function approveListing(listingId: string) {
   updateTag("listings");
   const [{ data: owner }, origin] = await Promise.all([
     supabase.rpc("listing_owner", { p_listing_id: listingId }).maybeSingle(),
-    getOrigin(),
+    getPublicOrigin(),
   ]);
   if (owner?.email) {
     await sendEmail(
@@ -321,13 +321,15 @@ export async function returnListing(
 
   const [{ data: owner }, origin] = await Promise.all([
     supabase.rpc("listing_owner", { p_listing_id: listingId }).maybeSingle(),
-    getOrigin(),
+    getPublicOrigin(),
   ]);
   if (owner?.email) {
     await sendEmail(
       listingReturnedEmail(owner.email, owner.display_name ?? "", listing.title, note, `${origin}/painel/anuncios/${listingId}`),
     );
   }
+  // O Super Admin pede para voltar à página do anúncio; qualquer outro destino cai na lista antiga.
+  if (formData.get("next") === "superadmin") redirect(`/superadmin/anuncios/${listingId}?devolvido=1`);
   redirect("/admin/anuncios?devolvido=1");
 }
 

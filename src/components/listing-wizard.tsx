@@ -21,7 +21,8 @@ import {
   WarningCircleIcon,
   type Icon,
 } from "@phosphor-icons/react";
-import { createListing, discardDraftPhotos } from "@/app/actions/create-listing";
+import { createListing, discardDraftPhotos, type NewListing } from "@/app/actions/create-listing";
+import { updateListing } from "@/app/actions/update-listing";
 import { suggestListingCopy } from "@/app/actions/rewrite";
 import {
   AMENITIES,
@@ -34,7 +35,9 @@ import {
   UFS,
   amenityLabel,
   formatPrice,
+  parsePhotoSizes,
   photoUrl,
+  formatWhatsApp,
   toBrazilianWhatsApp,
   type BillingType,
   type Highlight,
@@ -50,6 +53,7 @@ import {
   PhotoManager,
   formatMoneyInput,
   formatPhoneInput,
+  moneyFromNumber,
   parsePrice,
   usePhotoSizes,
   type AddressValues,
@@ -215,6 +219,84 @@ export function ListingWizard({ userId, profile }: { userId: string; profile: Pr
   );
 }
 
+/** Anúncio que já existe, como vem do banco, para abrir no mesmo passo a passo do cadastro. */
+export type ExistingListing = {
+  id: string;
+  status: string;
+  space_type: string;
+  space_type_other: string | null;
+  title: string;
+  short_summary: string | null;
+  description: string | null;
+  billing_type: string;
+  price: number;
+  zip_code: string | null;
+  city: string;
+  state: string;
+  neighborhood: string;
+  latitude: number | null;
+  longitude: number | null;
+  show_exact_location: boolean;
+  min_rental_period: string | null;
+  rules: string[];
+  amenities: string[];
+  highlights: string[];
+  offers: string[];
+  photos: string[];
+  photo_sizes: unknown;
+  review_note: string | null;
+  whatsapp: string;
+  contact_email: string;
+  street_address: string | null;
+};
+
+/**
+ * Edição de um anúncio que já existe, no mesmo formulário do cadastro. Abre na conferência final,
+ * de onde cada bloco leva ao passo certo. Sem rascunho no navegador: o anúncio é o rascunho.
+ */
+export function ListingEditWizard({ userId, listing }: { userId: string; listing: ExistingListing }) {
+  const sizes = parsePhotoSizes(listing.photo_sizes);
+  const draft: Draft = {
+    ...emptyDraft({ whatsapp: formatWhatsApp(listing.whatsapp), email: listing.contact_email }),
+    id: listing.id,
+    step: STEPS.length - 1,
+    space_type: listing.space_type as SpaceType,
+    space_type_other: listing.space_type_other ?? "",
+    zip_code: listing.zip_code ?? "",
+    // O endereço é guardado numa linha só; o número já vai junto da rua.
+    street: listing.street_address ?? "",
+    neighborhood: listing.neighborhood,
+    city: listing.city,
+    state: listing.state,
+    latitude: listing.latitude,
+    longitude: listing.longitude,
+    show_exact_location: listing.show_exact_location,
+    amenities: listing.amenities,
+    photos: listing.photos.map((path) => ({ path, size: sizes[path] })),
+    highlights: listing.highlights as Highlight[],
+    title: listing.title,
+    short_summary: listing.short_summary ?? "",
+    description: listing.description ?? "",
+    billing_type: listing.billing_type as BillingType,
+    price: moneyFromNumber(listing.price),
+    min_rental_period: listing.min_rental_period ?? "",
+    rules: listing.rules.join("\n"),
+    offers: listing.offers as Offer[],
+  };
+  return (
+    <Wizard
+      storageKey=""
+      handoffKey=""
+      userId={userId}
+      profile={{ whatsapp: draft.whatsapp, email: draft.contact_email }}
+      fresh={draft}
+      resume={draft}
+      autoResume
+      editing={{ reviewNote: listing.review_note, published: listing.status === "active" || listing.status === "paused" }}
+    />
+  );
+}
+
 function Wizard({
   storageKey,
   handoffKey,
@@ -223,6 +305,7 @@ function Wizard({
   fresh,
   resume,
   autoResume,
+  editing,
 }: {
   storageKey: string;
   handoffKey: string;
@@ -231,6 +314,8 @@ function Wizard({
   fresh: Draft;
   resume: Draft | null;
   autoResume: boolean;
+  /** Editando um anúncio que já existe: não usa o rascunho do navegador e salva com updateListing. */
+  editing?: { reviewNote: string | null; published: boolean };
 }) {
   // Guarda o rascunho vazio da primeira renderização: é com ele que "nada foi tocado" se compara.
   const [blank] = useState(fresh);
@@ -252,13 +337,13 @@ function Wizard({
 
   // Salva a cada mudança. As fotos entram só depois de enviadas ao Storage.
   useEffect(() => {
-    if (pristine) return;
+    if (pristine || editing) return;
     localStorage.setItem(storageKey, JSON.stringify({ ...draft, photos: ready.map(({ path, size }) => ({ path, size })) }));
-  }, [storageKey, draft, ready, pristine]);
+  }, [storageKey, draft, ready, pristine, editing]);
 
   // O rascunho da IA já está na chave principal: o recado some para não voltar numa próxima visita.
   useEffect(() => {
-    if (autoResume) localStorage.removeItem(handoffKey);
+    if (autoResume && !editing) localStorage.removeItem(handoffKey);
     // só ao abrir
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -362,8 +447,8 @@ function Wizard({
     const street = [draft.street.trim(), draft.number.trim()].filter(Boolean).join(", ") + (draft.complement.trim() ? ` - ${draft.complement.trim()}` : "");
     startTransition(async () => {
       // Se der certo, a ação redireciona para o painel: o rascunho local sai antes.
-      localStorage.removeItem(storageKey);
-      const result = await createListing({
+      if (!editing) localStorage.removeItem(storageKey);
+      const input: NewListing = {
         id: draft.id,
         space_type: draft.space_type as SpaceType,
         space_type_other: draft.space_type === "outro" ? draft.space_type_other : "",
@@ -389,9 +474,10 @@ function Wizard({
         offers: draft.offers,
         whatsapp: draft.whatsapp,
         contact_email: draft.contact_email,
-      });
+      };
+      const result = await (editing ? updateListing(input) : createListing(input));
       if (result && !result.ok) {
-        localStorage.setItem(storageKey, JSON.stringify({ ...draft, photos: ready.map(({ path, size }) => ({ path, size })) }));
+        if (!editing) localStorage.setItem(storageKey, JSON.stringify({ ...draft, photos: ready.map(({ path, size }) => ({ path, size })) }));
         setSubmitError(result.error);
         if (result.step !== undefined) goTo(result.step);
       }
@@ -420,13 +506,15 @@ function Wizard({
             <Logo />
           </Link>
           <div className="flex items-center gap-2">
-            <Link href="/anunciar/ia" className={`${buttonClasses("ghost")} max-sm:px-3`}>
-              <SparkleIcon className="size-4 text-brand-600" />
-              <span className="max-sm:hidden">Preencher com IA</span>
-              <span className="sm:hidden">IA</span>
-            </Link>
-            <Link href="/painel/anuncios" className={`${buttonClasses("secondary")} max-sm:px-3`}>
-              Salvar e sair
+            {!editing && (
+              <Link href="/anunciar/ia" className={`${buttonClasses("ghost")} max-sm:px-3`}>
+                <SparkleIcon className="size-4 text-brand-600" />
+                <span className="max-sm:hidden">Preencher com IA</span>
+                <span className="sm:hidden">IA</span>
+              </Link>
+            )}
+            <Link href={editing ? `/painel/anuncios/${draft.id}` : "/painel/anuncios"} className={`${buttonClasses("secondary")} max-sm:px-3`}>
+              {editing ? "Sair sem enviar" : "Salvar e sair"}
             </Link>
           </div>
         </div>
@@ -439,6 +527,26 @@ function Wizard({
           </p>
           <h1 className="mt-2 text-h1 font-bold text-ink-900">{STEPS[step].title}</h1>
           <p className="mt-2 text-ink-600">{STEPS[step].text}</p>
+
+          {editing?.reviewNote && (
+            <div className="mb-6 rounded-card bg-warning-500/10 p-5 ring-1 ring-warning-500/30">
+              <p className="flex items-center gap-2 font-bold text-ink-900">
+                <WarningCircleIcon className="size-5 text-warning-500" weight="fill" aria-hidden />
+                A equipe do Subleasy pediu um ajuste
+              </p>
+              <p className="mt-2 whitespace-pre-line text-ink-700">{editing.reviewNote}</p>
+            </div>
+          )}
+
+          {editing?.published && (
+            <div className="mb-6 flex items-start gap-2 rounded-card bg-brand-50 p-4 text-sm text-ink-800 ring-1 ring-brand-100">
+              <WarningCircleIcon className="mt-0.5 size-5 shrink-0 text-brand-600" weight="fill" aria-hidden />
+              <p>
+                <strong className="font-bold text-ink-900">As alterações passam por revisão.</strong> Ao enviar, o anúncio sai do ar até a equipe do
+                Subleasy aprovar as mudanças, em até 1 dia útil. A data de publicação e o prazo continuam os mesmos.
+              </p>
+            </div>
+          )}
 
           {step === 0 && saved && pristine && (
             <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 rounded-card bg-brand-50 p-4 ring-1 ring-brand-100">

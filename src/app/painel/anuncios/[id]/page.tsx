@@ -2,12 +2,11 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
-import { HostShell, PageIntro, Skeleton } from "@/components/host-shell";
-import { ListingEditor } from "@/components/listing-editor";
+import { HostShell, Skeleton } from "@/components/host-shell";
+import { ListingEditWizard } from "@/components/listing-wizard";
 import { ListingDashboard, type DashboardListing, type DashboardMetrics, type Inquiry } from "@/components/host-listing-dashboard";
 import { formatLeadDate } from "@/components/host-leads";
 import { SubmittedPanel } from "@/components/listing-status-panels";
-import { parsePhotoSizes } from "@/lib/listing-options";
 import { getOrigin } from "@/lib/origin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -18,11 +17,9 @@ export const metadata: Metadata = {
 
 export default function ListingReviewPage({ params }: PageProps<"/painel/anuncios/[id]">) {
   return (
-    <HostShell>
-      <Suspense fallback={<Skeleton />}>
-        <ListingReview params={params} />
-      </Suspense>
-    </HostShell>
+    <Suspense fallback={<HostShell><Skeleton /></HostShell>}>
+      <ListingReview params={params} />
+    </Suspense>
   );
 }
 
@@ -39,7 +36,7 @@ async function ListingReview({ params }: { params: PageProps<"/painel/anuncios/[
     supabase
       .from("listings")
       .select(
-        "id, slug, status, title, short_summary, description, space_type, billing_type, price, zip_code, city, state, neighborhood, min_rental_period, rules, amenities, photos, photo_sizes, review_note, published_at, expires_at, email_contact, whatsapp_contact",
+        "id, slug, status, title, short_summary, description, space_type, space_type_other, billing_type, price, zip_code, city, state, neighborhood, latitude, longitude, show_exact_location, min_rental_period, rules, amenities, highlights, offers, photos, photo_sizes, review_note, published_at, expires_at, email_contact, whatsapp_contact",
       )
       .eq("id", id)
       .eq("owner_id", user.id)
@@ -52,29 +49,31 @@ async function ListingReview({ params }: { params: PageProps<"/painel/anuncios/[
   const publicUrl = `${await getOrigin()}/sala/${listing.slug}`;
 
   if (listing.status === "pending_approval") {
-    return <SubmittedPanel title={listing.title} email={user.email ?? ""} />;
+    return (
+      <HostShell>
+        <SubmittedPanel title={listing.title} email={user.email ?? ""} />
+      </HostShell>
+    );
   }
   if (listing.status === "active" || listing.status === "paused") {
-    return <ListingDashboard {...await loadDashboard(supabase, { ...listing, url: publicUrl })} />;
+    return (
+      <HostShell>
+        <ListingDashboard {...await loadDashboard(supabase, { ...listing, url: publicUrl })} />
+      </HostShell>
+    );
   }
 
+  // Devolvido para ajustes: o mesmo passo a passo do cadastro, com o recado da equipe.
   return (
-    <>
-      <PageIntro eyebrow="Revisão do anúncio" title="Confira o que a IA preencheu">
-        Revise os 5 passos, adicione as fotos e envie. Os campos com o ícone de brilho vieram da IA. Nada
-        vai ao ar antes de a equipe do Subleasy aprovar.
-      </PageIntro>
-      <ListingEditor
-        userId={user.id}
-        listing={{
-          ...listing,
-          photo_sizes: parsePhotoSizes(listing.photo_sizes),
-          whatsapp: contact?.whatsapp_number ?? profile?.whatsapp_number ?? "",
-          contact_email: contact?.contact_email ?? user.email ?? "",
-          street_address: contact?.street_address ?? null,
-        }}
-      />
-    </>
+    <ListingEditWizard
+      userId={user.id}
+      listing={{
+        ...listing,
+        whatsapp: contact?.whatsapp_number ?? profile?.whatsapp_number ?? "",
+        contact_email: contact?.contact_email ?? user.email ?? "",
+        street_address: contact?.street_address ?? null,
+      }}
+    />
   );
 }
 
