@@ -19,6 +19,8 @@ export type Listing = {
   expires: string;
   views: number;
   contacts: number;
+  /** URL pública da primeira foto; ausente se o anúncio não tem fotos. */
+  cover?: string | null;
   authorization?: string;
 };
 

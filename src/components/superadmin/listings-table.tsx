@@ -87,10 +87,22 @@ export function ListingsTable({
                   </td>
                 )}
                 <td className="max-w-80">
-                  <Link href={`/anuncios/${listing.id}`} className="block truncate font-semibold text-sa-ink hover:text-brand-600">
-                    {listing.title}
-                  </Link>
-                  <span className="text-sa-xs text-sa-muted">{listing.type}</span>
+                  <span className="flex items-center gap-3">
+                    {listing.cover ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- miniatura da lista do admin, sem otimização
+                      <img src={listing.cover} alt="" loading="lazy" className="size-12 shrink-0 rounded-sa-badge bg-sa-haze object-cover" />
+                    ) : (
+                      <span aria-hidden className="grid size-12 shrink-0 place-items-center rounded-sa-badge bg-sa-haze text-sa-xs text-sa-muted">
+                        Sem foto
+                      </span>
+                    )}
+                    <span className="min-w-0">
+                      <Link href={`/anuncios/${listing.id}`} className="block truncate font-semibold text-sa-ink hover:text-brand-600">
+                        {listing.title}
+                      </Link>
+                      <span className="text-sa-xs text-sa-muted">{listing.type}</span>
+                    </span>
+                  </span>
                 </td>
                 <td className="max-w-56">
                   <span className="flex items-center gap-2">

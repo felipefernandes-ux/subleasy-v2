@@ -98,6 +98,7 @@ export async function loadAdminListings(onlyId?: string): Promise<AdminListing[]
       expires: row.status === "active" ? until(row.expires_at) : "—",
       views: views.get(row.id) ?? 0,
       contacts: contacts.get(row.id) ?? 0,
+      cover: row.photos[0] ? photoUrl(row.photos[0]) : null,
       description: row.description,
       summary: row.short_summary,
       photoUrls: row.photos.map(photoUrl),
