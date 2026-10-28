@@ -484,6 +484,42 @@ export type Database = {
         }
         Relationships: []
       }
+      login_codes: {
+        Row: {
+          attempts: number
+          code_hash: string
+          consumed_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          purpose: string
+          user_id: string | null
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          consumed_at?: string | null
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          purpose: string
+          user_id?: string | null
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          consumed_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          purpose?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_path: string | null
@@ -503,6 +539,7 @@ export type Database = {
           show_whatsapp_at: string | null
           terms_accepted_at: string
           terms_version: string
+          trusted_devices_reset_at: string
           updated_at: string
           whatsapp_number: string | null
         }
@@ -524,6 +561,7 @@ export type Database = {
           show_whatsapp_at?: string | null
           terms_accepted_at: string
           terms_version: string
+          trusted_devices_reset_at?: string
           updated_at?: string
           whatsapp_number: string | null
         }
@@ -545,6 +583,7 @@ export type Database = {
           show_whatsapp_at?: string | null
           terms_accepted_at?: string
           terms_version?: string
+          trusted_devices_reset_at?: string
           updated_at?: string
           whatsapp_number?: string | null
         }
@@ -561,6 +600,7 @@ export type Database = {
         Returns: string
       }
       get_profile_whatsapp: { Args: { p_public_id: string }; Returns: string }
+      auth_user_id_by_email: { Args: { p_email: string }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
       listing_host: {
         Args: { p_listing_id: string }

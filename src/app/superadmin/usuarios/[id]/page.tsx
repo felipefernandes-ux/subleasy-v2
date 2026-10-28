@@ -86,7 +86,7 @@ async function UserDetail({ params }: { params: PageProps<"/superadmin/usuarios/
                 ["Cadastro", user.joined],
                 ["Anúncios", user.listings],
                 ["Último acesso", user.lastSignIn ?? "Nunca entrou"],
-                ["Entrada", user.provider === "google" ? "Google" : "Link por e-mail"],
+                ["Entrada", user.provider === "google" ? "Google" : "Código por e-mail"],
               ]}
             />
           </Card>

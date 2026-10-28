@@ -1,21 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { startTransition, useActionState, useId, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useSearchParams } from "next/navigation";
+import { CircleNotchIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import {
-  CircleNotchIcon,
-  EnvelopeSimpleIcon,
-  WarningCircleIcon,
-} from "@phosphor-icons/react";
-import {
-  sendMagicLink,
+  requestLoginCode,
   signInWithGoogle,
+  verifyLoginCode,
   type AuthMode,
-  type MagicLinkState,
+  type CodeFormState,
+  type LoginCodeState,
 } from "@/app/actions/auth";
 import { safeNextPath } from "@/lib/auth-redirect";
+import { CodeStep } from "./code-step";
 import { buttonClasses } from "./ui";
 
 const COPY: Record<
@@ -34,7 +33,7 @@ const COPY: Record<
     title: "Entre no Subleasy",
     subtitle: "Para anunciar e acompanhar suas salas.",
     google: "Fazer login com o Google",
-    submit: "Enviar link de acesso",
+    submit: "Entrar com email",
     switchText: "Ainda não tem conta?",
     switchLabel: "Criar conta",
     switchHref: "/criar-conta",
@@ -52,7 +51,7 @@ const COPY: Record<
 
 // Erros que chegam pela URL, vindos do /auth/callback ou do Google.
 const URL_ERRORS: Record<string, string> = {
-  link: "Este link expirou ou já foi usado. Peça um novo abaixo.",
+  link: "Este link expirou ou já foi usado. Peça um código novo abaixo.",
   google: "Não foi possível entrar com o Google. Tente de novo.",
 };
 
@@ -81,24 +80,41 @@ export function AuthForm({
   defaultEmail?: string;
 }) {
   const copy = COPY[mode];
-  const [state, formAction, isPending] = useActionState<MagicLinkState, FormData>(
-    sendMagicLink,
+  const [state, formAction, isPending] = useActionState<LoginCodeState, FormData>(
+    requestLoginCode,
     { status: "idle" },
   );
+  const [codeState, codeAction, codePending] = useActionState<CodeFormState, FormData>(verifyLoginCode, { status: "idle" });
   // Ao clicar em "Usar outro e-mail", volta ao formulário sem perder o texto.
-  const [dismissedEmail, setDismissedEmail] = useState<string | null>(null);
+  const [dismissed, setDismissed] = useState<LoginCodeState | null>(null);
   const emailId = useId();
   const errorId = useId();
 
-  const sent = state.status === "sent" && dismissedEmail !== state.email;
+  const sent = state.status === "sent" && dismissed !== state;
   const fieldError = state.status === "error" ? state : null;
   const switchHref = withParams(copy.switchHref, next, fieldError?.email);
 
   if (sent) {
+    const resend = () => {
+      const data = new FormData();
+      data.set("email", state.email);
+      data.set("mode", mode);
+      data.set("next", next);
+      startTransition(() => formAction(data));
+    };
     return (
-      <SentNotice
+      <CodeStep
         email={state.email}
-        onBack={() => setDismissedEmail(state.email)}
+        title="Confira seu e-mail"
+        description={mode === "signup" ? "Enviamos um código de 6 dígitos para confirmar o e-mail" : "Enviamos um código de 6 dígitos para"}
+        formAction={codeAction}
+        pending={codePending}
+        error={codeState.status === "error" ? codeState.error : undefined}
+        hidden={{ email: state.email, mode, next }}
+        submitLabel={mode === "signup" ? "Confirmar e criar conta" : "Entrar"}
+        onResend={resend}
+        onBack={() => setDismissed(state)}
+        backLabel="Usar outro e-mail"
       />
     );
   }
@@ -172,7 +188,7 @@ export function AuthForm({
           {isPending ? (
             <>
               <CircleNotchIcon className="size-5 animate-spin" weight="bold" aria-hidden />
-              Enviando link
+              Enviando código
             </>
           ) : (
             copy.submit
@@ -205,31 +221,6 @@ function GoogleButton({ label }: { label: string }) {
       )}
       {label}
     </button>
-  );
-}
-
-function SentNotice({ email, onBack }: { email: string; onBack: () => void }) {
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  useEffect(() => headingRef.current?.focus(), []);
-
-  return (
-    <div className="w-full animate-fade-up text-center">
-      <span className="mx-auto grid size-12 place-items-center rounded-full bg-brand-50 text-brand-600">
-        <EnvelopeSimpleIcon className="size-6" weight="bold" aria-hidden />
-      </span>
-      <h1 ref={headingRef} tabIndex={-1} className="mt-5 text-h2 font-bold text-ink-900 focus:outline-none">
-        Confira seu e-mail
-      </h1>
-      <p className="mt-3 text-ink-600">
-        Enviamos um link de acesso para
-        <strong className="block font-bold [overflow-wrap:anywhere] text-ink-900">{email}</strong>
-        Abra o link neste aparelho para entrar.
-      </p>
-      <p className="mt-3 text-sm text-ink-500">Não chegou? Veja a caixa de spam.</p>
-      <button type="button" onClick={onBack} className={`${buttonClasses("ghost")} mt-6`}>
-        Usar outro e-mail
-      </button>
-    </div>
   );
 }
 

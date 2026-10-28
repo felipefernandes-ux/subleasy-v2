@@ -26,14 +26,12 @@ export async function getAdminIdentity(): Promise<AdminIdentity> {
   const { data } = await supabase.auth.getUser();
   const user = data.user;
   if (!user) return { name: "Admin", firstName: "", twoFactor: false };
-  const [{ data: profile }, { data: factors }] = await Promise.all([
-    supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle(),
-    supabase.auth.mfa.listFactors(),
-  ]);
+  const { data: profile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
   const name = profile?.display_name || String(user.user_metadata?.full_name ?? "") || user.email || "Admin";
   return {
     name,
     firstName: name.includes("@") ? "" : name.split(/\s+/)[0],
-    twoFactor: Boolean(factors?.totp.some((factor) => factor.status === "verified")),
+    // O proxy exige o código por e-mail em todo login do Super Admin, então o 2FA está sempre ativo.
+    twoFactor: true,
   };
 }

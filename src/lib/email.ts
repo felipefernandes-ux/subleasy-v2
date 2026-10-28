@@ -18,6 +18,8 @@ type Email = {
   heading: string;
   paragraphs: string[];
   cta?: { label: string; url: string };
+  /** Código de verificação, em destaque. */
+  code?: string;
   footnote?: string;
   /** Para onde vai a resposta. Na mensagem de um interessado, é o e-mail dele. */
   replyTo?: string;
@@ -49,6 +51,23 @@ export async function sendEmail(email: Email) {
 }
 
 // ── Mensagens ──────────────────────────────────────────────
+
+export function loginCodeEmail(to: string, code: string, purpose: "login" | "signup" | "session"): Email {
+  const intro =
+    purpose === "signup"
+      ? "Use o código abaixo para confirmar seu e-mail e criar sua conta no Subleasy."
+      : purpose === "session"
+        ? "Alguém entrou na sua conta do Subleasy. Para concluir, digite o código abaixo."
+        : "Use o código abaixo para entrar no Subleasy.";
+  return {
+    to,
+    subject: `${code} é o seu código do Subleasy`,
+    heading: "Seu código de verificação",
+    paragraphs: [intro, "O código vale por 10 minutos e só funciona uma vez."],
+    code,
+    footnote: "Se não foi você, ignore este e-mail. Ninguém entra na sua conta sem esse código.",
+  };
+}
 
 export function listingSubmittedEmail(to: string, name: string, title: string, url: string): Email {
   return {
@@ -144,10 +163,13 @@ function escape(value: string) {
 }
 
 // HTML de e-mail: tabela, estilos em linha e largura de 560 px, que os clientes de e-mail entendem.
-function renderHtml({ heading, paragraphs, cta, footnote }: Email) {
+function renderHtml({ heading, paragraphs, cta, code, footnote }: Email) {
   const body = paragraphs
     .map((p) => `<p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#344054;">${escape(p)}</p>`)
     .join("");
+  const codeBlock = code
+    ? `<p style="margin:8px 0 20px;padding:18px 0;border-radius:8px;background:#f4f1ff;text-align:center;font-family:'Courier New',monospace;font-size:34px;font-weight:700;letter-spacing:10px;color:#2c12b3;">${escape(code)}</p>`
+    : "";
   const button = cta
     ? `<a href="${escape(cta.url)}" style="display:inline-block;margin-top:8px;padding:14px 24px;border-radius:8px;background:#3818d9;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;">${escape(cta.label)}</a>`
     : "";
@@ -161,14 +183,14 @@ function renderHtml({ heading, paragraphs, cta, footnote }: Email) {
 <tr><td style="padding:32px 32px 0;"><span style="font-size:22px;font-weight:700;color:#3818d9;">subleasy</span><span style="font-size:22px;font-weight:700;color:#25edb1;">.</span></td></tr>
 <tr><td style="padding:24px 32px 32px;">
 <h1 style="margin:0 0 16px;font-size:24px;line-height:1.25;color:#101828;">${escape(heading)}</h1>
-${body}${button}${note}
+${body}${codeBlock}${button}${note}
 </td></tr></table>
 <p style="margin:16px 0 0;font-size:12px;color:#98a2b3;">Subleasy · Sua sala no turno certo.</p>
 </td></tr></table></body></html>`;
 }
 
-function renderText({ heading, paragraphs, cta, footnote }: Email) {
-  return [heading, "", ...paragraphs, "", cta ? `${cta.label}: ${cta.url}` : "", footnote ?? ""]
+function renderText({ heading, paragraphs, cta, code, footnote }: Email) {
+  return [heading, "", ...paragraphs, "", code ? `Código: ${code}` : "", "", cta ? `${cta.label}: ${cta.url}` : "", footnote ?? ""]
     .filter((line, index, all) => line !== "" || all[index - 1] !== "")
     .join("\n")
     .trim();

@@ -8,6 +8,7 @@ import { bioProblem, isOwnAvatarPath } from "@/lib/public-profile";
 import { PHOTO_BUCKET, toBrazilianWhatsApp } from "@/lib/listing-options";
 import { getOrigin } from "@/lib/origin";
 import { createClient } from "@/lib/supabase/server";
+import { clearTrust } from "@/lib/two-factor";
 
 export type FieldResult = { ok: true; message?: string } | { ok: false; error: string };
 
@@ -168,8 +169,25 @@ export async function disconnectGoogle(): Promise<FieldResult> {
 /** Encerra a sessão em todos os aparelhos, inclusive neste. */
 export async function signOutEverywhere() {
   const supabase = await createClient();
+  // Também encerra a confiança nos aparelhos: o próximo login pede o código em qualquer um deles.
+  await resetTrustedDevices(supabase);
   await supabase.auth.signOut({ scope: "global" });
   redirect("/entrar");
+}
+
+/** Encerra a confiança em todos os aparelhos: o próximo login novo volta a pedir o código. */
+export async function revokeTrustedDevices() {
+  const { supabase } = await session();
+  await resetTrustedDevices(supabase);
+  refresh();
+}
+
+async function resetTrustedDevices(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) await supabase.from("profiles").update({ trusted_devices_reset_at: new Date().toISOString() }).eq("id", user.id);
+  await clearTrust();
 }
 
 /**

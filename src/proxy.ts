@@ -4,11 +4,16 @@ import { isAdminHost, isSharedPath, isSuperAdminPath } from "@/lib/admin-host";
 import { AUTH_PATHS, PROFILE_PATH, isProtectedPath, safeNextPath } from "@/lib/auth-redirect";
 import type { Database } from "@/lib/supabase/database.types";
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "@/lib/supabase/env";
+import { SESSION_COOKIE, TRUST_COOKIE, TRUST_DAYS, readTrust, signSession, verifySession } from "@/lib/two-factor-token";
 
 /**
  * Renova a sessão do Supabase a cada requisição e protege as rotas do anunciante:
  * sem conta, /anunciar e /painel levam para /entrar?next=<rota>; com conta mas
  * sem perfil, levam para /cadastro?next=<rota>.
+ *
+ * Todo login novo exige o código de 6 dígitos enviado por e-mail: sem o cookie de sessão verificada
+ * (veja two-factor-token.ts), quem está logado vai para /verificar antes de qualquer rota protegida.
+ * No site público, um aparelho marcado como confiável pula o código; no Super Admin, nunca.
  *
  * Em admin.<domínio> o Super Admin ocupa a raiz: /leads é servido por /superadmin/leads,
  * e o resto do site público dá 404. No domínio público, /superadmin dá 404.
@@ -56,7 +61,38 @@ export async function proxy(request: NextRequest) {
   const claims = data?.claims;
   const signedIn = Boolean(claims);
 
-  if (toSuperAdmin) return response;
+  // A sessão passou pelo código? Cookie preso ao session_id; ou, no site público, aparelho confiável.
+  const verified = async () => {
+    if (!claims?.sub) return false;
+    const sub = String(claims.sub);
+    if (verifySession(request.cookies.get(SESSION_COOKIE)?.value, sub, String(claims.session_id ?? ""))) return true;
+    if (adminHost) return false;
+    const issued = readTrust(request.cookies.get(TRUST_COOKIE)?.value, sub);
+    if (issued === null) return false;
+    const { data } = await supabase.from("profiles").select("trusted_devices_reset_at").eq("id", sub).maybeSingle();
+    if (!data || issued <= Date.parse(data.trusted_devices_reset_at)) return false;
+    // Aparelho confiável: esta sessão nova já fica verificada.
+    response.cookies.set(SESSION_COOKIE, signSession(sub, String(claims.session_id ?? "")), {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: TRUST_DAYS * 24 * 60 * 60,
+    });
+    return true;
+  };
+  const toVerify = (target = `${pathname}${search}`) => {
+    const url = request.nextUrl.clone();
+    url.pathname = "/verificar";
+    url.search = "";
+    if (target !== "/") url.searchParams.set("next", target);
+    return redirectKeepingCookies(url, response);
+  };
+
+  if (toSuperAdmin) {
+    // Sem login, o requireAdmin leva para /entrar; logado sem código, o Super Admin pede o código.
+    return signedIn && !(await verified()) ? toVerify() : response;
+  }
 
   if (!signedIn && isProtectedPath(pathname)) {
     const url = request.nextUrl.clone();
@@ -65,6 +101,8 @@ export async function proxy(request: NextRequest) {
     url.searchParams.set("next", `${pathname}${search}`);
     return redirectKeepingCookies(url, response);
   }
+
+  if (signedIn && isProtectedPath(pathname) && !(await verified())) return toVerify();
 
   // Só consulta o perfil nas rotas protegidas, para não pesar no resto do site.
   if (signedIn && isProtectedPath(pathname)) {
@@ -89,6 +127,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (signedIn && AUTH_PATHS.includes(pathname)) {
+    if (!(await verified())) return toVerify(safeNextPath(searchParams.get("next")));
     const url = new URL(safeNextPath(searchParams.get("next")), request.url);
     return redirectKeepingCookies(url, response);
   }

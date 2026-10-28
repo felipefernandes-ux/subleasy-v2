@@ -3,7 +3,7 @@ import { AuthPage } from "@/components/auth-page";
 
 export const metadata: Metadata = {
   title: "Entrar",
-  description: "Entre no Subleasy com sua conta Google ou com um link de acesso por e-mail.",
+  description: "Entre no Subleasy com sua conta Google ou com um código de 6 dígitos enviado por e-mail.",
   alternates: { canonical: "/entrar" },
   robots: { index: false, follow: true },
 };
