@@ -4,5 +4,5 @@ import { SoonPage } from "@/components/superadmin/soon-page";
 export const metadata: Metadata = { title: "Identidade verificada" };
 
 export default function Page() {
-  return <SoonPage href="/superadmin/usuarios/verificacao" />;
+  return <SoonPage href="/usuarios/verificacao" />;
 }

@@ -87,7 +87,7 @@ export function ListingsTable({
                   </td>
                 )}
                 <td className="max-w-80">
-                  <Link href={`/superadmin/anuncios/${listing.id}`} className="block truncate font-semibold text-sa-ink hover:text-brand-600">
+                  <Link href={`/anuncios/${listing.id}`} className="block truncate font-semibold text-sa-ink hover:text-brand-600">
                     {listing.title}
                   </Link>
                   <span className="text-sa-xs text-sa-muted">{listing.type}</span>
@@ -109,15 +109,15 @@ export function ListingsTable({
                 <td className="whitespace-nowrap text-sa-muted">{variant === "review" ? listing.submitted : listing.expires}</td>
                 <td className="text-right">
                   {variant === "review" ? (
-                    <ButtonLink href={`/superadmin/anuncios/${listing.id}`} small variant="primary">
+                    <ButtonLink href={`/anuncios/${listing.id}`} small variant="primary">
                       Revisar
                     </ButtonLink>
                   ) : variant === "imported" ? (
-                    <ButtonLink href={`/superadmin/anuncios/${listing.id}`} small>
+                    <ButtonLink href={`/anuncios/${listing.id}`} small>
                       Reenviar convite
                     </ButtonLink>
                   ) : (
-                    <ButtonLink href={`/superadmin/anuncios/${listing.id}`} small variant="ghost">
+                    <ButtonLink href={`/anuncios/${listing.id}`} small variant="ghost">
                       Abrir
                     </ButtonLink>
                   )}

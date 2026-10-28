@@ -4,5 +4,5 @@ import { SoonPage } from "@/components/superadmin/soon-page";
 export const metadata: Metadata = { title: "Importar do WordPress" };
 
 export default function Page() {
-  return <SoonPage href="/superadmin/anuncios/importar" />;
+  return <SoonPage href="/anuncios/importar" />;
 }

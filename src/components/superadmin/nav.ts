@@ -52,9 +52,10 @@ export type NavGroup = {
   items: NavItem[];
 };
 
-const base = "/superadmin";
+// O Super Admin vive na raiz de admin.subleasy.com.br; o proxy reescreve para /superadmin.
+const base = "";
 
-export const HOME: NavItem = { href: base, label: "Início", icon: HouseSimpleIcon, phase: "mvp" };
+export const HOME: NavItem = { href: "/", label: "Início", icon: HouseSimpleIcon, phase: "mvp" };
 
 export const NAV_GROUPS: NavGroup[] = [
   {

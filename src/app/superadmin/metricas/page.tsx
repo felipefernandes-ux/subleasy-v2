@@ -4,5 +4,5 @@ import { SoonPage } from "@/components/superadmin/soon-page";
 export const metadata: Metadata = { title: "Painel da plataforma" };
 
 export default function Page() {
-  return <SoonPage href="/superadmin/metricas" />;
+  return <SoonPage href="/metricas" />;
 }

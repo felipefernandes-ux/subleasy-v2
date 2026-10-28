@@ -26,7 +26,7 @@ export default function UsersPage() {
         title="Usuários"
         description="Todas as contas de login, direto do banco. Admin fica em tabela própria e exige 2FA."
         actions={
-          <ButtonLink href="/superadmin/usuarios/novo" variant="primary">
+          <ButtonLink href="/usuarios/novo" variant="primary">
             <UserPlusIcon className="size-4" weight="bold" aria-hidden />
             Convidar usuário
           </ButtonLink>
@@ -40,7 +40,7 @@ export default function UsersPage() {
 }
 
 async function UsersData() {
-  await requireAdmin("/superadmin/usuarios");
+  await requireAdmin("/usuarios");
   const users = await loadAdminUsers();
 
   return (
@@ -77,7 +77,7 @@ async function UsersData() {
             {users.map((user) => (
               <tr key={user.id}>
                 <td>
-                  <Link href={`/superadmin/usuarios/${user.id}`} className="flex items-center gap-3">
+                  <Link href={`/usuarios/${user.id}`} className="flex items-center gap-3">
                     <Avatar name={user.name} />
                     <span className="min-w-0">
                       <span className="block truncate font-semibold text-sa-ink hover:text-brand-600">{user.name}</span>

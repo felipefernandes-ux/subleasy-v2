@@ -4,5 +4,5 @@ import { SoonPage } from "@/components/superadmin/soon-page";
 export const metadata: Metadata = { title: "Motivos de saída" };
 
 export default function Page() {
-  return <SoonPage href="/superadmin/metricas/saidas" />;
+  return <SoonPage href="/metricas/saidas" />;
 }

@@ -21,7 +21,7 @@ export default function LeadsPage() {
         title="Base de leads"
         description="Uma tabela única, com a origem e a base legal de cada contato. Quem não tem base legal para marketing fica na base, mas o envio de campanha bloqueia."
         actions={
-          <ButtonLink href="/superadmin/leads/importar" variant="primary">
+          <ButtonLink href="/leads/importar" variant="primary">
             <UploadSimpleIcon className="size-4" weight="bold" aria-hidden />
             Importar lista
           </ButtonLink>

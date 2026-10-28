@@ -30,7 +30,7 @@ export default function ListingDetailPage({ params }: PageProps<"/superadmin/anu
 
 async function ListingDetail({ params }: { params: PageProps<"/superadmin/anuncios/[id]">["params"] }) {
   const { id } = await params;
-  await requireAdmin(`/superadmin/anuncios/${id}`);
+  await requireAdmin(`/anuncios/${id}`);
   const [listing] = await loadAdminListings(id);
   if (!listing) notFound();
 
@@ -44,7 +44,7 @@ async function ListingDetail({ params }: { params: PageProps<"/superadmin/anunci
         description={`${listing.type} · ${listing.neighborhood}, ${listing.city} · ${listing.price}`}
         actions={
           <>
-            <ButtonLink href="/superadmin/anuncios" variant="ghost">
+            <ButtonLink href="/anuncios" variant="ghost">
               Voltar
             </ButtonLink>
             {/* /sala/[slug] mostra uma prévia para o admin mesmo se o anúncio não estiver no ar. */}
@@ -142,7 +142,7 @@ async function ListingDetail({ params }: { params: PageProps<"/superadmin/anunci
                 listings={[listing]}
                 label="Remover anúncio"
                 small={false}
-                redirectTo="/superadmin/anuncios"
+                redirectTo="/anuncios"
               />
             </div>
           </Card>

@@ -15,7 +15,7 @@ export default function ListingsPage() {
         title="Anúncios"
         description="Todos os anúncios da plataforma, direto do banco. Marque os que quiser e exclua em lote."
         actions={
-          <ButtonLink href="/superadmin/anuncios/novo" variant="primary">
+          <ButtonLink href="/anuncios/novo" variant="primary">
             <PlusIcon className="size-4" weight="bold" aria-hidden />
             Novo anúncio
           </ButtonLink>
@@ -29,7 +29,7 @@ export default function ListingsPage() {
 }
 
 async function ListingsData() {
-  await requireAdmin("/superadmin/anuncios");
+  await requireAdmin("/anuncios");
   const listings = await loadAdminListings();
   const count = (status: string) => listings.filter((listing) => listing.status === status).length;
 

@@ -91,7 +91,7 @@ export default function NewListingPage() {
                 Convite não aceito em 30 dias: o anúncio pausa e entra em “Importados sem dono”.
               </p>
               <div className="flex justify-end gap-2 border-t border-sa-haze pt-4">
-                <ButtonLink href="/superadmin/anuncios" variant="ghost">
+                <ButtonLink href="/anuncios" variant="ghost">
                   Cancelar
                 </ButtonLink>
                 <Button variant="outline">Salvar rascunho</Button>

@@ -36,7 +36,7 @@ export default function InviteUserPage() {
               </select>
             </Field>
             <div className="flex justify-end gap-2 border-t border-sa-haze pt-5">
-              <ButtonLink href="/superadmin/usuarios" variant="ghost">
+              <ButtonLink href="/usuarios" variant="ghost">
                 Cancelar
               </ButtonLink>
               <Button variant="primary">Enviar convite</Button>

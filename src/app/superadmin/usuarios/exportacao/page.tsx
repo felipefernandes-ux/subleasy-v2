@@ -4,5 +4,5 @@ import { SoonPage } from "@/components/superadmin/soon-page";
 export const metadata: Metadata = { title: "Exportar dados" };
 
 export default function Page() {
-  return <SoonPage href="/superadmin/usuarios/exportacao" />;
+  return <SoonPage href="/usuarios/exportacao" />;
 }

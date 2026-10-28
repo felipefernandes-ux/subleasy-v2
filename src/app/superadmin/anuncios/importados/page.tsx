@@ -29,7 +29,7 @@ export default function ImportedListingsPage() {
 }
 
 async function Imported() {
-  await requireAdmin("/superadmin/anuncios/importados");
+  await requireAdmin("/anuncios/importados");
   const listings = (await loadAdminListings()).filter((listing) => listing.status === "convite_pendente");
   return (
     <>

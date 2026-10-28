@@ -16,9 +16,9 @@ import { HOME, NAV_GROUPS, findNav, isGroupSoon, isSoon, type NavGroup, type Nav
 
 // Contadores fictícios da fila, só para o menu.
 const COUNTS: Record<string, number> = {
-  "/superadmin/anuncios/revisao": 3,
-  "/superadmin/anuncios/importados": 3,
-  "/superadmin/usuarios/pedidos": 2,
+  "/anuncios/revisao": 3,
+  "/anuncios/importados": 3,
+  "/usuarios/pedidos": 2,
 };
 
 const groupCount = (group: NavGroup) => group.items.reduce((sum, item) => sum + (COUNTS[item.href] ?? 0), 0);
@@ -174,7 +174,7 @@ function Breadcrumb() {
   const pathname = usePathname();
   const found = findNav(pathname);
   const crumbs = [found?.group?.label, found?.item.label].filter(Boolean) as string[];
-  const isDetail = found && pathname.replace(/\/$/, "") !== found.item.href;
+  const isDetail = found && (pathname.replace(/\/$/, "") || "/") !== found.item.href;
   return (
     <ol className="flex min-w-0 items-center gap-1.5 text-sa-sm text-sa-muted">
       <li>Admin</li>

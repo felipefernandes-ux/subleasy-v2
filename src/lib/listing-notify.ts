@@ -1,7 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 import { adminNewListingEmail, listingSubmittedEmail, sendEmail } from "@/lib/email";
 import { BILLING_UNIT, formatPrice, type BillingType } from "@/lib/listing-options";
-import { getOrigin } from "@/lib/origin";
+import { getAdminOrigin, getOrigin } from "@/lib/origin";
 import type { createClient } from "@/lib/supabase/server";
 
 type Submitted = {
@@ -35,7 +35,7 @@ export async function notifySubmitted(supabase: Awaited<ReturnType<typeof create
             price: `${formatPrice(listing.price)} por ${BILLING_UNIT[listing.billing_type]}`,
             photos: listing.photos,
           },
-          `${origin}/admin/anuncios/${listing.id}`,
+          `${await getAdminOrigin()}/admin/anuncios/${listing.id}`,
         ),
       ),
   ]);

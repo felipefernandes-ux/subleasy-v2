@@ -4,5 +4,5 @@ import { SoonPage } from "@/components/superadmin/soon-page";
 export const metadata: Metadata = { title: "Denúncias" };
 
 export default function Page() {
-  return <SoonPage href="/superadmin/moderacao" />;
+  return <SoonPage href="/moderacao" />;
 }

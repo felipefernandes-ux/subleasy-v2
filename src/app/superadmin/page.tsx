@@ -25,8 +25,8 @@ export default function SuperAdminHome() {
         description="Só o que pede ação hoje. Fechando a fila, o resto do dia é seu."
         actions={
           <>
-            <ButtonLink href="/superadmin/usuarios/novo">Convidar usuário</ButtonLink>
-            <ButtonLink href="/superadmin/anuncios/novo" variant="primary">
+            <ButtonLink href="/usuarios/novo">Convidar usuário</ButtonLink>
+            <ButtonLink href="/anuncios/novo" variant="primary">
               Novo anúncio
             </ButtonLink>
           </>
@@ -36,21 +36,21 @@ export default function SuperAdminHome() {
       <h2 className="sr-only">Fila do dia</h2>
       <section aria-label="Fila do dia" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <QueueCard
-          href="/superadmin/anuncios/revisao"
+          href="/anuncios/revisao"
           label="Anúncios em revisão"
           count={inReview.length}
           detail="Meta: resposta em até 1 dia útil"
           icon={ListChecksIcon}
         />
         <QueueCard
-          href="/superadmin/usuarios/pedidos"
+          href="/usuarios/pedidos"
           label="Pedidos do titular (LGPD)"
           count={openRequests.length}
           detail="Prazo de 15 dias, 1 vence em 2 dias"
           icon={ScrollIcon}
         />
         <QueueCard
-          href="/superadmin/moderacao"
+          href="/moderacao"
           label="Denúncias abertas"
           count="—"
           detail="Chega com a moderação"
@@ -58,7 +58,7 @@ export default function SuperAdminHome() {
           soon
         />
         <QueueCard
-          href="/superadmin/anuncios/importados"
+          href="/anuncios/importados"
           label="Importados sem dono"
           count={3}
           detail="1 convite vence em 3 dias"
@@ -83,13 +83,13 @@ export default function SuperAdminHome() {
           <CardHeader
             title="Aprovar agora"
             description="Do mais antigo para o mais novo."
-            action={<ButtonLink href="/superadmin/anuncios/revisao" small>Ver todos</ButtonLink>}
+            action={<ButtonLink href="/anuncios/revisao" small>Ver todos</ButtonLink>}
           />
           <ul className="divide-y divide-sa-haze">
             {inReview.map((listing) => (
               <li key={listing.id}>
                 <Link
-                  href={`/superadmin/anuncios/${listing.id}`}
+                  href={`/anuncios/${listing.id}`}
                   className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-sa-paper"
                 >
                   <div className="min-w-0 flex-1">
@@ -109,7 +109,7 @@ export default function SuperAdminHome() {
         <Card className="overflow-hidden">
           <CardHeader
             title="Atividade recente"
-            action={<ButtonLink href="/superadmin/configuracoes/auditoria" small>Auditoria</ButtonLink>}
+            action={<ButtonLink href="/configuracoes/auditoria" small>Auditoria</ButtonLink>}
           />
           <ol className="divide-y divide-sa-haze">
             {AUDIT.slice(0, 5).map((entry) => (

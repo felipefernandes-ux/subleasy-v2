@@ -13,3 +13,12 @@ export async function getOrigin() {
   if (!host) return SITE_URL;
   return `${requestHeaders.get("x-forwarded-proto") ?? "http"}://${host}`;
 }
+
+/** Endereço do Super Admin (admin.<domínio>), para links de e-mail que levam à moderação. */
+export async function getAdminOrigin() {
+  const url = new URL(await getOrigin());
+  // Prévias da Vercel não têm subdomínio admin.
+  if (url.hostname.startsWith("admin.") || url.hostname.endsWith(".vercel.app")) return url.origin;
+  url.hostname = `admin.${url.hostname}`;
+  return url.origin;
+}

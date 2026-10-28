@@ -22,7 +22,7 @@ export default function ReviewQueuePage() {
 }
 
 async function Queue() {
-  await requireAdmin("/superadmin/anuncios/revisao");
+  await requireAdmin("/anuncios/revisao");
   const listings = (await loadAdminListings()).filter((listing) => listing.status === "em_revisao");
   return <ListingsTable listings={listings} variant="review" selectable />;
 }

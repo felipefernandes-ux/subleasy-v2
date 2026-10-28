@@ -45,7 +45,7 @@ export default function ImportLeadsPage() {
           </Card>
 
           <div className="flex justify-end gap-2">
-            <ButtonLink href="/superadmin/leads" variant="ghost">
+            <ButtonLink href="/leads" variant="ghost">
               Cancelar
             </ButtonLink>
             <Button variant="primary" disabled>

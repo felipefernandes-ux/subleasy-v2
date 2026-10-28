@@ -34,7 +34,7 @@ export default function UserDetailPage({ params }: PageProps<"/superadmin/usuari
 
 async function UserDetail({ params }: { params: PageProps<"/superadmin/usuarios/[id]">["params"] }) {
   const { id } = await params;
-  await requireAdmin(`/superadmin/usuarios/${id}`);
+  await requireAdmin(`/usuarios/${id}`);
   const [user] = await loadAdminUsers(id);
   if (!user) notFound();
 
@@ -56,7 +56,7 @@ async function UserDetail({ params }: { params: PageProps<"/superadmin/usuarios/
         title={user.name}
         description="Você vê a conta, mas nunca entra como a pessoa nem define a senha dela. A consulta desta ficha entra na auditoria."
         actions={
-          <ButtonLink href="/superadmin/usuarios" variant="ghost">
+          <ButtonLink href="/usuarios" variant="ghost">
             Voltar
           </ButtonLink>
         }
@@ -91,7 +91,7 @@ async function UserDetail({ params }: { params: PageProps<"/superadmin/usuarios/
               <ul className="divide-y divide-sa-haze">
                 {listings.map((listing) => (
                   <li key={listing.id}>
-                    <Link href={`/superadmin/anuncios/${listing.id}`} className="flex items-center gap-4 px-5 py-3 hover:bg-sa-paper">
+                    <Link href={`/anuncios/${listing.id}`} className="flex items-center gap-4 px-5 py-3 hover:bg-sa-paper">
                       <span className="min-w-0 flex-1 truncate font-semibold">{listing.title}</span>
                       <ListingStatusBadge status={listing.status} />
                     </Link>
