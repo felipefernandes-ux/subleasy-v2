@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 import { BILLING_UNIT, SPACE_TYPES, formatPrice, photoUrl, type BillingType, type SpaceType } from "@/lib/listing-options";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { Listing, ListingStatus } from "@/app/superadmin/_data/mock";
+import type { Listing, ListingStatus } from "@/lib/superadmin/types";
 
 export type AdminListing = Listing & {
   slug: string;
@@ -19,7 +19,7 @@ const STATUS: Record<string, ListingStatus> = {
   draft: "rascunho",
 };
 
-function ago(iso: string | null) {
+export function ago(iso: string | null) {
   if (!iso) return "—";
   const hours = Math.round((Date.now() - Date.parse(iso)) / 36e5);
   if (hours < 1) return "agora";

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { Listing } from "@/app/superadmin/_data/mock";
+import type { Listing } from "@/lib/superadmin/types";
 import { DeleteListingsDialog } from "./delete-listings-dialog";
 import { Avatar, Button, ButtonLink, ListingStatusBadge, OriginLabel, Pagination, TableCard } from "./ui";
 

@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 import { formatWhatsApp } from "@/lib/listing-options";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { Role, User, UserStatus } from "@/app/superadmin/_data/mock";
+import type { Role, User, UserStatus } from "@/lib/superadmin/types";
 
 export type AdminUser = User & {
   /** Contas criadas pela importação nunca entram; o login vem do convite. */

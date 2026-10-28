@@ -8,20 +8,10 @@ import {
   CaretRightIcon,
   ListIcon,
   MagnifyingGlassIcon,
-  ShieldCheckIcon,
   XIcon,
 } from "@phosphor-icons/react/ssr";
-import { Avatar, SoonBadge, cx } from "./ui";
+import { SoonBadge, cx } from "./ui";
 import { HOME, NAV_GROUPS, findNav, isGroupSoon, isSoon, type NavGroup, type NavItem } from "./nav";
-
-// Contadores fictícios da fila, só para o menu.
-const COUNTS: Record<string, number> = {
-  "/anuncios/revisao": 3,
-  "/anuncios/importados": 3,
-  "/usuarios/pedidos": 2,
-};
-
-const groupCount = (group: NavGroup) => group.items.reduce((sum, item) => sum + (COUNTS[item.href] ?? 0), 0);
 
 const rowClass = (active: boolean, muted?: boolean) =>
   cx(
@@ -30,17 +20,10 @@ const rowClass = (active: boolean, muted?: boolean) =>
     muted && !active && "text-sa-muted",
   );
 
-function Count({ value }: { value: number }) {
-  return (
-    <span className="rounded-sa-badge bg-brand-100 px-1.5 text-sa-micro font-semibold text-brand-900">{value}</span>
-  );
-}
-
 /** Link de um item do flyout (ou da lista indentada no mobile). */
 function SubLink({ item, pathname, onNavigate }: { item: NavItem; pathname: string; onNavigate: () => void }) {
   const active = pathname === item.href;
   const Icon = item.icon;
-  const count = COUNTS[item.href];
   return (
     <Link
       href={item.href}
@@ -51,7 +34,6 @@ function SubLink({ item, pathname, onNavigate }: { item: NavItem; pathname: stri
       <Icon className={cx("size-4 shrink-0", active ? "text-brand-600" : "text-sa-muted")} weight={active ? "fill" : "bold"} aria-hidden />
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
       {isSoon(item) && <SoonBadge />}
-      {count !== undefined && <Count value={count} />}
     </Link>
   );
 }
@@ -84,7 +66,6 @@ function GroupLink({
 }) {
   const active = pathname === group.href || pathname.startsWith(`${group.href}/`);
   const soon = isGroupSoon(group);
-  const count = groupCount(group);
   const hasMenu = group.items.length > 1;
   const Icon = group.icon;
 
@@ -99,7 +80,6 @@ function GroupLink({
       <Icon className={cx("size-4 shrink-0", active ? "text-brand-600" : "text-sa-muted")} weight={active ? "fill" : "bold"} aria-hidden />
       <span className="min-w-0 flex-1 truncate">{group.label}</span>
       {soon && <SoonBadge />}
-      {count > 0 && <Count value={count} />}
       {hasMenu && !mobile && <CaretRightIcon className="size-3 shrink-0 text-sa-faint" aria-hidden />}
     </Link>
   );
@@ -137,7 +117,7 @@ function GroupLink({
   );
 }
 
-function Sidebar({ onNavigate, mobile }: { onNavigate: () => void; mobile: boolean }) {
+function Sidebar({ onNavigate, mobile, footer }: { onNavigate: () => void; mobile: boolean; footer: ReactNode }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Super Admin" className="flex h-full flex-col">
@@ -154,18 +134,7 @@ function Sidebar({ onNavigate, mobile }: { onNavigate: () => void; mobile: boole
         ))}
       </div>
 
-      <div className="shrink-0 border-t border-sa-line p-3">
-        <div className="flex items-center gap-2.5 rounded-sa-control px-2 py-1.5">
-          <Avatar name="Felipe Fernandes" />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sa-sm font-semibold text-sa-ink">Felipe Fernandes</p>
-            <p className="flex items-center gap-1 text-sa-xs text-mint-700">
-              <ShieldCheckIcon className="size-3.5" weight="fill" aria-hidden />
-              2FA ativo
-            </p>
-          </div>
-        </div>
-      </div>
+      <div className="shrink-0 border-t border-sa-line p-3">{footer}</div>
     </nav>
   );
 }
@@ -194,7 +163,8 @@ function Breadcrumb() {
   );
 }
 
-export function SuperAdminShell({ children }: { children: ReactNode }) {
+/** `footer` é o rodapé do menu (quem está logado), renderizado no servidor pelo layout. */
+export function SuperAdminShell({ children, footer }: { children: ReactNode; footer: ReactNode }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -209,7 +179,7 @@ export function SuperAdminShell({ children }: { children: ReactNode }) {
       {/* Sidebar fixa no desktop. Sem overflow, para o flyout poder sair da coluna. */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-sa-line bg-sa-canvas lg:block">
         <Suspense>
-          <Sidebar onNavigate={() => {}} mobile={false} />
+          <Sidebar onNavigate={() => {}} mobile={false} footer={footer} />
         </Suspense>
       </aside>
 
@@ -232,7 +202,7 @@ export function SuperAdminShell({ children }: { children: ReactNode }) {
               <XIcon className="size-4" aria-hidden />
             </button>
             <Suspense>
-              <Sidebar onNavigate={() => setOpen(false)} mobile />
+              <Sidebar onNavigate={() => setOpen(false)} mobile footer={footer} />
             </Suspense>
           </aside>
         </div>

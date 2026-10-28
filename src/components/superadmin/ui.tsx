@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { ArrowUpRightIcon, HourglassMediumIcon, MagnifyingGlassIcon } from "@phosphor-icons/react/ssr";
 import type { Icon } from "@phosphor-icons/react";
-import type { ListingOrigin, ListingStatus, Role, UserStatus } from "@/app/superadmin/_data/mock";
+import type { ListingOrigin, ListingStatus, Role, UserStatus } from "@/lib/superadmin/types";
 
 const cx = (...parts: Array<string | false | null | undefined>) => parts.filter(Boolean).join(" ");
 
@@ -192,7 +192,7 @@ export function StatCard({
   hint?: string;
   series?: number[];
 }) {
-  const max = series ? Math.max(...series) : 0;
+  const max = series ? Math.max(1, ...series) : 1;
   return (
     <Card className="p-5">
       <p className="text-sa-sm text-sa-muted">{label}</p>

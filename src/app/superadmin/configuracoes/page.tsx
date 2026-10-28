@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { PlusIcon, ShieldCheckIcon } from "@phosphor-icons/react/ssr";
 import { Avatar, Badge, Button, Card, PageHeader, TableCard } from "@/components/superadmin/ui";
-import { ADMINS } from "../_data/mock";
+import { requireAdmin } from "@/lib/superadmin/auth";
+import { loadAdmins } from "@/lib/superadmin/admins";
 
 export const metadata: Metadata = { title: "Administradores" };
 
@@ -10,7 +12,7 @@ export default function AdminsPage() {
     <>
       <PageHeader
         title="Administradores"
-        description="Quem tem acesso ao Super Admin. Todo admin precisa de segundo fator (2FA) para entrar."
+        description="Quem tem acesso ao Super Admin e se cada pessoa já ativou o segundo fator (2FA)."
         actions={
           <Button variant="primary">
             <PlusIcon className="size-4" weight="bold" aria-hidden />
@@ -18,6 +20,18 @@ export default function AdminsPage() {
           </Button>
         }
       />
+      <Suspense fallback={<p className="py-10 text-center text-sa-muted">Carregando…</p>}>
+        <Admins />
+      </Suspense>
+    </>
+  );
+}
+
+async function Admins() {
+  await requireAdmin("/configuracoes");
+  const admins = await loadAdmins();
+  return (
+    <>
       <TableCard>
         <table className="sa-table">
           <thead>
@@ -33,7 +47,7 @@ export default function AdminsPage() {
             </tr>
           </thead>
           <tbody>
-            {ADMINS.map((admin) => (
+            {admins.map((admin) => (
               <tr key={admin.id}>
                 <td>
                   <span className="flex items-center gap-3">
@@ -45,12 +59,18 @@ export default function AdminsPage() {
                   </span>
                 </td>
                 <td>
-                  <Badge tone="brand">{admin.role}</Badge>
+                  <Badge tone="brand">Super admin</Badge>
                 </td>
                 <td>
-                  <Badge tone="success" dot>
-                    Ativo
-                  </Badge>
+                  {admin.twoFactor ? (
+                    <Badge tone="success" dot>
+                      Ativo
+                    </Badge>
+                  ) : (
+                    <Badge tone="warning" dot>
+                      Desligado
+                    </Badge>
+                  )}
                 </td>
                 <td className="text-sa-muted">{admin.lastSeen}</td>
                 <td className="text-sa-muted">{admin.since}</td>
@@ -64,15 +84,17 @@ export default function AdminsPage() {
           </tbody>
         </table>
       </TableCard>
-      <Card className="mt-6 flex items-start gap-3 p-5">
-        <ShieldCheckIcon className="mt-0.5 size-5 shrink-0 text-mint-700" weight="fill" aria-hidden />
-        <div>
-          <p className="font-semibold">Você é o único admin</p>
-          <p className="text-sa-sm text-sa-muted">
-            Se outras pessoas entrarem (suporte, moderação), vale separar permissões por área desde o primeiro convite.
-          </p>
-        </div>
-      </Card>
+      {admins.length === 1 && (
+        <Card className="mt-6 flex items-start gap-3 p-5">
+          <ShieldCheckIcon className="mt-0.5 size-5 shrink-0 text-mint-700" weight="fill" aria-hidden />
+          <div>
+            <p className="font-semibold">Você é o único admin</p>
+            <p className="text-sa-sm text-sa-muted">
+              Se outras pessoas entrarem (suporte, moderação), vale separar permissões por área desde o primeiro convite.
+            </p>
+          </div>
+        </Card>
+      )}
     </>
   );
 }

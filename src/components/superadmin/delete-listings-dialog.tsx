@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useId, useRef, useState, useTransition } from "react";
 import { TrashIcon, WarningIcon } from "@phosphor-icons/react/ssr";
 import { deleteListingsAsAdmin } from "@/app/superadmin/actions";
-import type { Listing } from "@/app/superadmin/_data/mock";
+import type { Listing } from "@/lib/superadmin/types";
 import { Badge, Button } from "./ui";
 
 /** Exclusão definitiva em lote: mostra o que vai sair e só libera depois de digitar “excluir”. */
