@@ -201,6 +201,33 @@ export type Database = {
           },
         ]
       }
+      campaign_invites: {
+        Row: {
+          campaign: string
+          clicked_at: string | null
+          created_at: string
+          interested_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign?: string
+          clicked_at?: string | null
+          created_at?: string
+          interested_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign?: string
+          clicked_at?: string | null
+          created_at?: string
+          interested_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       listing_imports: {
         Row: {
           extras: Json

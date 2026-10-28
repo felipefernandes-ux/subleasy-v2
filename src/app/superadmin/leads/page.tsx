@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { UploadSimpleIcon } from "@phosphor-icons/react/ssr";
+import { BrevoSyncCard } from "@/components/superadmin/brevo-sync-card";
 import {
   Badge,
   ButtonLink,
@@ -29,6 +30,7 @@ export default function LeadsPage() {
           </ButtonLink>
         }
       />
+      <BrevoSyncCard />
       <Suspense fallback={<p className="py-10 text-center text-sa-muted">Carregando…</p>}>
         <Leads />
       </Suspense>

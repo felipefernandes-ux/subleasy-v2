@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>{{ contact.FIRSTNAME }}, estou reconstruindo o Subleasy do zero</title>
+<!--
+  E-mail 1 (convite unificado): vai para toda a base de uma vez.
+  Texto segue docs/email/ (diretrizes de copy): sem exclamação, bloco de imagem antes do corpo,
+  título do anúncio em negrito, CTA único "Quero participar", P.S. em pergunta, rodapé LGPD.
+  Variáveis no formato do Brevo; docs/email/preview.mjs troca por dados de exemplo.
+-->
+</head>
+<body style="margin:0;padding:0;background:#f4f5f6;">
+
+<!-- Pré-cabeçalho -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#f4f5f6;">
+  Recriei a plataforma para facilitar a sublocação por hora, turno, dia ou mês. Veja como ficou.
+  &#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f5f6;">
+<tr><td align="center" style="padding:24px 12px;">
+
+  <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;font-family:Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+
+    <tr><td style="padding:8px 8px 20px 8px;">
+      <a href="{{ params.URL_SITE }}" style="text-decoration:none;">
+        <img src="{{ params.LOGO_URL }}" width="120" alt="Subleasy" style="display:block;border:0;height:auto;">
+      </a>
+    </td></tr>
+
+    <tr><td style="background:#ffffff;border:1px solid #e4e7ec;border-radius:14px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+
+        <!-- Espaço para imagem: troque pelo mockup quando existir (PNG ou JPG, 1104 px de largura) -->
+        <tr><td style="padding:12px 12px 0 12px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr><td align="center" valign="middle" height="232" style="height:232px;background:#f4f1ff;border:1px dashed #b19ffb;border-radius:10px;padding:0 32px;font-size:14px;line-height:22px;font-weight:500;color:#3818d9;text-align:center;">
+              [ Espaço para Imagem: mockup minimalista da interface do Subleasy 2.0 em tela de celular ]
+            </td></tr>
+          </table>
+        </td></tr>
+
+        <tr><td style="padding:28px 36px 0 36px;font-size:16px;line-height:26px;color:#2e3238;">
+          <p style="margin:0 0 16px 0;font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.01em;color:#1c1d1f;">
+            Oi {{ contact.FIRSTNAME }}, aqui é o Felipe, do Subleasy.
+          </p>
+          <p style="margin:0 0 16px 0;">
+            Analisei os erros do site antigo: formulários longos, anúncios que saíam do ar sem aviso e falta de dados para quem anunciava.
+          </p>
+          <p style="margin:0 0 16px 0;">
+            Por isso reconstruí a plataforma do zero. O Subleasy 2.0 ficou pronto e separei um acesso antecipado para você.
+          </p>
+          <p style="margin:0 0 16px 0;">
+            Se você já começou a cadastrar ou anunciou a sala <strong style="font-weight:700;color:#1c1d1f;">{{ contact.AD_TITLE }}</strong>, seus dados já estão guardados no novo sistema.
+          </p>
+          <p style="margin:0 0 10px 0;font-weight:600;color:#1c1d1f;">O que muda agora:</p>
+        </td></tr>
+
+        <tr><td style="padding:0 36px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td valign="top" width="22" style="padding:0 0 10px 0;font-size:15px;line-height:24px;color:#583be9;font-weight:600;">&bull;</td>
+              <td style="padding:0 0 10px 0;font-size:15px;line-height:24px;color:#505967;"><strong style="color:#1c1d1f;font-weight:600;">Cadastro em 3 minutos:</strong> a IA escreve título e descrição a partir de 5 respostas.</td>
+            </tr>
+            <tr>
+              <td valign="top" width="22" style="padding:0 0 10px 0;font-size:15px;line-height:24px;color:#583be9;font-weight:600;">&bull;</td>
+              <td style="padding:0 0 10px 0;font-size:15px;line-height:24px;color:#505967;"><strong style="color:#1c1d1f;font-weight:600;">Hora, turno, dia ou mês:</strong> você define como cobra pelo espaço.</td>
+            </tr>
+            <tr>
+              <td valign="top" width="22" style="padding:0;font-size:15px;line-height:24px;color:#583be9;font-weight:600;">&bull;</td>
+              <td style="padding:0;font-size:15px;line-height:24px;color:#505967;"><strong style="color:#1c1d1f;font-weight:600;">Métricas reais:</strong> veja quantas pessoas visitaram o espaço e clicaram no seu WhatsApp.</td>
+            </tr>
+          </table>
+        </td></tr>
+
+        <tr><td style="padding:16px 36px 0 36px;font-size:16px;line-height:26px;color:#2e3238;">
+          <p style="margin:0;">Anunciar e receber contatos continua grátis. Os recursos extras também, até março de 2027.</p>
+        </td></tr>
+
+        <tr><td style="padding:24px 36px 8px 36px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr><td align="center" bgcolor="#583be9" style="border-radius:10px;">
+              <a href="{{ contact.INTEREST_URL }}" style="display:block;padding:15px 24px;font-size:16px;line-height:20px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:10px;">Quero participar</a>
+            </td></tr>
+          </table>
+          <p style="margin:12px 0 0 0;font-size:13px;line-height:19px;color:#646e7d;text-align:center;">Ao clicar, preparo o seu acesso antes de abrirmos ao público.</p>
+        </td></tr>
+
+        <tr><td style="padding:24px 36px 36px 36px;font-size:16px;line-height:26px;color:#2e3238;">
+          <p style="margin:0 0 18px 0;">Um abraço,<br><strong style="font-weight:600;color:#1c1d1f;">Felipe</strong><br><span style="color:#646e7d;">Subleasy</span></p>
+          <p style="margin:0;font-size:15px;line-height:24px;color:#505967;">P.S. Qual foi o maior problema do site antigo para você? Responda com uma linha, eu mesmo leio.</p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+
+    <!-- Rodapé LGPD -->
+    <tr><td style="padding:20px 16px 8px 16px;font-size:12px;line-height:18px;color:#646e7d;text-align:center;">
+      Você recebeu este e-mail porque tem cadastro no Subleasy.
+      <a href="{{ unsubscribe }}" style="color:#646e7d;text-decoration:underline;">Descadastrar</a>
+    </td></tr>
+
+  </table>
+
+</td></tr>
+</table>
+</body>
+</html>
