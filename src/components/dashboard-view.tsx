@@ -5,6 +5,7 @@ import { AnnounceButton } from "@/components/announce-button";
 import { DashboardEmptyArt } from "@/components/dashboard-empty-art";
 import { DashboardInsights } from "@/components/dashboard-insights";
 import { DashboardKpis } from "@/components/dashboard-kpis";
+import { LeadList, formatLeadDate } from "@/components/host-leads";
 import { ListingRanking, ListingSpotlight, type DashboardListingRow } from "@/components/dashboard-listings";
 import { buttonClasses } from "@/components/ui";
 import { generateInsights, type InsightListing } from "@/lib/dashboard-insights";
@@ -32,6 +33,7 @@ import { ownerRpc, type PanelOwner } from "@/lib/panel-owner";
 const DAY = 24 * 60 * 60 * 1000;
 const PATTERN_DAYS = 90;
 const DISMISS_DAYS = 30;
+const LEADS_SHOWN = 20;
 
 /** O painel de um anunciante. Serve ao próprio e ao Super Admin vendo a conta (veja PanelOwner). */
 export async function DashboardView({ searchParams, owner }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }>; owner: PanelOwner }) {
@@ -66,6 +68,22 @@ export async function DashboardView({ searchParams, owner }: { searchParams: Pro
   const greeting = firstName ? `${greetingInSaoPaulo()}, ${firstName}` : greetingInSaoPaulo();
 
   if (!listings || listings.length === 0) return <Empty greeting={greeting} owner={owner} />;
+
+  // Contatos pelo formulário de todos os anúncios da pessoa. Só nome, mensagem e horário.
+  const { data: inquiryRows } = await supabase
+    .from("listing_inquiries")
+    .select("id, listing_id, name, message, created_at")
+    .in("listing_id", listings.map((listing) => listing.id))
+    .order("created_at", { ascending: false })
+    .limit(LEADS_SHOWN);
+  const titles = new Map(listings.map((listing) => [listing.id, listing.title]));
+  const leads = (inquiryRows ?? []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    message: row.message,
+    sentOn: formatLeadDate(row.created_at),
+    listing: { id: row.listing_id, title: titles.get(row.listing_id) ?? "" },
+  }));
 
   const withDays = listings.map((listing) => ({
     ...listing,
@@ -195,6 +213,20 @@ export async function DashboardView({ searchParams, owner }: { searchParams: Pro
           {rows.length === 1 ? <ListingSpotlight listing={rows[0]} /> : <ListingRanking listings={rows} />}
         </div>
       )}
+
+      <section aria-labelledby="contatos" className="pt-6">
+        <h2 id="contatos" className="text-h3 font-bold text-ink-900">
+          Contatos pelo formulário
+        </h2>
+        <p className="mt-1 text-sm text-ink-600">
+          Pessoas que escreveram pelo formulário dos seus anúncios. Os dados de contato chegam no seu e-mail, e é de lá que você responde.
+        </p>
+        {leads.length === 0 ? (
+          <p className="mt-4 rounded-card bg-white p-5 text-sm text-ink-600 ring-1 ring-ink-200">Nenhum contato pelo formulário ainda.</p>
+        ) : (
+          <LeadList leads={leads} base={owner.asAdmin ? undefined : owner.base} />
+        )}
+      </section>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink-200 pt-6">
         <p className="text-xs text-ink-500">Visita = uma pessoa por anúncio por dia. Contato = clique no WhatsApp ou mensagem pelo formulário.</p>

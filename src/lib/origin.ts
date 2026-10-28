@@ -22,3 +22,10 @@ export async function getAdminOrigin() {
   url.hostname = `admin.${url.hostname}`;
   return url.origin;
 }
+
+/** Endereço do site público, para links que saem do Super Admin (no subdomínio admin.*, /sala/... dá 404). */
+export async function getPublicOrigin() {
+  const url = new URL(await getOrigin());
+  if (url.hostname.startsWith("admin.")) url.hostname = url.hostname.slice("admin.".length);
+  return url.origin;
+}

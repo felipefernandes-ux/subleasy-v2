@@ -5,6 +5,7 @@ import { connection } from "next/server";
 import { HostShell, PageIntro, Skeleton } from "@/components/host-shell";
 import { ListingEditor } from "@/components/listing-editor";
 import { ListingDashboard, type DashboardListing, type DashboardMetrics, type Inquiry } from "@/components/host-listing-dashboard";
+import { formatLeadDate } from "@/components/host-leads";
 import { SubmittedPanel } from "@/components/listing-status-panels";
 import { parsePhotoSizes } from "@/lib/listing-options";
 import { getOrigin } from "@/lib/origin";
@@ -38,7 +39,7 @@ async function ListingReview({ params }: { params: PageProps<"/painel/anuncios/[
     supabase
       .from("listings")
       .select(
-        "id, slug, status, title, short_summary, description, space_type, billing_type, price, zip_code, city, state, neighborhood, min_rental_period, rules, amenities, photos, photo_sizes, review_note, published_at, expires_at, email_contact",
+        "id, slug, status, title, short_summary, description, space_type, billing_type, price, zip_code, city, state, neighborhood, min_rental_period, rules, amenities, photos, photo_sizes, review_note, published_at, expires_at, email_contact, whatsapp_contact",
       )
       .eq("id", id)
       .eq("owner_id", user.id)
@@ -88,7 +89,7 @@ async function loadDashboard(
   const now = Date.now();
   const [{ data: events }, { data: inquiries }] = await Promise.all([
     supabase.from("listing_events").select("kind, day").eq("listing_id", listing.id),
-    supabase.from("listing_inquiries").select("id, name, email, phone, message, created_at").eq("listing_id", listing.id).order("created_at", { ascending: false }),
+    supabase.from("listing_inquiries").select("id, name, message, created_at").eq("listing_id", listing.id).order("created_at", { ascending: false }),
   ]);
   const weekAgo = new Date(now - 7 * DAY).toISOString().slice(0, 10);
   const list = events ?? [];
@@ -106,13 +107,6 @@ async function loadDashboard(
       whatsapp: list.filter((event) => event.kind === "whatsapp_click").length,
       messages: (inquiries ?? []).length,
     },
-    inquiries: (inquiries ?? []).map((inquiry) => ({
-      id: inquiry.id,
-      name: inquiry.name,
-      email: inquiry.email,
-      phone: inquiry.phone,
-      message: inquiry.message,
-      sentOn: new Date(inquiry.created_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", dateStyle: "short", timeStyle: "short" }),
-    })),
+    inquiries: (inquiries ?? []).map((inquiry) => ({ id: inquiry.id, name: inquiry.name, message: inquiry.message, sentOn: formatLeadDate(inquiry.created_at) })),
   };
 }

@@ -9,13 +9,27 @@ import { WhatsAppIcon, buttonClasses } from "./ui";
 /**
  * Busca o número só no clique (LGPD) e abre a conversa numa nova aba, com mensagem pronta.
  * O e-mail, quando o anunciante informou, fica como segunda opção: o formulário abre no
- * próprio bloco, no lugar dos botões.
+ * próprio bloco, no lugar dos botões. Anúncio sem WhatsApp (whatsapp=false) não mostra o botão:
+ * o formulário é o contato principal e já aparece aberto.
  */
-export function WhatsAppButton({ listingId, title, about, email = false }: { listingId: string; title: string; about: string; email?: boolean }) {
+export function WhatsAppButton({
+  listingId,
+  title,
+  about,
+  whatsapp = true,
+  email = false,
+}: {
+  listingId: string;
+  title: string;
+  about: string;
+  whatsapp?: boolean;
+  email?: boolean;
+}) {
   const [isPending, startTransition] = useTransition();
   const [failed, setFailed] = useState(false);
   const [writing, setWriting] = useState(false);
 
+  if (!whatsapp) return <InquiryForm listingId={listingId} title={title} about={about} />;
   if (writing) return <InquiryForm listingId={listingId} title={title} about={about} onCancel={() => setWriting(false)} />;
 
   return (

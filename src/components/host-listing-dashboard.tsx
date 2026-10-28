@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowLeftIcon, ChatCircleTextIcon, EnvelopeSimpleIcon, EyeIcon, ImageIcon, PercentIcon, WarningCircleIcon } from "@phosphor-icons/react/ssr";
+import { ArrowLeftIcon, ChatCircleTextIcon, EyeIcon, ImageIcon, PercentIcon, WarningCircleIcon } from "@phosphor-icons/react/ssr";
 import { BILLING_UNIT, formatPrice, phaseOf, photoUrl, type BillingType } from "@/lib/listing-options";
 import { ListingActions } from "./host-listing-actions";
 import { ShareLink } from "./share-link";
+import { LeadList, type Lead } from "./host-leads";
 import { WhatsAppIcon, buttonClasses } from "./ui";
 
 export type DashboardListing = {
@@ -15,6 +16,7 @@ export type DashboardListing = {
   city: string;
   photos: string[];
   email_contact: boolean;
+  whatsapp_contact: boolean;
   url: string;
   publishedOn: string | null;
   expiresOn: string | null;
@@ -23,7 +25,7 @@ export type DashboardListing = {
 
 export type DashboardMetrics = { views: number; views7: number; whatsapp: number; messages: number };
 
-export type Inquiry = { id: string; name: string; email: string; phone: string | null; message: string; sentOn: string };
+export type Inquiry = Lead;
 
 /** O anúncio publicado visto pelo anunciante: ações, prazo, métricas completas e mensagens recebidas. */
 export function ListingDashboard({ listing, metrics, inquiries }: { listing: DashboardListing; metrics: DashboardMetrics; inquiries: Inquiry[] }) {
@@ -89,51 +91,19 @@ export function ListingDashboard({ listing, metrics, inquiries }: { listing: Das
 
       <section aria-labelledby="mensagens">
         <h2 id="mensagens" className="text-h3 font-bold text-ink-900">
-          Mensagens recebidas
+          Contatos recebidos
         </h2>
-        <p className="mt-1 text-sm text-ink-600">Enviadas pelo formulário do anúncio, para quem prefere e-mail. Elas também chegam na sua caixa de entrada.</p>
-        {!listing.email_contact ? (
+        <p className="mt-1 text-sm text-ink-600">
+          Enviados pelo formulário do anúncio. Nome, e-mail e mensagem também chegam na sua caixa de entrada, e é de lá que você responde.
+        </p>
+        {!listing.email_contact && listing.whatsapp_contact ? (
           <p className="mt-4 rounded-card bg-white p-5 text-sm text-ink-600 ring-1 ring-ink-200">
             Este anúncio não recebe mensagens por e-mail. Edite o anúncio e informe um e-mail de contato para ativar o formulário.
           </p>
         ) : inquiries.length === 0 ? (
-          <p className="mt-4 rounded-card bg-white p-5 text-sm text-ink-600 ring-1 ring-ink-200">Nenhuma mensagem ainda.</p>
+          <p className="mt-4 rounded-card bg-white p-5 text-sm text-ink-600 ring-1 ring-ink-200">Nenhum contato ainda.</p>
         ) : (
-          <ul className="mt-4 space-y-3">
-            {inquiries.map((inquiry) => (
-              <li key={inquiry.id} className="rounded-card bg-white p-5 shadow-card ring-1 ring-ink-900/6">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <p className="font-bold text-ink-900">{inquiry.name}</p>
-                  <p className="text-xs text-ink-500 tabular-nums">{inquiry.sentOn}</p>
-                </div>
-                <p className="mt-1 text-sm text-ink-600">
-                  {inquiry.email}
-                  {inquiry.phone && ` · ${inquiry.phone}`}
-                </p>
-                <p className="mt-3 text-sm leading-relaxed whitespace-pre-line text-ink-800">{inquiry.message}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <a
-                    href={`mailto:${inquiry.email}?subject=${encodeURIComponent(`Re: ${listing.title}`)}`}
-                    className={buttonClasses("secondary", "sm")}
-                  >
-                    <EnvelopeSimpleIcon className="size-4" aria-hidden />
-                    Responder por e-mail
-                  </a>
-                  {inquiry.phone && inquiry.phone.replace(/\D/g, "").length >= 10 && (
-                    <a
-                      href={`https://wa.me/55${inquiry.phone.replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={buttonClasses("ghost", "sm")}
-                    >
-                      <WhatsAppIcon className="size-4" />
-                      Chamar no WhatsApp
-                    </a>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
+          <LeadList leads={inquiries} />
         )}
       </section>
     </div>

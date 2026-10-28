@@ -142,19 +142,19 @@ export type Database = {
           contact_email: string | null
           listing_id: string
           street_address: string | null
-          whatsapp_number: string
+          whatsapp_number: string | null
         }
         Insert: {
           contact_email?: string | null
           listing_id: string
           street_address?: string | null
-          whatsapp_number: string
+          whatsapp_number?: string | null
         }
         Update: {
           contact_email?: string | null
           listing_id?: string
           street_address?: string | null
-          whatsapp_number?: string
+          whatsapp_number?: string | null
         }
         Relationships: [
           {
@@ -374,6 +374,7 @@ export type Database = {
           created_at: string
           description: string | null
           email_contact: boolean
+          whatsapp_contact: boolean
           embedding: string | null
           expires_at: string | null
           highlights: string[]
@@ -413,6 +414,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           email_contact?: boolean
+          whatsapp_contact?: boolean
           embedding?: string | null
           expires_at?: string | null
           highlights?: string[]
@@ -452,6 +454,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           email_contact?: boolean
+          whatsapp_contact?: boolean
           embedding?: string | null
           expires_at?: string | null
           highlights?: string[]

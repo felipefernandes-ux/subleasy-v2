@@ -12,7 +12,7 @@ const INPUT =
  * Segunda opção de contato, aberta no próprio bloco de contato: a mensagem vai para o
  * anunciante por e-mail e fica no painel dele. Já vem escrita com os dados da sala.
  */
-export function InquiryForm({ listingId, title, about, onCancel }: { listingId: string; title: string; about: string; onCancel: () => void }) {
+export function InquiryForm({ listingId, title, about, onCancel }: { listingId: string; title: string; about: string; onCancel?: () => void }) {
   const [state, formAction, isPending] = useActionState<InquiryState, FormData>(submitInquiry.bind(null, listingId, title), { status: "idle" });
 
   if (state.status === "sent") {
@@ -21,9 +21,11 @@ export function InquiryForm({ listingId, title, about, onCancel }: { listingId: 
         <CheckCircleIcon className="mx-auto size-11 text-mint-700" weight="fill" aria-hidden />
         <p className="mt-3 font-bold text-ink-900">Mensagem enviada</p>
         <p className="mt-1 text-sm text-ink-600">O anunciante recebeu por e-mail e responde direto para você.</p>
-        <button type="button" onClick={onCancel} className={`${buttonClasses("ghost")} mt-4`}>
-          Voltar
-        </button>
+        {onCancel && (
+          <button type="button" onClick={onCancel} className={`${buttonClasses("ghost")} mt-4`}>
+            Voltar
+          </button>
+        )}
       </div>
     );
   }
@@ -31,11 +33,13 @@ export function InquiryForm({ listingId, title, about, onCancel }: { listingId: 
   return (
     <form action={formAction} className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="font-bold text-ink-900">Mensagem para o anunciante</p>
-        <button type="button" onClick={onCancel} className={`${buttonClasses("ghost", "sm")} -mr-2`}>
-          <ArrowLeftIcon className="size-4" aria-hidden />
-          Voltar
-        </button>
+        <p className="font-bold text-ink-900">{onCancel ? "Mensagem para o anunciante" : "Fale com o anunciante"}</p>
+        {onCancel && (
+          <button type="button" onClick={onCancel} className={`${buttonClasses("ghost", "sm")} -mr-2`}>
+            <ArrowLeftIcon className="size-4" aria-hidden />
+            Voltar
+          </button>
+        )}
       </div>
       <label className="block text-sm font-bold text-ink-800">
         Nome

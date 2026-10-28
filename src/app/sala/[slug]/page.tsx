@@ -21,7 +21,7 @@ async function getPublicListing(slug: string) {
   const { data } = await createPublicClient()
     .from("listings")
     .select(
-      "id, title, short_summary, description, space_type, billing_type, price, city, state, neighborhood, min_rental_period, rules, amenities, photos, photo_sizes, highlights, offers, latitude, longitude, show_exact_location, email_contact",
+      "id, title, short_summary, description, space_type, billing_type, price, city, state, neighborhood, min_rental_period, rules, amenities, photos, photo_sizes, highlights, offers, latitude, longitude, show_exact_location, email_contact, whatsapp_contact",
     )
     .eq("slug", slug)
     .eq("status", "active")
@@ -107,7 +107,7 @@ async function getAdminPreview(slug: string) {
   const { data } = await supabase
     .from("listings")
     .select(
-      "id, title, short_summary, description, space_type, billing_type, price, city, state, neighborhood, min_rental_period, rules, amenities, photos, photo_sizes, highlights, offers, latitude, longitude, show_exact_location, email_contact, status",
+      "id, title, short_summary, description, space_type, billing_type, price, city, state, neighborhood, min_rental_period, rules, amenities, photos, photo_sizes, highlights, offers, latitude, longitude, show_exact_location, email_contact, whatsapp_contact, status",
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -134,7 +134,7 @@ async function Sala({ slug }: { slug: string }) {
       <ListingView
         listing={listing}
         host={host}
-        action={<WhatsAppButton listingId={listing.id} title={listing.title} about={about} email={listing.email_contact} />}
+        action={<WhatsAppButton listingId={listing.id} title={listing.title} about={about} whatsapp={listing.whatsapp_contact} email={listing.email_contact} />}
         related={<RelatedListings listings={related} description={`Outras opções em ${listing.city} e para a mesma área de atuação.`} />}
       />
     </>
