@@ -21,7 +21,8 @@ import {
 import { signOut } from "@/app/actions/auth";
 import { useSignedIn } from "@/lib/use-signed-in";
 import { AnnounceAiIcon } from "./announce-ai-icon";
-import { Logo, buttonClasses } from "./ui";
+import { AnnounceButton } from "./announce-button";
+import { Logo } from "./ui";
 
 // Páginas de navegação, públicas e da área logada (painel e configurações), onde a barra aparece.
 // Ficam de fora as que já têm uma barra fixa própria (a página do anúncio tem a de contato; o editor
@@ -185,11 +186,9 @@ function MenuPanel({ open, onClose, signedIn }: { open: boolean; onClose: () => 
         <div className="flex-1 overflow-y-auto overscroll-contain px-5 pt-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
           {/* CTA primário: o mesmo ícone de IA da aba Anunciar, com a estrela em menta sobre o roxo. */}
           <div className={item} style={stagger(0)}>
-            <Link href="/anunciar" onClick={requestClose} className={`${buttonClasses("primary", "lg")} w-full`}>
-              <AnnounceAiIcon className="size-7 text-white" sparkle="var(--color-mint-400)" halo="var(--color-brand-600)" animateSpark={!closing} />
+            <AnnounceButton variant="mobile" large animateSpark={!closing} onClick={requestClose}>
               Anunciar
-              <span className="sr-only"> com IA</span>
-            </Link>
+            </AnnounceButton>
           </div>
 
           <ul className="mt-3">

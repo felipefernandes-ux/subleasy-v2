@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AccountMenu } from "./account-menu";
-import { AnnounceCta } from "./announce-cta";
+import { AnnounceButton } from "./announce-button";
 import { SearchNavMenu } from "./search-nav-menu";
 import { Logo } from "./ui";
 
@@ -36,7 +36,8 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <AnnounceCta />
+          <AnnounceButton variant="desktop" className="max-sm:hidden" />
+          <AnnounceButton variant="mobile" className="sm:hidden" />
           <AccountMenu />
         </div>
       </div>
