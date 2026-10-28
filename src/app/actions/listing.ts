@@ -349,11 +349,13 @@ export async function getWhatsAppLink(listingId: string, title: string) {
   if (!number) return null;
 
   // A oferta vai escrita na mensagem: o anunciante sabe de onde veio o contato e o que prometeu.
-  const { data: listing } = await supabase.from("listings").select("offers").eq("id", listingId).maybeSingle();
+  const { data: listing } = await supabase.from("listings").select("offers, slug").eq("id", listingId).maybeSingle();
   const offers = (listing?.offers ?? []).filter((key): key is Offer => key in OFFERS).map((key) => `“${OFFERS[key].title}”`);
-  const message = offers.length
+  const intro = offers.length
     ? `Olá! Vi a sala “${title}” no Subleasy, com a oferta ${offers.join(" e ")}, e quero saber mais.`
     : `Olá! Vi a sala “${title}” no Subleasy e quero saber mais.`;
+  // O link do anúncio vai no fim, para o anunciante saber exatamente de qual sala se trata.
+  const message = listing?.slug ? `${intro}\n${await getOrigin()}/sala/${listing.slug}` : intro;
   return `https://wa.me/${number.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`;
 }
 
