@@ -49,9 +49,9 @@ export function SearchResults({ results }: { results: SearchResult[] }) {
               </Link>
             </div>
           ) : (
-            <ul className={`mt-4 grid gap-x-6 gap-y-10 sm:grid-cols-2 ${showMap ? "xl:grid-cols-3" : "lg:grid-cols-3 xl:grid-cols-4"}`}>
+            <ul className={`mt-4 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 ${showMap ? "xl:grid-cols-3" : "lg:grid-cols-3 xl:grid-cols-4"}`}>
               {results.map((result) => (
-                <li key={result.id}>
+                <li key={result.id} className="min-w-0">
                   <ResultCard listing={result} onHover={setHighlighted} />
                 </li>
               ))}
