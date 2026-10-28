@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_email: string
+          admin_id: string
+          created_at: string
+          details: Json
+          id: string
+          reason: string | null
+          target_id: string | null
+          target_label: string | null
+          target_type: string
+        }
+        Insert: {
+          action: string
+          admin_email: string
+          admin_id: string
+          created_at?: string
+          details?: Json
+          id?: string
+          reason?: string | null
+          target_id?: string | null
+          target_label?: string | null
+          target_type: string
+        }
+        Update: {
+          action?: string
+          admin_email?: string
+          admin_id?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          reason?: string | null
+          target_id?: string | null
+          target_label?: string | null
+          target_type?: string
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
           created_at: string
@@ -25,6 +64,33 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      campaign_invites: {
+        Row: {
+          campaign: string
+          clicked_at: string | null
+          created_at: string
+          interested_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign?: string
+          clicked_at?: string | null
+          created_at?: string
+          interested_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign?: string
+          clicked_at?: string | null
+          created_at?: string
+          interested_at?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -201,33 +267,6 @@ export type Database = {
           },
         ]
       }
-      campaign_invites: {
-        Row: {
-          campaign: string
-          clicked_at: string | null
-          created_at: string
-          interested_at: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          campaign?: string
-          clicked_at?: string | null
-          created_at?: string
-          interested_at?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          campaign?: string
-          clicked_at?: string | null
-          created_at?: string
-          interested_at?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       listing_imports: {
         Row: {
           extras: Json
@@ -317,7 +356,7 @@ export type Database = {
           contacts: number
           id: string
           listing_id: string
-          owner_id: string
+          owner_id: string | null
           published_at: string | null
           reason: string
           removed_at: string
@@ -334,7 +373,7 @@ export type Database = {
           contacts?: number
           id?: string
           listing_id: string
-          owner_id: string
+          owner_id?: string | null
           published_at?: string | null
           reason: string
           removed_at?: string
@@ -351,7 +390,7 @@ export type Database = {
           contacts?: number
           id?: string
           listing_id?: string
-          owner_id?: string
+          owner_id?: string | null
           published_at?: string | null
           reason?: string
           removed_at?: string
@@ -374,7 +413,6 @@ export type Database = {
           created_at: string
           description: string | null
           email_contact: boolean
-          whatsapp_contact: boolean
           embedding: string | null
           expires_at: string | null
           highlights: string[]
@@ -395,14 +433,15 @@ export type Database = {
           shifts_available: Json
           short_summary: string | null
           show_exact_location: boolean
-          space_type_other: string | null
           slug: string
           space_type: string
+          space_type_other: string | null
           state: string
           status: string
           submitted_at: string | null
           title: string
           updated_at: string
+          whatsapp_contact: boolean
           zip_code: string | null
         }
         Insert: {
@@ -414,7 +453,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           email_contact?: boolean
-          whatsapp_contact?: boolean
           embedding?: string | null
           expires_at?: string | null
           highlights?: string[]
@@ -435,14 +473,15 @@ export type Database = {
           shifts_available?: Json
           short_summary?: string | null
           show_exact_location?: boolean
-          space_type_other?: string | null
           slug: string
           space_type: string
+          space_type_other?: string | null
           state: string
           status?: string
           submitted_at?: string | null
           title: string
           updated_at?: string
+          whatsapp_contact?: boolean
           zip_code?: string | null
         }
         Update: {
@@ -454,7 +493,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           email_contact?: boolean
-          whatsapp_contact?: boolean
           embedding?: string | null
           expires_at?: string | null
           highlights?: string[]
@@ -475,14 +513,15 @@ export type Database = {
           shifts_available?: Json
           short_summary?: string | null
           show_exact_location?: boolean
-          space_type_other?: string | null
           slug?: string
           space_type?: string
+          space_type_other?: string | null
           state?: string
           status?: string
           submitted_at?: string | null
           title?: string
           updated_at?: string
+          whatsapp_contact?: boolean
           zip_code?: string | null
         }
         Relationships: []
@@ -566,7 +605,7 @@ export type Database = {
           terms_version: string
           trusted_devices_reset_at?: string
           updated_at?: string
-          whatsapp_number: string | null
+          whatsapp_number?: string | null
         }
         Update: {
           avatar_path?: string | null
@@ -597,33 +636,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      delete_own_account: { Args: never; Returns: undefined }
-      get_listing_whatsapp: {
-        Args: { p_listing_id: string; p_visitor_id: string }
-        Returns: string
-      }
-      get_profile_whatsapp: { Args: { p_public_id: string }; Returns: string }
-      auth_user_id_by_email: { Args: { p_email: string }; Returns: string }
-      is_admin: { Args: never; Returns: boolean }
-      listing_host: {
-        Args: { p_listing_id: string }
-        Returns: {
-          active_listings: number
-          avatar_path: string
-          identity_verified_at: string
-          member_since: string
-          public_id: string | null
-          public_name: string
-        }[]
-      }
-      listing_owner: {
-        Args: { p_listing_id: string }
-        Returns: {
-          display_name: string
-          email: string
-          whatsapp_number: string
-        }[]
-      }
       admin_owner_contact_pattern: {
         Args: { p_owner: string; p_since: string }
         Returns: {
@@ -647,6 +659,33 @@ export type Database = {
           listing_id: string
           since_count: number
           total: number
+        }[]
+      }
+      auth_user_id_by_email: { Args: { p_email: string }; Returns: string }
+      delete_own_account: { Args: never; Returns: undefined }
+      get_listing_whatsapp: {
+        Args: { p_listing_id: string; p_visitor_id: string }
+        Returns: string
+      }
+      get_profile_whatsapp: { Args: { p_public_id: string }; Returns: string }
+      is_admin: { Args: never; Returns: boolean }
+      listing_host: {
+        Args: { p_listing_id: string }
+        Returns: {
+          active_listings: number
+          avatar_path: string
+          identity_verified_at: string
+          member_since: string
+          public_id: string
+          public_name: string
+        }[]
+      }
+      listing_owner: {
+        Args: { p_listing_id: string }
+        Returns: {
+          display_name: string
+          email: string
+          whatsapp_number: string
         }[]
       }
       owner_contact_pattern: {

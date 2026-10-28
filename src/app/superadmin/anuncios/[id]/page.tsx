@@ -2,7 +2,9 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowSquareOutIcon, CheckIcon, PauseIcon, ArrowClockwiseIcon, PencilSimpleIcon } from "@phosphor-icons/react/ssr";
+import { ArrowSquareOutIcon, CheckIcon, PauseIcon, PlayIcon, ArrowClockwiseIcon, PencilSimpleIcon } from "@phosphor-icons/react/ssr";
+import { approveListing } from "@/app/actions/listing";
+import { adminPauseListing, adminRenewListing, adminResumeListing } from "@/app/superadmin/anuncios/actions";
 import { ConfirmDialog } from "@/components/superadmin/confirm-dialog";
 import { ReturnListingDialog } from "@/components/superadmin/return-listing-dialog";
 import { DeleteListingsDialog } from "@/components/superadmin/delete-listings-dialog";
@@ -48,6 +50,8 @@ async function ListingDetail({
   const query = await searchParams;
   const saved = query.salvo === "1";
   const returned = query.devolvido === "1";
+  const approved = query.aprovado === "1";
+  const approveFailed = query.erro === "aprovar";
   await requireAdmin(`/anuncios/${id}`);
   const [[listing], full] = await Promise.all([loadAdminListings(id), loadListingFull(id)]);
   if (!listing || !full) notFound();
@@ -90,6 +94,17 @@ async function ListingDetail({
       {returned && (
         <p role="status" className="mb-6 rounded-sa-card bg-mint-100 p-4 text-sa-base text-[#064e3b]">
           Anúncio devolvido. O anunciante recebeu a nota por e-mail.
+        </p>
+      )}
+
+      {approved && (
+        <p role="status" className="mb-6 rounded-sa-card bg-mint-100 p-4 text-sa-base text-[#064e3b]">
+          Anúncio aprovado e no ar. O anunciante recebeu o link por e-mail.
+        </p>
+      )}
+      {approveFailed && (
+        <p role="alert" className="mb-6 rounded-sa-card bg-red-50 p-4 text-sa-base text-red-700">
+          Não foi possível aprovar. Confira se o anúncio ainda está em revisão e tente de novo.
         </p>
       )}
 
@@ -233,28 +248,58 @@ async function ListingDetail({
             <div className="flex flex-col gap-2 p-5">
               {inReview && (
                 <>
-                  <Button variant="primary">
-                    <CheckIcon className="size-4" weight="bold" aria-hidden />
-                    Aprovar e colocar no ar
-                  </Button>
+                  <form action={approveListing.bind(null, row.id)} className="contents">
+                    <input type="hidden" name="next" value="superadmin" />
+                    <Button type="submit" variant="primary">
+                      <CheckIcon className="size-4" weight="bold" aria-hidden />
+                      Aprovar e colocar no ar
+                    </Button>
+                  </form>
                   <ReturnListingDialog listingId={row.id} />
                 </>
               )}
-              <ConfirmDialog
-                trigger={
-                  <>
-                    <PauseIcon className="size-4" weight="bold" aria-hidden />
-                    Pausar
-                  </>
-                }
-                title="Pausar anúncio"
-                description="O anúncio sai das buscas até ser reativado."
-                confirmLabel="Pausar"
-              />
-              <Button>
-                <ArrowClockwiseIcon className="size-4" weight="bold" aria-hidden />
-                Renovar por 30 dias
-              </Button>
+              {row.status === "active" && (
+                <ConfirmDialog
+                  trigger={
+                    <>
+                      <PauseIcon className="size-4" weight="bold" aria-hidden />
+                      Pausar
+                    </>
+                  }
+                  title="Pausar anúncio"
+                  description="O anúncio sai das buscas até ser reativado. O prazo continua correndo."
+                  confirmLabel="Pausar"
+                  onConfirm={adminPauseListing.bind(null, row.id)}
+                />
+              )}
+              {row.status === "paused" && (
+                <ConfirmDialog
+                  trigger={
+                    <>
+                      <PlayIcon className="size-4" weight="bold" aria-hidden />
+                      Reativar
+                    </>
+                  }
+                  title="Reativar anúncio"
+                  description="O anúncio volta às buscas. O prazo não parou durante a pausa."
+                  confirmLabel="Reativar"
+                  onConfirm={adminResumeListing.bind(null, row.id)}
+                />
+              )}
+              {row.published_at && (row.status === "active" || row.status === "paused") && (
+                <ConfirmDialog
+                  trigger={
+                    <>
+                      <ArrowClockwiseIcon className="size-4" weight="bold" aria-hidden />
+                      Renovar por 30 dias
+                    </>
+                  }
+                  title="Renovar por 30 dias"
+                  description="Soma 30 dias ao prazo atual, ou a partir de hoje se o anúncio já venceu."
+                  confirmLabel="Renovar"
+                  onConfirm={adminRenewListing.bind(null, row.id)}
+                />
+              )}
               <DeleteListingsDialog
                 listings={[listing]}
                 label="Remover anúncio"

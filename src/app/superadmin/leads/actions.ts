@@ -4,6 +4,7 @@ import { BREVO_LIST_NAME, BrevoError, brevoConfigured, ensureAttributes, ensureL
 import { INVITE_CAMPAIGN } from "@/lib/invite-token";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildBrevoAudience, type BrevoAudience, type LeadSegment } from "@/lib/superadmin/brevo-contacts";
+import { recordAudit } from "@/lib/superadmin/audit";
 import { requireAdmin } from "@/lib/superadmin/auth";
 
 /** Por grupo: quem tem convite no público, quem clicou no link e quem confirmou o interesse. */
@@ -61,7 +62,7 @@ export async function previewBrevoSync(): Promise<BrevoPreview> {
  * e importa os contatos em lote. Não dispara e-mail nenhum; só leva os contatos.
  */
 export async function syncLeadsToBrevo(confirmation: string): Promise<BrevoSyncResult> {
-  const admin = await requireAdmin("/leads");
+  await requireAdmin("/leads");
   if (confirmation.trim().toLowerCase() !== "enviar") return { ok: false, error: "Digite “enviar” para confirmar." };
   if (!brevoConfigured()) return { ok: false, error: "Falta BREVO_API_KEY no .env.local." };
   if (!process.env.INVITE_TOKEN_SECRET) return { ok: false, error: "Falta INVITE_TOKEN_SECRET no .env.local (assina o link “Quero participar”)." };
@@ -78,8 +79,7 @@ export async function syncLeadsToBrevo(confirmation: string): Promise<BrevoSyncR
     await new Promise((resolve) => setTimeout(resolve, 1500));
     const status = (await importStatus(processIds[0]!).catch(() => ({ status: "em andamento" }))).status;
 
-    // Ainda não existe admin_audit_log; até lá, o rastro fica no log do servidor.
-    console.info(`[superadmin] ${admin.email} enviou ${sent} contato(s) ao Brevo (lista ${listId}).`);
+    await recordAudit({ action: "leads.brevo_sync", targetType: "lead", targetLabel: BREVO_LIST_NAME, details: { enviados: sent, lista: listId } });
     return { ok: true, sent, list: BREVO_LIST_NAME, createdAttributes, status };
   } catch (error) {
     console.error("[brevo] sincronização falhou:", error);

@@ -17,6 +17,7 @@ import {
 } from "@/lib/listing-options";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { recordAudit } from "@/lib/superadmin/audit";
 import { requireAdmin } from "@/lib/superadmin/auth";
 
 export type AdminListingState = { status: "idle" } | { status: "error"; error: string; fields: Record<string, string> };
@@ -88,7 +89,7 @@ const LABELS: Record<string, string> = {
  * o contato privado usa a service role, porque admin só lê essa tabela. Fotos ainda não são editáveis aqui.
  */
 export async function adminSaveListing(listingId: string, _previous: AdminListingState, formData: FormData): Promise<AdminListingState> {
-  const admin = await requireAdmin(`/anuncios/${listingId}/editar`);
+  await requireAdmin(`/anuncios/${listingId}/editar`);
 
   const parsed = schema.safeParse({
     title: formData.get("title") ?? "",
@@ -201,10 +202,95 @@ export async function adminSaveListing(listingId: string, _previous: AdminListin
     return { status: "error", error: "O anúncio foi salvo, mas o contato não. Tente salvar de novo.", fields: {} };
   }
 
-  // Ainda não existe admin_audit_log; até lá, o rastro fica no log do servidor.
-  console.info(`[superadmin] ${admin.email} editou o anúncio ${listingId}`);
+  await recordAudit({
+    action: "listing.edit",
+    targetType: "listing",
+    targetId: listingId,
+    targetLabel: data.title,
+    details: current.status === data.status ? {} : { status_de: current.status, status_para: data.status },
+  });
 
   updateTag(`listing:${current.slug}`);
   updateTag("listings");
   redirect(`/anuncios/${listingId}?salvo=1`);
+}
+
+export type ListingActionResult = { ok: true } | { ok: false; error: string };
+
+// Anúncio já publicado ao menos uma vez: só ele pode ser pausado, reativado ou renovado.
+async function publishedListing(listingId: string, statuses: string[]) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("listings").select("id, slug, title, status, published_at, expires_at").eq("id", listingId).maybeSingle();
+  if (!data || !statuses.includes(data.status) || !data.published_at) return { supabase, listing: null };
+  return { supabase, listing: data };
+}
+
+const REASON_ERROR = "Escreva o motivo em pelo menos uma frase.";
+
+/** Tira um anúncio do ar sem apagar nada. O prazo continua correndo. */
+export async function adminPauseListing(listingId: string, reason: string): Promise<ListingActionResult> {
+  await requireAdmin(`/anuncios/${listingId}`);
+  if (reason.trim().length < 3) return { ok: false, error: REASON_ERROR };
+
+  const { supabase, listing } = await publishedListing(listingId, ["active"]);
+  if (!listing) return { ok: false, error: "Só um anúncio no ar pode ser pausado." };
+
+  const { error } = await supabase.from("listings").update({ status: "paused" }).eq("id", listingId);
+  if (error) {
+    console.error("[superadmin] pausa falhou:", error.message);
+    return { ok: false, error: "Não foi possível pausar. Nada foi alterado." };
+  }
+  await recordAudit({ action: "listing.pause", targetType: "listing", targetId: listingId, targetLabel: listing.title, reason });
+  updateTag(`listing:${listing.slug}`);
+  updateTag("listings");
+  return { ok: true };
+}
+
+/** Volta ao ar um anúncio pausado. O prazo não parou durante a pausa. */
+export async function adminResumeListing(listingId: string, reason: string): Promise<ListingActionResult> {
+  await requireAdmin(`/anuncios/${listingId}`);
+  if (reason.trim().length < 3) return { ok: false, error: REASON_ERROR };
+
+  const { supabase, listing } = await publishedListing(listingId, ["paused"]);
+  if (!listing) return { ok: false, error: "Só um anúncio pausado pode ser reativado." };
+
+  const { error } = await supabase.from("listings").update({ status: "active" }).eq("id", listingId);
+  if (error) {
+    console.error("[superadmin] reativação falhou:", error.message);
+    return { ok: false, error: "Não foi possível reativar. Nada foi alterado." };
+  }
+  await recordAudit({ action: "listing.resume", targetType: "listing", targetId: listingId, targetLabel: listing.title, reason });
+  updateTag(`listing:${listing.slug}`);
+  updateTag("listings");
+  return { ok: true };
+}
+
+/** Renova por mais 30 dias, a partir do fim do prazo atual (ou de hoje, se já venceu). */
+export async function adminRenewListing(listingId: string, reason: string): Promise<ListingActionResult> {
+  await requireAdmin(`/anuncios/${listingId}`);
+  if (reason.trim().length < 3) return { ok: false, error: REASON_ERROR };
+
+  const { supabase, listing } = await publishedListing(listingId, ["active", "paused"]);
+  if (!listing) return { ok: false, error: "Só um anúncio publicado pode ser renovado." };
+
+  const now = Date.now();
+  const base = Math.max(listing.expires_at ? Date.parse(listing.expires_at) : now, now);
+  const expiresAt = new Date(base + LISTING_DAYS * 24 * 60 * 60 * 1000).toISOString();
+
+  const { error } = await supabase.from("listings").update({ expires_at: expiresAt }).eq("id", listingId);
+  if (error) {
+    console.error("[superadmin] renovação falhou:", error.message);
+    return { ok: false, error: "Não foi possível renovar. Nada foi alterado." };
+  }
+  await recordAudit({
+    action: "listing.renew",
+    targetType: "listing",
+    targetId: listingId,
+    targetLabel: listing.title,
+    reason,
+    details: { vencia_em: listing.expires_at, vence_em: expiresAt },
+  });
+  updateTag(`listing:${listing.slug}`);
+  updateTag("listings");
+  return { ok: true };
 }

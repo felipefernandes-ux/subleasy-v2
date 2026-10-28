@@ -20,6 +20,7 @@ import {
   type Offer,
 } from "@/lib/listing-options";
 import { notifySubmitted } from "@/lib/listing-notify";
+import { recordAudit } from "@/lib/superadmin/audit";
 import { getOrigin, getPublicOrigin } from "@/lib/origin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -257,8 +258,9 @@ async function requireAdmin() {
 }
 
 /** Publica o anúncio e avisa o anunciante com o link para compartilhar. */
-export async function approveListing(listingId: string) {
+export async function approveListing(listingId: string, formData?: FormData) {
   const supabase = await requireAdmin();
+  const superadmin = formData?.get("next") === "superadmin";
   // Alteração de um anúncio que já estava no ar: mantém a data de publicação e o prazo.
   const { data: before } = await supabase.from("listings").select("published_at, expires_at").eq("id", listingId).maybeSingle();
   const now = Date.now();
@@ -277,9 +279,10 @@ export async function approveListing(listingId: string) {
     .maybeSingle();
   if (error || !listing) {
     console.error("[approveListing]", error);
-    redirect(`/admin/anuncios/${listingId}?erro=aprovar`);
+    redirect(superadmin ? `/superadmin/anuncios/${listingId}?erro=aprovar` : `/admin/anuncios/${listingId}?erro=aprovar`);
   }
 
+  await recordAudit({ action: "listing.approve", targetType: "listing", targetId: listingId, targetLabel: listing.title });
   updateTag(`listing:${listing.slug}`);
   updateTag("listings");
   const [{ data: owner }, origin] = await Promise.all([
@@ -291,7 +294,7 @@ export async function approveListing(listingId: string) {
       listingPublishedEmail(owner.email, owner.display_name ?? "", listing.title, `${origin}/espaco/${listing.slug}`),
     );
   }
-  redirect("/admin/anuncios?aprovado=1");
+  redirect(superadmin ? `/superadmin/anuncios/${listingId}?aprovado=1` : "/admin/anuncios?aprovado=1");
 }
 
 export type ReturnListingState = { status: "idle" } | { status: "error"; error: string };
@@ -319,6 +322,7 @@ export async function returnListing(
     console.error("[returnListing]", error);
     return { status: "error", error: "Não foi possível devolver o anúncio. Tente de novo." };
   }
+  await recordAudit({ action: "listing.return", targetType: "listing", targetId: listingId, targetLabel: listing.title, reason: note });
 
   const [{ data: owner }, origin] = await Promise.all([
     supabase.rpc("listing_owner", { p_listing_id: listingId }).maybeSingle(),

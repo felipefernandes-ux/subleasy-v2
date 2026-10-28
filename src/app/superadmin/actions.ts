@@ -4,6 +4,7 @@ import { updateTag } from "next/cache";
 import { z } from "zod";
 import { PHOTO_BUCKET } from "@/lib/listing-options";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { recordAudit } from "@/lib/superadmin/audit";
 import { requireAdmin } from "@/lib/superadmin/auth";
 
 const MAX_PER_BATCH = 50;
@@ -18,7 +19,7 @@ export type DeleteResult = { ok: true; deleted: number } | { ok: false; error: s
  * essa tabela alimenta as métricas de motivos de saída e teste não deve entrar nelas.
  */
 export async function deleteListingsAsAdmin(ids: string[], confirmation: string): Promise<DeleteResult> {
-  const admin = await requireAdmin();
+  await requireAdmin();
 
   if (confirmation.trim().toLowerCase() !== "excluir") {
     return { ok: false, error: "Digite “excluir” para confirmar." };
@@ -29,7 +30,7 @@ export async function deleteListingsAsAdmin(ids: string[], confirmation: string)
   const db = createAdminClient();
   const { data: rows, error: readError } = await db
     .from("listings")
-    .select("id, slug, owner_id, photos")
+    .select("id, slug, title, owner_id, photos")
     .in("id", parsed.data);
   if (readError) return { ok: false, error: "Não foi possível ler os anúncios." };
   if (!rows || rows.length === 0) return { ok: false, error: "Anúncios não encontrados." };
@@ -53,8 +54,10 @@ export async function deleteListingsAsAdmin(ids: string[], confirmation: string)
     return { ok: false, error: "Não foi possível excluir. Nada foi apagado do banco; tente de novo." };
   }
 
-  // Ainda não existe admin_audit_log; até lá, o rastro fica no log do servidor.
-  console.info(`[superadmin] ${admin.email} excluiu ${rows.length} anúncio(s):`, rows.map((row) => row.id).join(", "));
+  // Uma linha por anúncio, com o título de agora: depois da exclusão só o registro lembra qual era.
+  for (const row of rows) {
+    await recordAudit({ action: "listing.delete", targetType: "listing", targetId: row.id, targetLabel: row.title, details: { slug: row.slug, owner_id: row.owner_id } });
+  }
 
   for (const row of rows) updateTag(`listing:${row.slug}`);
   updateTag("listings");

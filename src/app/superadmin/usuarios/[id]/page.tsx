@@ -2,8 +2,10 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { EyeIcon, LockKeyIcon } from "@phosphor-icons/react/ssr";
+import { EyeIcon } from "@phosphor-icons/react/ssr";
+import { deleteUser, reactivateUser, suspendUser } from "@/app/superadmin/usuarios/actions";
 import { ConfirmDialog } from "@/components/superadmin/confirm-dialog";
+import { UserRolesCard } from "@/components/superadmin/user-roles-card";
 import {
   Avatar,
   Badge,
@@ -34,12 +36,14 @@ export default function UserDetailPage({ params }: PageProps<"/superadmin/usuari
 
 async function UserDetail({ params }: { params: PageProps<"/superadmin/usuarios/[id]">["params"] }) {
   const { id } = await params;
-  await requireAdmin(`/usuarios/${id}`);
+  const viewer = await requireAdmin(`/usuarios/${id}`);
   const [user] = await loadAdminUsers(id);
   if (!user) notFound();
 
   const listings = (await loadAdminListings()).filter((listing) => listing.ownerId === user.id);
   const suspended = user.status === "suspenso";
+  const isSelf = viewer.id === user.id;
+  const isAdmin = user.roles.includes("admin");
 
   return (
     <>
@@ -132,21 +136,12 @@ async function UserDetail({ params }: { params: PageProps<"/superadmin/usuarios/
         <div className="space-y-6">
           <Card>
             <CardHeader title="Papéis" description="Admin só com 2FA ativo." />
-            <div className="space-y-3 p-5">
-              {(["anunciante", "cliente", "admin"] as const).map((role) => {
-                const has = user.roles.includes(role);
-                return (
-                  <label key={role} className="flex items-center justify-between gap-3 text-sa-base">
-                    <span className="capitalize">{role}</span>
-                    <input type="checkbox" defaultChecked={has} className="size-4 accent-brand-600" />
-                  </label>
-                );
-              })}
-              <p className="flex items-start gap-1.5 text-sa-xs text-sa-muted">
-                <LockKeyIcon className="mt-px size-3.5 shrink-0" aria-hidden />
-                Mudar papel pede motivo e vai para a auditoria.
-              </p>
-            </div>
+            <UserRolesCard
+              userId={user.id}
+              roles={user.roles}
+              locked={isSelf}
+              lockedReason="Você não muda os próprios papéis. Peça a outro admin."
+            />
           </Card>
 
           <Card>
@@ -158,30 +153,43 @@ async function UserDetail({ params }: { params: PageProps<"/superadmin/usuarios/
               <Button disabled className="justify-between">
                 Marcar identidade verificada <SoonBadge />
               </Button>
-              {suspended ? (
-                <ConfirmDialog
-                  trigger="Reativar conta"
-                  title="Reativar conta"
-                  description="A pessoa volta a entrar, e os anúncios podem ser reativados."
-                  confirmLabel="Reativar"
-                />
+              {isSelf || isAdmin ? (
+                <p className="text-sa-xs text-sa-muted">
+                  {isSelf ? "Esta é a sua conta: suspender e excluir ficam com outro admin." : "Conta de admin: tire o papel de admin antes de suspender ou excluir."}
+                </p>
               ) : (
-                <ConfirmDialog
-                  trigger="Suspender conta"
-                  title="Suspender conta"
-                  description="Login bloqueado, anúncios pausados e perfil público some. Os dados ficam guardados para defesa."
-                  confirmLabel="Suspender"
-                  danger
-                />
+                <>
+                  {suspended ? (
+                    <ConfirmDialog
+                      trigger="Reativar conta"
+                      title="Reativar conta"
+                      description="A pessoa volta a entrar. Os anúncios continuam pausados até você religar cada um na ficha do anúncio."
+                      confirmLabel="Reativar"
+                      onConfirm={reactivateUser.bind(null, user.id)}
+                    />
+                  ) : (
+                    <ConfirmDialog
+                      trigger="Suspender conta"
+                      title="Suspender conta"
+                      description="Login bloqueado, anúncios pausados e perfil público some. Os dados ficam guardados para defesa. Quem já está logado perde o acesso em até 1 hora."
+                      confirmLabel="Suspender"
+                      danger
+                      onConfirm={suspendUser.bind(null, user.id)}
+                    />
+                  )}
+                  <ConfirmDialog
+                    trigger="Excluir conta"
+                    triggerVariant="danger"
+                    title="Excluir conta"
+                    description="Apaga conta, perfil, anúncios, fotos e favoritos. As estatísticas ficam anonimizadas e a prova do pedido é guardada. Não dá para desfazer."
+                    confirmLabel="Excluir definitivamente"
+                    danger
+                    requireText={user.email}
+                    onConfirm={deleteUser.bind(null, user.id)}
+                    redirectTo="/usuarios"
+                  />
+                </>
               )}
-              <ConfirmDialog
-                trigger="Excluir conta"
-                triggerVariant="danger"
-                title="Excluir conta"
-                description="Apaga conta, perfil, anúncios, fotos e favoritos. As estatísticas ficam anonimizadas e a prova do pedido é guardada. Não dá para desfazer."
-                confirmLabel="Excluir definitivamente"
-                danger
-              />
             </div>
           </Card>
         </div>
