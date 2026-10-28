@@ -1,9 +1,11 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { safeNextPath } from "@/lib/auth-redirect";
+import { PROFILE_PATH, safeNextPath } from "@/lib/auth-redirect";
 import { getOrigin } from "@/lib/origin";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthMode = "signin" | "signup";
@@ -14,6 +16,9 @@ export type MagicLinkState =
   | { status: "error"; error: string; email: string; code?: "no_account" };
 
 const emailSchema = z.email();
+
+/** E-mail que entra sem link, só no localhost em desenvolvimento. */
+const LOCAL_DEV_EMAIL = "felipe@lavuh.com";
 
 /** Leva ao Google. O Supabase devolve em /auth/callback com o código da sessão. */
 export async function signInWithGoogle(formData: FormData) {
@@ -49,6 +54,21 @@ export async function sendMagicLink(
   }
 
   const supabase = await createClient();
+
+  if (email === LOCAL_DEV_EMAIL && (await isLocalhost())) {
+    const signedIn = await signInLocally(supabase, email);
+    if (signedIn) {
+      const { data } = await supabase.auth.getUser();
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", String(data.user?.id))
+        .maybeSingle();
+      if (profile) redirect(next);
+      redirect(`${PROFILE_PATH}${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`);
+    }
+  }
+
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
@@ -90,4 +110,30 @@ async function callbackUrl(next: string) {
   const url = new URL("/auth/callback", await getOrigin());
   if (next !== "/") url.searchParams.set("next", next);
   return url.toString();
+}
+
+async function isLocalhost() {
+  if (process.env.NODE_ENV === "production") return false;
+  const host = (await headers()).get("host") ?? "";
+  return /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host);
+}
+
+/** Gera o link com a service role e já o confirma aqui, sem e-mail. */
+async function signInLocally(supabase: Awaited<ReturnType<typeof createClient>>, email: string) {
+  try {
+    const { data, error } = await createAdminClient().auth.admin.generateLink({
+      type: "magiclink",
+      email,
+    });
+    if (error || !data.properties?.hashed_token) throw error;
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      type: "magiclink",
+      token_hash: data.properties.hashed_token,
+    });
+    if (verifyError) throw verifyError;
+    return true;
+  } catch (error) {
+    console.error("[signInLocally]", error);
+    return false;
+  }
 }
