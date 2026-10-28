@@ -2,18 +2,18 @@
  * Versão dos Termos e da Política. Mude a data a cada alteração relevante:
  * o cadastro grava a versão aceita em profiles.terms_version.
  */
-export const TERMS_VERSION = "2026-10-26";
-export const TERMS_UPDATED_LABEL = "26 de outubro de 2026";
+export const TERMS_VERSION = "2026-10-28";
+export const TERMS_UPDATED_LABEL = "28 de outubro de 2026";
 
-// Dados do responsável pelo Subleasy. Os que começam com [PREENCHER] aparecem
-// destacados nas páginas até serem trocados pelos dados reais.
+// Dados do responsável pelo Subleasy (aparecem nos Termos e na Política de privacidade).
+// Valores que começam com [PREENCHER] saem destacados nas páginas até serem trocados.
 export const LEGAL = {
-  controller: "[PREENCHER: nome ou razão social do responsável pelo Subleasy]",
-  document: "[PREENCHER: CPF ou CNPJ]",
-  address: "[PREENCHER: endereço para correspondência]",
-  contactEmail: "[PREENCHER: e-mail de contato, ex.: contato@subleasy.com.br]",
-  privacyEmail: "[PREENCHER: e-mail do encarregado, ex.: privacidade@subleasy.com.br]",
-  dpoName: "[PREENCHER: nome do encarregado pelo tratamento de dados]",
+  controller: "Lavuh Comunicação Digital Ltda",
+  document: "24.216.042/0001-22",
+  address: "Avenida Cerro Azul, 864, sala A fundos, Zona 02, Maringá, PR, CEP 87010-000",
+  contactEmail: "contato@subleasy.com.br",
+  privacyEmail: "privacidade@subleasy.com.br",
+  dpoName: "Felipe Fernandes",
 };
 
 export function isPlaceholder(value: string) {

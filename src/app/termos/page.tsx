@@ -30,7 +30,7 @@ export default function TermosPage() {
         <Link href="/privacidade">Política de privacidade</Link>.
       </p>
       <p>
-        O Subleasy é mantido por <Fill value={LEGAL.controller} />, inscrito no CPF/CNPJ{" "}
+        O Subleasy é mantido por <Fill value={LEGAL.controller} />, inscrita no CNPJ{" "}
         <Fill value={LEGAL.document} />, com endereço em <Fill value={LEGAL.address} />. Nestes
         termos, &quot;nós&quot; somos o Subleasy e &quot;você&quot; é quem usa o site.
       </p>
@@ -51,7 +51,7 @@ export default function TermosPage() {
       <ul>
         <li>Você precisa ter 18 anos ou mais para criar uma conta.</li>
         <li>
-          Você entra com sua conta Google ou com um link enviado ao seu e-mail. Não guardamos
+          Você entra com sua conta Google ou com um código enviado ao seu e-mail. Não guardamos
           senha.
         </li>
         <li>

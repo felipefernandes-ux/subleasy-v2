@@ -33,7 +33,7 @@ export default function PrivacidadePage() {
 
       <h2 id="controlador">1. Quem cuida dos seus dados</h2>
       <p>
-        O controlador dos dados é <Fill value={LEGAL.controller} />, CPF/CNPJ{" "}
+        O controlador dos dados é <Fill value={LEGAL.controller} />, CNPJ{" "}
         <Fill value={LEGAL.document} />, com endereço em <Fill value={LEGAL.address} />.
       </p>
       <p>
@@ -62,9 +62,59 @@ export default function PrivacidadePage() {
           <strong>Sua escolha sobre receber novidades</strong> por e-mail, com a data da escolha.
         </li>
       </ul>
+      <h3>Quando você entra com o Google</h3>
       <p>
-        Se você entrar com o Google, ele nos envia seu nome, e-mail e foto de perfil. Usamos o
-        nome para preencher o cadastro. A foto não aparece no site.
+        Pedimos ao Google apenas as permissões básicas de identificação (escopos{" "}
+        <code>openid</code>, <code>email</code> e <code>profile</code>). Com elas, recebemos:
+      </p>
+      <ul>
+        <li>seu <strong>nome</strong>, que usamos para preencher o cadastro;</li>
+        <li>seu <strong>e-mail</strong>, que usamos para identificar a conta e enviar avisos dela;</li>
+        <li>
+          sua <strong>foto de perfil</strong> e o <strong>identificador da conta Google</strong>,
+          que o login usa para reconhecer você. A foto não aparece no site, a menos que você a
+          escolha como foto do seu perfil.
+        </li>
+      </ul>
+      <p>
+        Não acessamos Gmail, Google Drive, agenda, contatos nem qualquer outro dado da sua conta
+        Google. Usamos esses dados só para criar a conta e manter você conectado. Não os vendemos,
+        não os usamos para publicidade e não os entregamos a terceiros, a não ser aos fornecedores
+        de infraestrutura que fazem o login funcionar (Supabase) ou por obrigação legal. Nenhuma
+        pessoa da equipe lê esses dados, exceto quando necessário para segurança, suporte a um
+        pedido seu ou cumprimento da lei. O uso e a transferência, pelo Subleasy, das informações
+        recebidas das APIs do Google seguem a{" "}
+        <a
+          href="https://developers.google.com/terms/api-services-user-data-policy"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Política de dados do usuário dos serviços de API do Google
+        </a>
+        , incluindo os requisitos de uso limitado. Para apagar esses dados, exclua a conta (veja a
+        seção 7) ou escreva para <Fill value={LEGAL.privacyEmail} />. Você também pode remover o
+        acesso do Subleasy em{" "}
+        <a href="https://myaccount.google.com/permissions" rel="noopener noreferrer" target="_blank">
+          myaccount.google.com/permissions
+        </a>
+        .
+      </p>
+
+      <h3>Se você já usava o Subleasy antes da versão 2.0</h3>
+      <p>
+        Trouxemos para a nova plataforma os dados que você já tinha cadastrado no site anterior:
+        nome, e-mail, WhatsApp e os anúncios que você publicou ou começou a preencher. Fizemos isso
+        para você não precisar preencher tudo de novo. Usamos esses dados para criar o seu acesso e
+        avisar você sobre a nova versão. Nada é publicado sem a sua aprovação, e você pode pedir a
+        exclusão a qualquer momento.
+      </p>
+
+      <h3>Quando você recebe nossos e-mails</h3>
+      <p>
+        Enviamos os e-mails por um serviço de envio. Ele registra se a mensagem foi entregue e se
+        você clicou nos links. Quando você clica no convite para a nova versão, guardamos a data do
+        clique e a data em que você confirmou o interesse. Você sai da lista de novidades a
+        qualquer momento pelo link de descadastro no rodapé de cada e-mail.
       </p>
 
       <h3>Quando você anuncia uma sala</h3>
@@ -141,7 +191,8 @@ export default function PrivacidadePage() {
           <strong>Legítimo interesse</strong> (art. 7º, IX): mostrar no seu painel quantas
           pessoas viram e contataram cada anúncio, mostrar no seu perfil público o nome, a data de
           entrada, os anúncios no ar e o que confirmamos sobre a conta, para que quem procura sala
-          confie em quem anuncia, melhorar o site e prevenir fraude e abuso.
+          confie em quem anuncia, melhorar o site e prevenir fraude e abuso, e avisar quem já tinha conta no Subleasy anterior sobre a nova versão
+          da plataforma.
         </li>
         <li>
           <strong>Cumprir a lei</strong> (art. 7º, II): guardar registros de acesso, como manda o
@@ -178,11 +229,11 @@ export default function PrivacidadePage() {
           <strong>Google</strong>: login com Google e processamento do texto pela IA.
         </li>
         <li>
-          <strong>Serviço de envio de e-mail</strong>: links de acesso, lembretes e, se você
-          autorizar, novidades.
+          <strong>Brevo</strong>: envio de e-mails, como códigos de acesso, lembretes, avisos sobre a
+          nova versão e, se você autorizar, novidades.
         </li>
         <li>
-          <strong>Hospedagem do site</strong>: entrega das páginas e registros de acesso.
+          <strong>Vercel</strong>: hospedagem do site, entrega das páginas e registros de acesso.
         </li>
       </ul>
       <p>
@@ -196,7 +247,7 @@ export default function PrivacidadePage() {
 
       <h2 id="internacional">6. Transferência para fora do Brasil</h2>
       <p>
-        Alguns desses serviços, como o Google, podem tratar dados em outros países. Nesses casos,
+        Alguns desses serviços, como Google, Brevo e Vercel, podem tratar dados em outros países. Nesses casos,
         usamos fornecedores que oferecem proteção compatível com a LGPD, conforme o art. 33.
       </p>
 
@@ -214,7 +265,10 @@ export default function PrivacidadePage() {
       <h2 id="seguranca">8. Como protegemos</h2>
       <ul>
         <li>Todo acesso ao site usa conexão criptografada (HTTPS).</li>
-        <li>Não guardamos senhas: o login é feito pelo Google ou por link de uso único.</li>
+        <li>
+          Não guardamos senhas: o login é feito pelo Google ou por e-mail, e todo login novo
+          pede um código de 6 dígitos enviado ao seu e-mail.
+        </li>
         <li>
           O banco de dados libera cada registro só para quem tem permissão. Seu WhatsApp e o
           endereço completo da sala só podem ser lidos por você.
