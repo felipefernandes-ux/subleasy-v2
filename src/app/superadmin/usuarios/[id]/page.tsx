@@ -54,11 +54,17 @@ async function UserDetail({ params }: { params: PageProps<"/superadmin/usuarios/
           </span>
         }
         title={user.name}
-        description="Você vê a conta, mas nunca entra como a pessoa nem define a senha dela. A consulta desta ficha entra na auditoria."
+        description="Você vê a conta, e o painel dela só em leitura, mas nunca entra como a pessoa nem define a senha dela. A consulta desta ficha entra na auditoria."
         actions={
-          <ButtonLink href="/usuarios" variant="ghost">
-            Voltar
-          </ButtonLink>
+          <>
+            <ButtonLink href={`/admin/ver-como/${user.id}`} variant="primary">
+              <EyeIcon className="size-4" weight="bold" aria-hidden />
+              Ver painel do usuário
+            </ButtonLink>
+            <ButtonLink href="/usuarios" variant="ghost">
+              Voltar
+            </ButtonLink>
+          </>
         }
       />
 

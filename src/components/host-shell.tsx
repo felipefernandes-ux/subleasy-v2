@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { PlusIcon } from "@phosphor-icons/react/ssr";
 import { AccountMenu } from "./account-menu";
+import { SiteHeader } from "./site-header";
+import { ViewAsBar } from "./view-as-bar";
 import { Logo, buttonClasses } from "./ui";
 
 /** Moldura das telas do anunciante e do admin: logo, atalhos e fundo neutro. */
@@ -10,6 +11,7 @@ export function HostShell({
   admin = false,
   wide = false,
   white = false,
+  viewAs,
 }: {
   children: ReactNode;
   admin?: boolean;
@@ -17,44 +19,40 @@ export function HostShell({
   wide?: boolean | "xl";
   /** Fundo branco, como a lista de anúncios: os filtros em cinza se destacam melhor. */
   white?: boolean;
+  /** Super Admin vendo a conta de outra pessoa: troca o cabeçalho pela barra e deixa a tela só leitura. */
+  viewAs?: { email: string; userId: string; current: "painel" | "anuncios" };
 }) {
   return (
     <div className={`flex min-h-dvh flex-col ${white ? "bg-white" : "bg-ink-50"}`}>
-      <header className="border-b border-ink-200 bg-white">
-        <div className="container-page flex h-16 items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link href="/" aria-label="Subleasy, página inicial" className="focus-ring rounded-control">
-              <Logo />
-            </Link>
-            {admin && <span className="rounded-full bg-ink-900 px-2.5 py-0.5 text-xs font-bold text-white">Admin</span>}
-          </div>
-          <nav aria-label="Conta" className="flex items-center gap-1">
-            {admin ? (
+      {viewAs ? (
+        <ViewAsBar {...viewAs} />
+      ) : admin ? (
+        <header className="border-b border-ink-200 bg-white">
+          <div className="container-page flex h-16 items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Link href="/" aria-label="Subleasy, página inicial" className="focus-ring rounded-control">
+                <Logo />
+              </Link>
+              <span className="rounded-full bg-ink-900 px-2.5 py-0.5 text-xs font-bold text-white">Admin</span>
+            </div>
+            <nav aria-label="Conta" className="flex items-center gap-1">
               <Link href="/admin/anuncios" className={buttonClasses("ghost")}>
                 Para aprovar
               </Link>
-            ) : (
-              <>
-                <Link href="/painel" className={buttonClasses("ghost")}>
-                  Painel
-                </Link>
-                <Link href="/painel/anuncios" className={buttonClasses("ghost")}>
-                  Meus anúncios
-                </Link>
-                <Link href="/anunciar" className={`${buttonClasses("primary")} max-sm:px-3`}>
-                  <PlusIcon className="size-4" weight="bold" aria-hidden />
-                  <span className="max-sm:sr-only">Anunciar sala</span>
-                </Link>
-              </>
-            )}
-            <span className="ml-1">
-              <AccountMenu showSignIn={false} />
-            </span>
-          </nav>
-        </div>
-      </header>
+              <span className="ml-1">
+                <AccountMenu showSignIn={false} />
+              </span>
+            </nav>
+          </div>
+        </header>
+      ) : (
+        <SiteHeader />
+      )}
       <main className="flex-1 px-5 pt-8 pb-16 sm:px-8 sm:pt-12">
-        <div className={`mx-auto w-full ${wide === "xl" ? "max-w-6xl" : wide ? "max-w-5xl" : "max-w-3xl"}`}>{children}</div>
+        {/* inert: só leitura. Nada recebe clique nem foco, então nenhuma ação roda como a pessoa. */}
+        <div inert={viewAs ? true : undefined} className={`mx-auto w-full ${wide === "xl" ? "max-w-6xl" : wide ? "max-w-5xl" : "max-w-3xl"}`}>
+          {children}
+        </div>
       </main>
     </div>
   );
