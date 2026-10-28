@@ -101,7 +101,7 @@ export async function createListing(input: NewListing): Promise<CreateListingRes
     redirect(`/painel/anuncios/${data.id}`);
   }
 
-  await notifySubmitted(supabase, user, { ...listing, photos: photos.length });
+  await notifySubmitted(supabase, user, { ...listing, photos: photos.length, cover: photos[0] ?? null });
   redirect(`/painel/anuncios/${data.id}`);
 }
 

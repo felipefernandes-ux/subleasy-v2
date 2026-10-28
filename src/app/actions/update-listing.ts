@@ -115,6 +115,6 @@ export async function updateListing(input: NewListing): Promise<CreateListingRes
   const removed = current.photos.filter((path: string) => !photos.includes(path));
   if (removed.length > 0) await supabase.storage.from(PHOTO_BUCKET).remove(removed);
 
-  await notifySubmitted(supabase, user, { id: data.id, ...listing, photos: photos.length });
+  await notifySubmitted(supabase, user, { id: data.id, ...listing, photos: photos.length, cover: photos[0] ?? null });
   redirect(`/painel/anuncios/${data.id}`);
 }

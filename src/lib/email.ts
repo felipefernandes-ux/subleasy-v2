@@ -18,11 +18,23 @@ const BRAND_600 = "#3818d9";
 /** Prazo prometido ao anunciante. Mude aqui se a rotina de revisão mudar. */
 export const REVIEW_TIME = "1 dia útil";
 
+/** Cartão do anúncio no corpo do e-mail: foto quadrada à esquerda, dados à direita. */
+export type EmailCard = { image: string | null; status: string; title: string; place: string; price: string };
+
+/**
+ * Título do anúncio no corpo do e-mail: negrito e entre aspas. Os marcadores viram <strong>
+ * em renderEmailHtml e somem no texto simples; o resto do parágrafo continua escapado.
+ */
+const TITLE_OPEN = "\u0001";
+const TITLE_CLOSE = "\u0002";
+export const bold = (title: string) => `${TITLE_OPEN}“${title}”${TITLE_CLOSE}`;
+
 type Email = {
   to: string;
   subject: string;
   heading: string;
   paragraphs: string[];
+  card?: EmailCard;
   cta?: { label: string; url: string };
   /** Código de verificação, em destaque. */
   code?: string;
@@ -88,36 +100,33 @@ export function welcomeEmail(to: string, name: string, url: string): Email {
   };
 }
 
-export function listingSubmittedEmail(to: string, name: string, title: string, url: string): Email {
+export function listingSubmittedEmail(to: string, name: string, title: string, url: string, card?: EmailCard): Email {
   return {
     to,
     subject: "Recebemos o anúncio da sua sala",
     heading: "Seu anúncio está em revisão",
     paragraphs: [
-      `Oi, ${firstName(name)}. Recebemos o anúncio “${title}”.`,
+      `Oi, ${firstName(name)}. Recebemos o anúncio ${bold(title)}.`,
       `Agora a equipe do Subleasy confere as fotos e as informações. A revisão leva até ${REVIEW_TIME}.`,
       "Quando o anúncio for aprovado, você recebe outro e-mail com o link da sala para compartilhar.",
     ],
+    card,
     cta: { label: "Ver meu anúncio", url },
   };
 }
 
 export function adminNewListingEmail(
   to: string,
-  listing: { title: string; host: string; hostEmail: string; place: string; price: string; photos: number },
+  listing: { host: string; hostEmail: string; photos: number },
+  card: EmailCard,
   url: string,
 ): Email {
   return {
     to,
-    subject: `Novo anúncio para aprovar: ${listing.title}`,
+    subject: `Novo anúncio para aprovar: ${card.title}`,
     heading: "Novo anúncio para aprovar",
-    paragraphs: [
-      `“${listing.title}”`,
-      `Anunciante: ${listing.host} (${listing.hostEmail})`,
-      `Local: ${listing.place}`,
-      `Preço: ${listing.price}`,
-      `Fotos: ${listing.photos}`,
-    ],
+    paragraphs: [`Anunciante: ${listing.host} (${listing.hostEmail})`, `Fotos: ${listing.photos}`],
+    card,
     cta: { label: "Revisar anúncio", url },
   };
 }
@@ -128,7 +137,7 @@ export function listingPublishedEmail(to: string, name: string, title: string, u
     subject: "Sua sala está no ar",
     heading: "Sua sala está no ar",
     paragraphs: [
-      `${firstName(name)}, o anúncio “${title}” foi aprovado e já aparece no Subleasy.`,
+      `${firstName(name)}, o anúncio ${bold(title)} foi aprovado e já aparece no Subleasy.`,
       "Compartilhe o link no Instagram, nos grupos de WhatsApp e com colegas. Quem se interessar fala com você direto pelo WhatsApp.",
     ],
     cta: { label: "Ver anúncio publicado", url },
@@ -142,7 +151,7 @@ export function listingReturnedEmail(to: string, name: string, title: string, no
     subject: "Seu anúncio precisa de um ajuste",
     heading: "Falta um ajuste para publicar",
     paragraphs: [
-      `Oi, ${firstName(name)}. Revisamos o anúncio “${title}” e ele precisa de um ajuste antes de ir ao ar:`,
+      `Oi, ${firstName(name)}. Revisamos o anúncio ${bold(title)} e ele precisa de um ajuste antes de ir ao ar:`,
       note,
       "Corrija e envie de novo. A nova revisão também leva até " + REVIEW_TIME + ".",
     ],
@@ -164,7 +173,7 @@ export function newInquiryEmail(
     subject: `Nova mensagem sobre “${title}”`,
     heading: `${firstName(inquiry.name)} quer saber da sua sala`,
     paragraphs: [
-      `Mensagem enviada pelo anúncio “${title}” no Subleasy:`,
+      `Mensagem enviada pelo anúncio ${bold(title)} no Subleasy:`,
       `“${inquiry.message}”`,
       `Contato: ${inquiry.name} · ${inquiry.email}${inquiry.phone ? ` · ${inquiry.phone}` : ""}`,
     ],
@@ -183,10 +192,11 @@ function escape(value: string) {
 
 // HTML de e-mail: tabela, estilos em linha e largura de 560 px, que os clientes de e-mail entendem.
 // Cabeçalho em brand-600 com o logo branco; botões também em brand-600 (bgcolor para o Outlook).
-export function renderEmailHtml({ heading, paragraphs, cta, code, footnote }: Email) {
+export function renderEmailHtml({ heading, paragraphs, card, cta, code, footnote }: Email) {
   const body = paragraphs
-    .map((p) => `<p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#344054;">${escape(p)}</p>`)
+    .map((p) => `<p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#344054;">${richText(p)}</p>`)
     .join("");
+  const cardBlock = card ? renderCard(card) : "";
   const codeBlock = code
     ? `<p style="margin:8px 0 20px;padding:18px 0;border-radius:8px;background:#f4f1ff;text-align:center;font-family:'Courier New',monospace;font-size:34px;font-weight:700;letter-spacing:10px;color:#2c12b3;">${escape(code)}</p>`
     : "";
@@ -203,14 +213,36 @@ export function renderEmailHtml({ heading, paragraphs, cta, code, footnote }: Em
 <tr><td align="center" bgcolor="${BRAND_600}" style="background:${BRAND_600};padding:40px 32px;"><img src="${escape(LOGO_URL)}" width="148" alt="Subleasy" style="display:block;border:0;height:auto;width:148px;"></td></tr>
 <tr><td style="padding:32px 32px 36px;">
 <h1 style="margin:0 0 16px;font-size:24px;line-height:1.25;color:#101828;">${escape(heading)}</h1>
-${body}${codeBlock}${button}${note}
+${body}${cardBlock}${codeBlock}${button}${note}
 </td></tr></table>
 <p style="margin:16px 0 0;font-size:12px;color:#98a2b3;">Subleasy · Sua sala no turno certo.</p>
 </td></tr></table></body></html>`;
 }
 
-function renderText({ heading, paragraphs, cta, code, footnote }: Email) {
-  return [heading, "", ...paragraphs, "", code ? `Código: ${code}` : "", "", cta ? `${cta.label}: ${cta.url}` : "", footnote ?? ""]
+/** Parágrafo escapado, com os títulos marcados por bold() em negrito. */
+function richText(value: string) {
+  return escape(value).replaceAll(TITLE_OPEN, '<strong style="color:#101828;">').replaceAll(TITLE_CLOSE, "</strong>");
+}
+
+const stripMarks = (value: string) => value.replaceAll(TITLE_OPEN, "").replaceAll(TITLE_CLOSE, "");
+
+// Cartão horizontal como o de Meus anúncios: foto quadrada de 96 px e os dados ao lado.
+function renderCard({ image, status, title, place, price }: EmailCard) {
+  const photo = image
+    ? `<img src="${escape(image)}" width="96" height="96" alt="" style="display:block;width:96px;height:96px;border:0;border-radius:8px;object-fit:cover;background:#f2f4f7;">`
+    : `<div style="width:96px;height:96px;border-radius:8px;background:#f2f4f7;"></div>`;
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 20px;border:1px solid #eaecf0;border-radius:12px;"><tr>
+<td width="96" valign="top" style="padding:12px;width:96px;">${photo}</td>
+<td valign="top" style="padding:12px 12px 12px 0;">
+<span style="display:inline-block;padding:2px 10px;border-radius:999px;background:#fef0c7;color:#93370d;font-size:12px;font-weight:700;line-height:1.5;">${escape(status)}</span>
+<p style="margin:6px 0 0;font-size:16px;line-height:1.35;color:#101828;"><strong>${escape(`“${title}”`)}</strong></p>
+<p style="margin:4px 0 0;font-size:14px;line-height:1.4;color:#667085;">${escape(place)}</p>
+<p style="margin:4px 0 0;font-size:14px;line-height:1.4;font-weight:700;color:#344054;">${escape(price)}</p>
+</td></tr></table>`;
+}
+
+function renderText({ heading, paragraphs, card, cta, code, footnote }: Email) {
+  return [heading, "", ...paragraphs.map(stripMarks), "", card ? `“${card.title}” · ${card.place} · ${card.price}` : "", "", code ? `Código: ${code}` : "", "", cta ? `${cta.label}: ${cta.url}` : "", footnote ?? ""]
     .filter((line, index, all) => line !== "" || all[index - 1] !== "")
     .join("\n")
     .trim();

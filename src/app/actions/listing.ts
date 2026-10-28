@@ -241,6 +241,7 @@ export async function saveListing(
     price: data.price,
     billing_type: data.billing_type,
     photos: photos.length,
+    cover: photos[0] ?? null,
   });
 
   redirect(`/painel/anuncios/${listingId}`);
