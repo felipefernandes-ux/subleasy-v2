@@ -3,7 +3,7 @@
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import { EXTRACTION_MODEL, aiErrorMessage, geminiClient } from "@/lib/ai";
-import { BILLING_TYPE_KEYS, SPACE_TYPE_KEYS } from "@/lib/listing-options";
+import { AMENITIES, BILLING_TYPE_KEYS, HIGHLIGHTS, HIGHLIGHT_KEYS, MAX_HIGHLIGHTS, SPACE_TYPE_KEYS } from "@/lib/listing-options";
 import { createClient } from "@/lib/supabase/server";
 import type { AIExtraction } from "@/lib/wizard-draft";
 
@@ -26,6 +26,7 @@ const extractionSchema = z.object({
   zip_code: z.string().nullable(),
   min_rental_period: z.string().nullable(),
   amenities: z.array(z.string()),
+  highlights: z.array(z.enum(HIGHLIGHT_KEYS)),
 });
 
 // As mesmas regras dos checks da tabela listings, para falhar antes do insert.
@@ -47,6 +48,7 @@ const listingSchema = z.object({
     .catch(null),
   min_rental_period: z.string().trim().nullable(),
   amenities: z.array(z.string().trim()),
+  highlights: z.array(z.enum(HIGHLIGHT_KEYS)).transform((list) => list.slice(0, MAX_HIGHLIGHTS)),
 });
 
 type Listing = z.infer<typeof listingSchema>;
@@ -72,7 +74,9 @@ Use só o que está no texto. Se uma informação não aparece, devolva null (ou
 - billing_type e price: o preço vale para a unidade de cobrança (hora, turno, dia ou mes). Preço em reais, só o número.
 - state: sigla da UF com 2 letras maiúsculas. zip_code: CEP no formato 00000-000.
 - min_rental_period: período mínimo, ex: "1 turno/semana".
-- amenities: em snake_case, ex: ar_condicionado, maca, pia, recepcao, wifi, estacionamento, acessibilidade.`;
+- amenities: só chaves desta lista, e só as que o texto diz que a sala tem: ${Object.entries(AMENITIES).map(([key, label]) => `${key} (${label})`).join(", ")}.
+- highlights: no máximo ${MAX_HIGHLIGHTS}, só chaves desta lista e só se o texto diz isso da sala: ${Object.entries(HIGHLIGHTS).map(([key, label]) => `${key} (${label})`).join(", ")}. Na dúvida, lista vazia.
+- neighborhood, city e state: se o texto citar só a cidade, use a região central; nunca deixe em branco se houver pista do lugar.`;
 
 export type CreateListingAIResult =
   | { ok: true; userId: string; listing: AIExtraction }

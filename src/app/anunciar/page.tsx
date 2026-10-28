@@ -12,15 +12,15 @@ export const metadata: Metadata = {
   alternates: { canonical: "/anunciar" },
 };
 
-export default function AnunciarPage({ searchParams }: PageProps<"/anunciar">) {
+export default function AnunciarPage() {
   return (
     <Suspense fallback={<div className="min-h-dvh bg-white" aria-busy="true" />}>
-      <Wizard searchParams={searchParams} />
+      <Wizard />
     </Suspense>
   );
 }
 
-async function Wizard({ searchParams }: { searchParams: PageProps<"/anunciar">["searchParams"] }) {
+async function Wizard() {
   // A sessão só existe na requisição. As fotos sobem para a pasta do usuário.
   await connection();
   const supabase = await createClient();
@@ -30,7 +30,5 @@ async function Wizard({ searchParams }: { searchParams: PageProps<"/anunciar">["
   if (!user) redirect("/entrar?next=/anunciar");
 
   const { data: profile } = await supabase.from("profiles").select("whatsapp_number").eq("id", user.id).maybeSingle();
-  // Vindo da IA (?retomar=1), o rascunho preenchido abre direto, sem perguntar.
-  const autoResume = Boolean((await searchParams).retomar);
-  return <ListingWizard userId={user.id} autoResume={autoResume} profile={{ whatsapp: formatWhatsApp(profile?.whatsapp_number ?? ""), email: user.email ?? "" }} />;
+  return <ListingWizard userId={user.id} profile={{ whatsapp: formatWhatsApp(profile?.whatsapp_number ?? ""), email: user.email ?? "" }} />;
 }

@@ -47,7 +47,6 @@ import {
   AddressFields,
   Field,
   INPUT,
-  PhotoCarousel,
   PhotoManager,
   formatMoneyInput,
   formatPhoneInput,
@@ -57,7 +56,8 @@ import {
   type Photo,
 } from "./listing-fields";
 import { SPACE_ICONS } from "@/lib/space-type-icons";
-import { wizardStorageKey } from "@/lib/wizard-draft";
+import { wizardHandoffKey, wizardStorageKey } from "@/lib/wizard-draft";
+import { ListingPreview } from "./listing-preview";
 import { LocationMap } from "./location-map";
 import { Logo, SparkleIcon, WhatsAppIcon, buttonClasses } from "./ui";
 
@@ -78,18 +78,18 @@ const OFFER_ICONS: Record<Offer, Icon> = {
   sem_fidelidade: HandshakeIcon,
 };
 
-// 9 passos em 3 fases, como no Airbnb: a barra de cada fase enche aos poucos.
+// 10 passos em 3 fases, como no Airbnb: a barra de cada fase enche aos poucos.
 const STEPS = [
   { phase: 0, title: "Para que tipo de atendimento é a sala?", text: "Escolha a opção que mais se parece com o seu espaço." },
-  { phase: 0, title: "Onde fica a sala?", text: "Digite o CEP e o endereço se completa sozinho. Rua e número não aparecem no anúncio." },
+  { phase: 0, title: "Onde fica a sala?", text: "Bairro, cidade e estado já mostram a área no mapa. Para a localização exata, informe CEP, rua e número; a rua e o número não aparecem no anúncio." },
   { phase: 0, title: "O que a sala oferece?", text: "Marque só o que a sala tem de verdade. Dá para mudar depois." },
-  { phase: 0, title: "Adicione fotos da sala", text: "Até 8 fotos. A primeira é a capa do anúncio." },
   { phase: 1, title: "Como você descreveria a sala?", text: `Escolha até ${MAX_HIGHLIGHTS} destaques. A IA usa para começar a descrição.` },
   { phase: 1, title: "Dê um título e uma descrição", text: "A IA escreveu uma sugestão com o que você contou até aqui. Ajuste do seu jeito." },
+  { phase: 1, title: "Adicione fotos da sala", text: "Até 8 fotos. A primeira é a capa do anúncio." },
   { phase: 2, title: "Quanto custa e como funciona?", text: "O valor aparece no anúncio. Regras ajudam a atrair quem combina com a sala." },
   { phase: 2, title: "Ofereça algo para quem vem pelo Subleasy", text: "A oferta aparece em destaque no anúncio e vai escrita na mensagem do WhatsApp. É opcional." },
   { phase: 2, title: "Como os interessados falam com você?", text: "O WhatsApp é o contato principal. O e-mail fica como segunda opção, para quem preferir." },
-  { phase: 2, title: "Confira e envie", text: "A equipe do Subleasy aprova em até 1 dia útil. Nada vai ao ar antes disso." },
+  { phase: 2, title: "Confira e envie", text: "Veja como o anúncio vai aparecer no site. A equipe do Subleasy aprova em até 1 dia útil. Nada vai ao ar antes disso." },
 ];
 const PHASES = ["A sala", "O anúncio", "Condições"];
 
@@ -121,6 +121,8 @@ type Draft = AddressValues & {
   offers: Offer[];
   whatsapp: string;
   contact_email: string;
+  /** Texto livre que a pessoa digitou na tela de IA; a IA o usa para escrever título e descrição. */
+  ai_text: string;
   /** Campos que ainda têm o texto da IA: mostram o ícone de sugestão. */
   ai_fields: CopyField[];
 };
@@ -157,6 +159,7 @@ function emptyDraft({ whatsapp, email }: Profile): Draft {
     offers: [],
     whatsapp,
     contact_email: email,
+    ai_text: "",
     ai_fields: [],
   };
 }
@@ -167,25 +170,54 @@ const noop = () => () => {};
  * Cadastro tradicional, um assunto por tela. O rascunho fica salvo no navegador a cada
  * mudança: dá para sair e voltar. Só vira anúncio (e vai para análise) no último passo.
  */
-export function ListingWizard({ userId, profile, autoResume = false }: { userId: string; profile: Profile; autoResume?: boolean }) {
+export function ListingWizard({ userId, profile }: { userId: string; profile: Profile }) {
   const key = wizardStorageKey(userId);
+  const handoffKey = wizardHandoffKey(userId);
   // localStorage só existe no navegador: no servidor, mostra o esqueleto.
-  const saved = useSyncExternalStore(noop, () => localStorage.getItem(key) ?? "", () => null);
-  if (saved === null) return <div className="min-h-dvh bg-white" aria-busy="true" />;
+  const stored = useSyncExternalStore(
+    noop,
+    () => `${localStorage.getItem(key) ?? ""}\u0000${localStorage.getItem(handoffKey) ?? ""}`,
+    () => null,
+  );
+  // Cada rascunho vindo da IA tem um id novo: com ele como chave, o cadastro que já estava
+  // aberto (o Next o mantém montado ao sair da página) recomeça dele em vez de voltar ao que tinha.
+  const [wizardKey, setWizardKey] = useState("novo");
+  if (stored === null) return <div className="min-h-dvh bg-white" aria-busy="true" />;
+
+  const [saved, handoff] = stored.split("\u0000");
+  const parse = (text: string) => {
+    try {
+      return text ? ({ ...emptyDraft(profile), ...(JSON.parse(text) as Partial<Draft>) } as Draft) : null;
+    } catch {
+      return null;
+    }
+  };
+  const fromAI = parse(handoff);
+  if (fromAI && fromAI.id !== wizardKey) setWizardKey(fromAI.id);
 
   // "Anunciar sala" sempre começa do zero. Um rascunho salvo vira só um convite para continuar.
-  let resume: Draft | null = null;
-  try {
-    const parsed = saved ? ({ ...emptyDraft(profile), ...(JSON.parse(saved) as Partial<Draft>) } as Draft) : null;
+  let resume: Draft | null = fromAI;
+  if (!resume) {
+    const parsed = parse(saved);
     if (parsed && (parsed.step > 0 || parsed.space_type)) resume = parsed;
-  } catch {
-    resume = null;
   }
-  return <Wizard storageKey={key} userId={userId} profile={profile} fresh={emptyDraft(profile)} resume={resume} autoResume={autoResume} />;
+  return (
+    <Wizard
+      key={fromAI ? fromAI.id : wizardKey}
+      storageKey={key}
+      handoffKey={handoffKey}
+      userId={userId}
+      profile={profile}
+      fresh={emptyDraft(profile)}
+      resume={resume}
+      autoResume={Boolean(fromAI)}
+    />
+  );
 }
 
 function Wizard({
   storageKey,
+  handoffKey,
   userId,
   profile,
   fresh,
@@ -193,6 +225,7 @@ function Wizard({
   autoResume,
 }: {
   storageKey: string;
+  handoffKey: string;
   userId: string;
   profile: Profile;
   fresh: Draft;
@@ -222,6 +255,13 @@ function Wizard({
     if (pristine) return;
     localStorage.setItem(storageKey, JSON.stringify({ ...draft, photos: ready.map(({ path, size }) => ({ path, size })) }));
   }, [storageKey, draft, ready, pristine]);
+
+  // O rascunho da IA já está na chave principal: o recado some para não voltar numa próxima visita.
+  useEffect(() => {
+    if (autoResume) localStorage.removeItem(handoffKey);
+    // só ao abrir
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function continueSaved() {
     if (!saved) return;
@@ -281,7 +321,7 @@ function Wizard({
   const topRef = useRef<HTMLDivElement>(null);
   function goTo(next: number) {
     setDraft((current) => ({ ...current, step: next }));
-    if (next === 5) suggestCopy();
+    if (next === 4) suggestCopy();
     requestAnimationFrame(() => topRef.current?.scrollIntoView({ block: "start" }));
   }
 
@@ -295,8 +335,8 @@ function Wizard({
       if (!draft.city.trim()) found.city = "Informe a cidade.";
       if (!UFS.includes(draft.state as (typeof UFS)[number])) found.state = "Escolha a UF.";
     }
-    if (current === 3 && ready.length === 0) found.photos = "Adicione pelo menos uma foto da sala.";
-    if (current === 5) {
+    if (current === 5 && ready.length === 0) found.photos = "Adicione pelo menos uma foto da sala.";
+    if (current === 4) {
       const title = draft.title.trim();
       if (title.length < 10 || title.length > 70) found.title = "O título precisa ter entre 10 e 70 caracteres.";
       if (draft.description.trim().length < 40) found.description = "Escreva uma descrição com pelo menos 40 caracteres.";
@@ -366,6 +406,7 @@ function Wizard({
     draft.highlights.length > 0 && `Destaques: ${draft.highlights.map((key) => HIGHLIGHTS[key]).join(", ")}`,
     draft.price && `Preço: R$ ${draft.price} por ${BILLING_UNIT[draft.billing_type]}`,
     draft.min_rental_period && `Período mínimo: ${draft.min_rental_period}`,
+    draft.ai_text && `Texto do anunciante: ${draft.ai_text}`,
     draft.description && `Descrição atual: ${draft.description}`,
   ]
     .filter(Boolean)
@@ -414,7 +455,7 @@ function Wizard({
             </div>
           )}
 
-          {step === 0 && draft.ai_fields.length > 0 && !saved && (
+          {step === 0 && draft.ai_text && !saved && (
             <p className="mt-6 flex items-start gap-2 rounded-card bg-brand-50 p-4 text-sm text-ink-800 ring-1 ring-brand-100">
               <SparkleIcon className="mt-0.5 size-4.5 shrink-0 text-brand-600" />A IA já preencheu o que entendeu do seu texto. Confira cada passo, adicione as fotos e complete o que faltar.
             </p>
@@ -470,7 +511,7 @@ function Wizard({
               </ChoiceGrid>
             )}
 
-            {step === 3 && (
+            {step === 5 && (
               <PhotoManager
                 photos={photos}
                 setPhotos={(update) => {
@@ -483,7 +524,7 @@ function Wizard({
               />
             )}
 
-            {step === 4 && (
+            {step === 3 && (
               <fieldset>
                 <legend className="sr-only">Destaques da sala</legend>
                 <div className="flex flex-wrap gap-3">
@@ -511,7 +552,7 @@ function Wizard({
               </fieldset>
             )}
 
-            {step === 5 && (
+            {step === 4 && (
               <div className="space-y-6">
                 {copyStatus === "loading" && (
                   <div role="status" className="rounded-card bg-brand-50 p-4 ring-1 ring-brand-100">
@@ -741,6 +782,8 @@ function Wizard({
         uploading={uploading}
         onBack={() => goTo(step - 1)}
         onNext={next}
+        // A oferta é opcional: sem nenhuma marcada, dá para seguir direto.
+        onSkip={step === 7 && draft.offers.length === 0 ? () => goTo(step + 1) : undefined}
       />
     </div>
   );
@@ -844,9 +887,9 @@ function Review({ draft, photos, onEdit }: { draft: Draft; photos: Photo[]; onEd
       body: `${draft.neighborhood}, ${draft.city} - ${draft.state}${draft.show_exact_location ? " · localização exata no mapa" : " · área aproximada no mapa"}`,
     },
     { step: 2, title: "Comodidades", body: draft.amenities.length ? draft.amenities.map(amenityLabel).join(", ") : "Nenhuma marcada" },
-    { step: 4, title: "Destaques", body: draft.highlights.length ? draft.highlights.map((key) => HIGHLIGHTS[key]).join(", ") : "Nenhum" },
+    { step: 3, title: "Destaques", body: draft.highlights.length ? draft.highlights.map((key) => HIGHLIGHTS[key]).join(", ") : "Nenhum" },
     {
-      step: 5,
+      step: 4,
       title: "Título e descrição",
       body: (
         <>
@@ -855,6 +898,7 @@ function Review({ draft, photos, onEdit }: { draft: Draft; photos: Photo[]; onEd
         </>
       ),
     },
+    { step: 5, title: "Fotos", body: `${photos.length} ${photos.length === 1 ? "foto" : "fotos"}, a primeira é a capa` },
     {
       step: 6,
       title: "Preço e regras",
@@ -870,9 +914,38 @@ function Review({ draft, photos, onEdit }: { draft: Draft; photos: Photo[]; onEd
     { step: 8, title: "Contato", body: `WhatsApp ${draft.whatsapp} · e-mail ${draft.contact_email}` },
   ];
 
+  const preview = {
+    id: draft.id,
+    title: draft.title || "Título do anúncio",
+    short_summary: draft.short_summary || null,
+    description: draft.description || null,
+    space_type: draft.space_type || "outro",
+    billing_type: draft.billing_type,
+    price: parsePrice(draft.price) || 0,
+    city: draft.city,
+    state: draft.state,
+    neighborhood: draft.neighborhood,
+    min_rental_period: draft.min_rental_period || null,
+    rules: draft.rules.split("\n").map((line) => line.replace(/^[-•*]\s*/, "").trim()).filter(Boolean),
+    amenities: draft.amenities,
+    photos: photos.map((photo) => photo.path ?? ""),
+    photo_sizes: Object.fromEntries(photos.filter((photo) => photo.path && photo.size).map((photo) => [photo.path, photo.size])),
+    highlights: draft.highlights,
+    offers: draft.offers,
+    latitude: draft.latitude,
+    longitude: draft.longitude,
+    show_exact_location: draft.show_exact_location,
+  };
+
   return (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-sm font-bold text-ink-900">Assim o anúncio aparece no site</h2>
+        <p className="mt-1 mb-3 text-sm text-ink-600">Uma prévia em escala menor. O mapa mostra só a área aproximada se a localização exata estiver desligada.</p>
+        <ListingPreview listing={preview} />
+      </div>
+      <h2 className="sr-only">Resumo das suas respostas</h2>
     <section className="overflow-hidden rounded-panel bg-white shadow-card ring-1 ring-ink-900/8">
-      {photos.length > 0 && <PhotoCarousel photos={photos} />}
       <dl className="divide-y divide-ink-200 px-5 sm:px-6">
         {rows.map((row) => (
           <div key={row.title} className="flex items-start justify-between gap-4 py-4">
@@ -887,6 +960,7 @@ function Review({ draft, photos, onEdit }: { draft: Draft; photos: Photo[]; onEd
         ))}
       </dl>
     </section>
+    </div>
   );
 }
 
@@ -942,12 +1016,14 @@ function BottomBar({
   uploading,
   onBack,
   onNext,
+  onSkip,
 }: {
   step: number;
   isPending: boolean;
   uploading: boolean;
   onBack: () => void;
   onNext: () => void;
+  onSkip?: () => void;
 }) {
   const last = step === STEPS.length - 1;
   return (
@@ -973,15 +1049,22 @@ function BottomBar({
         ) : (
           <span />
         )}
-        <button
-          type="button"
-          onClick={onNext}
-          disabled={isPending || (uploading && step === 3)}
-          className={`${buttonClasses("primary", "lg")} min-w-36 disabled:opacity-70`}
-        >
-          {isPending && <CircleNotchIcon className="size-5 animate-spin" weight="bold" aria-hidden />}
-          {last ? "Enviar para revisão" : uploading && step === 3 ? "Enviando fotos…" : "Continuar"}
-        </button>
+        <div className="flex items-center gap-2">
+          {onSkip && (
+            <button type="button" onClick={onSkip} disabled={isPending} className={buttonClasses("ghost", "lg")}>
+              Pular
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onNext}
+            disabled={isPending || (uploading && step === 5)}
+            className={`${buttonClasses("primary", "lg")} min-w-36 disabled:opacity-70`}
+          >
+            {isPending && <CircleNotchIcon className="size-5 animate-spin" weight="bold" aria-hidden />}
+            {last ? "Enviar para revisão" : uploading && step === 5 ? "Enviando fotos…" : "Continuar"}
+          </button>
+        </div>
       </div>
     </div>
   );

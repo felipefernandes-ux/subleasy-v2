@@ -87,7 +87,7 @@ export async function createListing(input: NewListing): Promise<CreateListingRes
   // Fotos só valem se estiverem na pasta deste anúncio, do próprio anunciante.
   const folder = `${user.id}/${data.id}/`;
   const photos = data.photos.filter((path) => path.startsWith(folder));
-  if (photos.length < MIN_PHOTOS) return { ok: false, error: "Adicione pelo menos uma foto da sala.", step: 3 };
+  if (photos.length < MIN_PHOTOS) return { ok: false, error: "Adicione pelo menos uma foto da sala.", step: 5 };
   const photoSizes = Object.fromEntries(photos.filter((path) => data.photo_sizes[path]).map((path) => [path, data.photo_sizes[path]]));
   const point = data.latitude !== null && data.longitude !== null ? publicPoint(data.latitude, data.longitude, data.show_exact_location) : null;
 

@@ -73,8 +73,8 @@ export function ListingComposer() {
       const response = await createListingAI(text);
       if (response.ok) {
         // O passo a passo abre já preenchido com o que a IA entendeu.
-        storeAIDraft(response.userId, response.listing);
-        router.push("/anunciar?retomar=1");
+        storeAIDraft(response.userId, response.listing, text);
+        router.push("/anunciar");
         return;
       }
       setResult(response);
