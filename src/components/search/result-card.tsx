@@ -50,7 +50,7 @@ export function ResultCard({ listing, onHover }: { listing: SearchResult; onHove
           <div
             ref={trackRef}
             onScroll={(event) => setIndex(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}
-            className="flex size-full snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className={`flex size-full snap-x snap-mandatory overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${photos.length > 1 ? "overflow-x-auto" : "overflow-x-hidden"}`}
           >
             {photos.map((path, position) => (
               <a
