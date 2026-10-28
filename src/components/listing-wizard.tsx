@@ -57,6 +57,7 @@ import {
   type Photo,
 } from "./listing-fields";
 import { SPACE_ICONS } from "@/lib/space-type-icons";
+import { wizardStorageKey } from "@/lib/wizard-draft";
 import { LocationMap } from "./location-map";
 import { Logo, SparkleIcon, WhatsAppIcon, buttonClasses } from "./ui";
 
@@ -166,8 +167,8 @@ const noop = () => () => {};
  * Cadastro tradicional, um assunto por tela. O rascunho fica salvo no navegador a cada
  * mudança: dá para sair e voltar. Só vira anúncio (e vai para análise) no último passo.
  */
-export function ListingWizard({ userId, profile }: { userId: string; profile: Profile }) {
-  const key = `subleasy:cadastro:${userId}`;
+export function ListingWizard({ userId, profile, autoResume = false }: { userId: string; profile: Profile; autoResume?: boolean }) {
+  const key = wizardStorageKey(userId);
   // localStorage só existe no navegador: no servidor, mostra o esqueleto.
   const saved = useSyncExternalStore(noop, () => localStorage.getItem(key) ?? "", () => null);
   if (saved === null) return <div className="min-h-dvh bg-white" aria-busy="true" />;
@@ -180,7 +181,7 @@ export function ListingWizard({ userId, profile }: { userId: string; profile: Pr
   } catch {
     resume = null;
   }
-  return <Wizard storageKey={key} userId={userId} profile={profile} fresh={emptyDraft(profile)} resume={resume} />;
+  return <Wizard storageKey={key} userId={userId} profile={profile} fresh={emptyDraft(profile)} resume={resume} autoResume={autoResume} />;
 }
 
 function Wizard({
@@ -189,18 +190,22 @@ function Wizard({
   profile,
   fresh,
   resume,
+  autoResume,
 }: {
   storageKey: string;
   userId: string;
   profile: Profile;
   fresh: Draft;
   resume: Draft | null;
+  autoResume: boolean;
 }) {
   // Guarda o rascunho vazio da primeira renderização: é com ele que "nada foi tocado" se compara.
   const [blank] = useState(fresh);
-  const [draft, setDraft] = useState(blank);
-  const [photos, setPhotos] = useState<Photo[]>([]);
-  const [saved, setSaved] = useState(resume);
+  const [draft, setDraft] = useState(autoResume && resume ? resume : blank);
+  const [photos, setPhotos] = useState<Photo[]>(() =>
+    autoResume && resume ? resume.photos.map(({ path, size }) => ({ key: path, path, preview: photoUrl(path), size })) : [],
+  );
+  const [saved, setSaved] = useState(autoResume ? null : resume);
   // Enquanto nada foi tocado, o formulário limpo não sobrescreve o rascunho salvo.
   const pristine = draft === blank && photos.length === 0;
   const [errors, setErrors] = useState<Errors>({});
@@ -407,6 +412,12 @@ function Wizard({
                 Continuar de onde parou
               </button>
             </div>
+          )}
+
+          {step === 0 && draft.ai_fields.length > 0 && !saved && (
+            <p className="mt-6 flex items-start gap-2 rounded-card bg-brand-50 p-4 text-sm text-ink-800 ring-1 ring-brand-100">
+              <SparkleIcon className="mt-0.5 size-4.5 shrink-0 text-brand-600" />A IA já preencheu o que entendeu do seu texto. Confira cada passo, adicione as fotos e complete o que faltar.
+            </p>
           )}
 
           {submitError && (
@@ -840,7 +851,7 @@ function Review({ draft, photos, onEdit }: { draft: Draft; photos: Photo[]; onEd
       body: (
         <>
           <span className="block font-bold text-ink-900">{draft.title}</span>
-          <span className="mt-1 line-clamp-2 block">{draft.description}</span>
+          <span className="mt-1 line-clamp-2 block whitespace-pre-line">{draft.description}</span>
         </>
       ),
     },

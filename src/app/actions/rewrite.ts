@@ -21,7 +21,7 @@ const LIMITS: Record<RewriteField, { max: number; rule: string }> = {
   },
   description: {
     max: 1500,
-    rule: "Descrição de 80 a 160 palavras em parágrafos curtos: para quem a sala serve, o que tem na sala, o que o prédio oferece e como funciona a locação.",
+    rule: "Descrição de 80 a 160 palavras em parágrafos curtos separados por linha em branco: para quem a sala serve, o que tem na sala, o que o prédio oferece e como funciona a locação.",
   },
   rules: {
     max: 600,
@@ -40,7 +40,7 @@ const SYSTEM_PROMPT = `Você reescreve textos de anúncios do Subleasy, onde don
 
 - Português do Brasil, tratando o leitor por "você".
 - Use só os fatos do anúncio. Nunca invente comodidade, preço, endereço, disponibilidade, licença ou acessibilidade.
-- Sem adjetivos que não podem ser verificados ("incrível", "o melhor", "luxuoso"), sem exclamações e sem emojis.
+- Sem adjetivos que não podem ser verificados ("incrível", "o melhor", "luxuoso"), sem exclamações. Emojis só na descrição, poucos e apenas se o texto atual já usar.
 - Não inclua endereço completo, telefone, e-mail, links ou nomes de pessoas.
 - Devolva uma única opção, só o texto pronto, sem aspas, sem alternativas e sem comentários.`;
 

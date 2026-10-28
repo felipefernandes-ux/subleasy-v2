@@ -1,11 +1,11 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
-import { EXTRACTION_MODEL, aiErrorMessage, embedListing, geminiClient } from "@/lib/ai";
-import { BILLING_TYPE_KEYS, SPACE_TYPE_KEYS, createSlug } from "@/lib/listing-options";
+import { EXTRACTION_MODEL, aiErrorMessage, geminiClient } from "@/lib/ai";
+import { BILLING_TYPE_KEYS, SPACE_TYPE_KEYS } from "@/lib/listing-options";
 import { createClient } from "@/lib/supabase/server";
+import type { AIExtraction } from "@/lib/wizard-draft";
 
 const MAX_INPUT_LENGTH = 6000;
 const SPACE_TYPES = SPACE_TYPE_KEYS;
@@ -66,7 +66,7 @@ const SYSTEM_PROMPT = `Você extrai dados de anúncios de consultórios e salas 
 Use só o que está no texto. Se uma informação não aparece, devolva null (ou lista vazia). Nunca invente preço, endereço ou disponibilidade.
 
 - title: título claro em português, entre 10 e 70 caracteres. Ex: "Consultório de psicologia em Pinheiros".
-- description: o texto do anunciante reescrito em português correto, sem telefone, e-mail ou endereço completo.
+- description: o texto do anunciante reescrito em português correto, sem telefone, e-mail ou endereço completo. Mantenha as quebras de linha em parágrafos curtos e os emojis que o anunciante usou.
 - short_summary: resumo de até 120 caracteres para cards e prévia de WhatsApp.
 - space_type: ${SPACE_TYPES.join(", ")}. Use "consultorio_medico" para consultórios médicos genéricos.
 - billing_type e price: o preço vale para a unidade de cobrança (hora, turno, dia ou mes). Preço em reais, só o número.
@@ -74,13 +74,9 @@ Use só o que está no texto. Se uma informação não aparece, devolva null (ou
 - min_rental_period: período mínimo, ex: "1 turno/semana".
 - amenities: em snake_case, ex: ar_condicionado, maca, pia, recepcao, wifi, estacionamento, acessibilidade.`;
 
-// No sucesso a action redireciona para a revisão; só os erros voltam para a tela.
-export type CreateListingAIResult = {
-  ok: false;
-  error: string;
-  code?: "unauthenticated";
-  missingFields?: string[];
-};
+export type CreateListingAIResult =
+  | { ok: true; userId: string; listing: AIExtraction }
+  | { ok: false; error: string; code?: "unauthenticated"; missingFields?: string[] };
 
 /**
  * Recebe a descrição livre de um espaço, extrai os campos da tabela listings
@@ -148,35 +144,6 @@ export async function createListingAI(rawText: string): Promise<CreateListingAIR
     return { ok: false, error: aiErrorMessage(error, "extração") };
   }
 
-  let embedding: string;
-  try {
-    embedding = await embedListing(ai, { ...listing, rules: [] });
-  } catch (error) {
-    return { ok: false, error: aiErrorMessage(error, "embedding") };
-  }
-
-  const { data, error } = await supabase
-    .from("listings")
-    .insert({
-      ...listing,
-      owner_id: user.id,
-      slug: createSlug(listing.title),
-      status: "draft",
-      embedding,
-    })
-    .select("id")
-    .single();
-
-  if (error) {
-    console.error("[createListingAI] Erro ao salvar no Supabase:", error);
-    if (error.code === "42501") {
-      return { ok: false, error: "Você não tem permissão para criar este anúncio." };
-    }
-    if (error.code === "23514") {
-      return { ok: false, error: "Algum dado do anúncio está fora do formato aceito." };
-    }
-    return { ok: false, error: "Não foi possível salvar o anúncio. Tente de novo." };
-  }
-
-  redirect(`/painel/anuncios/${data.id}`);
+  // Nada é salvo aqui: o cadastro passo a passo abre com estes dados e só cria o anúncio ao enviar.
+  return { ok: true, userId: user.id, listing };
 }

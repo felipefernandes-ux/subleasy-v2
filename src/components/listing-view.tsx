@@ -141,11 +141,7 @@ export function ListingView({
           {listing.description && (
             <section className="py-8">
               <h2 className="text-h3 font-bold text-ink-900">Sobre a sala</h2>
-              <div className="mt-4 space-y-4 leading-relaxed text-ink-700">
-                {listing.description.split(/\n{2,}/).map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
-                ))}
-              </div>
+              <p className="mt-4 leading-relaxed whitespace-pre-line text-ink-700">{listing.description}</p>
             </section>
           )}
 

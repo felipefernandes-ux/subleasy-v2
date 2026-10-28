@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import {
   CircleNotchIcon,
@@ -9,6 +10,7 @@ import {
   WarningCircleIcon,
 } from "@phosphor-icons/react";
 import { createListingAI, type CreateListingAIResult } from "@/app/actions/create-listings-ai";
+import { storeAIDraft } from "@/lib/wizard-draft";
 import { buttonClasses } from "./ui";
 
 const MIN_LENGTH = 30;
@@ -27,8 +29,7 @@ const STEPS = [
   "Lendo sua descrição",
   "Separando área, local e preço",
   "Escrevendo título e resumo",
-  "Salvando o rascunho",
-  "Abrindo a revisão",
+  "Preparando o passo a passo",
 ];
 
 export function ListingComposer() {
@@ -39,6 +40,7 @@ export function ListingComposer() {
   const [isPending, startTransition] = useTransition();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const hintId = useId();
+  const router = useRouter();
 
   const length = text.trim().length;
   const tooShort = length > 0 && length < MIN_LENGTH;
@@ -68,8 +70,13 @@ export function ListingComposer() {
     setResult(null);
     setStep(0);
     startTransition(async () => {
-      // No sucesso, a action abre a tela de revisão; aqui só chegam erros.
       const response = await createListingAI(text);
+      if (response.ok) {
+        // O passo a passo abre já preenchido com o que a IA entendeu.
+        storeAIDraft(response.userId, response.listing);
+        router.push("/anunciar?retomar=1");
+        return;
+      }
       setResult(response);
       textareaRef.current?.focus();
     });
@@ -170,7 +177,7 @@ export function ListingComposer() {
       <div aria-live="polite" className="mt-6">
         {isPending ? (
           <Progress step={step} />
-        ) : result ? (
+        ) : result && !result.ok ? (
           <ErrorCard result={result} />
         ) : null}
       </div>
@@ -193,7 +200,7 @@ function Progress({ step }: { step: number }) {
   );
 }
 
-function ErrorCard({ result }: { result: CreateListingAIResult }) {
+function ErrorCard({ result }: { result: Extract<CreateListingAIResult, { ok: false }> }) {
   const missing = result.missingFields ?? [];
 
   if (missing.length > 0) {
