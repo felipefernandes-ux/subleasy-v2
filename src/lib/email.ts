@@ -9,6 +9,12 @@ const RESEND_URL = "https://api.resend.com/emails";
 // e ele só entrega para o e-mail da própria conta do Resend.
 const FROM = process.env.EMAIL_FROM ?? "Subleasy <onboarding@resend.dev>";
 
+// Logo branco do cabeçalho. Precisa de endereço público: o cliente de e-mail baixa a imagem.
+// Enquanto subleasy.com.br for o WordPress, o único endereço público do 2.0 é o da Vercel;
+// ao trocar o domínio, mude aqui (ou defina EMAIL_LOGO_URL).
+const LOGO_URL = process.env.EMAIL_LOGO_URL ?? "https://subleasy-v2.vercel.app/email/logo-subleasy-white.png";
+const BRAND_600 = "#3818d9";
+
 /** Prazo prometido ao anunciante. Mude aqui se a rotina de revisão mudar. */
 export const REVIEW_TIME = "1 dia útil";
 
@@ -27,7 +33,7 @@ type Email = {
 
 export async function sendEmail(email: Email) {
   const apiKey = process.env.RESEND_API_KEY;
-  const html = renderHtml(email);
+  const html = renderEmailHtml(email);
   const text = renderText(email);
 
   if (!apiKey) {
@@ -66,6 +72,19 @@ export function loginCodeEmail(to: string, code: string, purpose: "login" | "sig
     paragraphs: [intro, "O código vale por 10 minutos e só funciona uma vez."],
     code,
     footnote: "Se não foi você, ignore este e-mail. Ninguém entra na sua conta sem esse código.",
+  };
+}
+
+export function welcomeEmail(to: string, name: string, url: string): Email {
+  return {
+    to,
+    subject: "Seja bem-vindo ao Subleasy",
+    heading: `Seja bem-vindo, ${firstName(name)}`,
+    paragraphs: [
+      "Sua conta no Subleasy está pronta. Aqui você anuncia sua sala por hora, turno, dia ou mês, sem comissão.",
+      "O cadastro leva poucos minutos: escolha o tipo de sala, adicione fotos e a equipe confere o anúncio em até " + REVIEW_TIME + ".",
+    ],
+    cta: { label: "Anunciar minha sala", url },
   };
 }
 
@@ -163,7 +182,8 @@ function escape(value: string) {
 }
 
 // HTML de e-mail: tabela, estilos em linha e largura de 560 px, que os clientes de e-mail entendem.
-function renderHtml({ heading, paragraphs, cta, code, footnote }: Email) {
+// Cabeçalho em brand-600 com o logo branco; botões também em brand-600 (bgcolor para o Outlook).
+export function renderEmailHtml({ heading, paragraphs, cta, code, footnote }: Email) {
   const body = paragraphs
     .map((p) => `<p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#344054;">${escape(p)}</p>`)
     .join("");
@@ -171,7 +191,7 @@ function renderHtml({ heading, paragraphs, cta, code, footnote }: Email) {
     ? `<p style="margin:8px 0 20px;padding:18px 0;border-radius:8px;background:#f4f1ff;text-align:center;font-family:'Courier New',monospace;font-size:34px;font-weight:700;letter-spacing:10px;color:#2c12b3;">${escape(code)}</p>`
     : "";
   const button = cta
-    ? `<a href="${escape(cta.url)}" style="display:inline-block;margin-top:8px;padding:14px 24px;border-radius:8px;background:#3818d9;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;">${escape(cta.label)}</a>`
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:8px;"><tr><td bgcolor="${BRAND_600}" style="border-radius:8px;background:${BRAND_600};"><a href="${escape(cta.url)}" style="display:inline-block;padding:14px 24px;border-radius:8px;background:${BRAND_600};color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;">${escape(cta.label)}</a></td></tr></table>`
     : "";
   const note = footnote
     ? `<p style="margin:24px 0 0;font-size:13px;line-height:1.5;color:#667085;word-break:break-all;">${escape(footnote)}</p>`
@@ -179,9 +199,9 @@ function renderHtml({ heading, paragraphs, cta, code, footnote }: Email) {
 
   return `<!doctype html><html lang="pt-BR"><body style="margin:0;background:#f9fafb;font-family:Helvetica,Arial,sans-serif;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;padding:32px 16px;"><tr><td align="center">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;border:1px solid #eaecf0;">
-<tr><td style="padding:32px 32px 0;"><span style="font-size:22px;font-weight:700;color:#3818d9;">subleasy</span><span style="font-size:22px;font-weight:700;color:#25edb1;">.</span></td></tr>
-<tr><td style="padding:24px 32px 32px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;border:1px solid #eaecf0;overflow:hidden;">
+<tr><td align="center" bgcolor="${BRAND_600}" style="background:${BRAND_600};padding:40px 32px;"><img src="${escape(LOGO_URL)}" width="148" alt="Subleasy" style="display:block;border:0;height:auto;width:148px;"></td></tr>
+<tr><td style="padding:32px 32px 36px;">
 <h1 style="margin:0 0 16px;font-size:24px;line-height:1.25;color:#101828;">${escape(heading)}</h1>
 ${body}${codeBlock}${button}${note}
 </td></tr></table>

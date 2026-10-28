@@ -15,7 +15,7 @@ const sample = {
   "contact.GROUP_PS": "Se você não renovou, me conta por quê? A resposta muda o que eu construo.",
   "contact.INTEREST_URL": "#",
   "params.URL_SITE": "https://subleasy.com.br",
-  "params.LOGO_URL": "../../public/logo-subleasy.svg",
+  "params.LOGO_URL": "assets/logo%20subleasy%20white.png",
   "params.HERO_URL": "assets/vem-ai-hero.png",
   "contact.FIRSTNAME": "Mariana",
   "contact.AD_URL": "#",

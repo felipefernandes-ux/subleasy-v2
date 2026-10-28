@@ -4,9 +4,11 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { safeNextPath } from "@/lib/auth-redirect";
 import { recordWhatsAppConsent } from "@/lib/consent-log";
+import { sendEmail, welcomeEmail } from "@/lib/email";
 import { bioProblem, isOwnAvatarPath } from "@/lib/public-profile";
 import { TERMS_VERSION } from "@/lib/legal";
 import { toBrazilianWhatsApp } from "@/lib/listing-options";
+import { getOrigin } from "@/lib/origin";
 import { createClient } from "@/lib/supabase/server";
 
 type ProfileField = "display_name" | "whatsapp" | "terms" | "bio";
@@ -87,6 +89,9 @@ export async function saveProfile(
     }
   }
 
+  // Primeiro cadastro (sem perfil anterior): vale o e-mail de boas-vindas.
+  const { data: existing } = await supabase.from("profiles").select("id").eq("id", user.id).maybeSingle();
+
   const now = new Date().toISOString();
   const { error } = await supabase.from("profiles").upsert({
     id: user.id,
@@ -111,6 +116,8 @@ export async function saveProfile(
       values,
     };
   }
+
+  if (!existing && user.email) await sendEmail(welcomeEmail(user.email, parsed.data.display_name, `${await getOrigin()}/anunciar`));
 
   redirect(next);
 }
