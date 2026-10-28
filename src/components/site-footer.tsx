@@ -59,7 +59,7 @@ const FOOTER_LINKS = [
     links: [
       { href: "/espacos?local=Maring%C3%A1", label: "Salas em Maringá" },
       { href: "/espacos?tipo=psicologia&local=Maring%C3%A1", label: "Salas para psicólogos" },
-      { href: "/blog", label: "Blog" },
+      { href: "https://blog.subleasy.com.br", label: "Blog" },
     ],
   },
   {
