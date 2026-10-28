@@ -394,6 +394,7 @@ export type Database = {
           shifts_available: Json
           short_summary: string | null
           show_exact_location: boolean
+          space_type_other: string | null
           slug: string
           space_type: string
           state: string
@@ -432,6 +433,7 @@ export type Database = {
           shifts_available?: Json
           short_summary?: string | null
           show_exact_location?: boolean
+          space_type_other?: string | null
           slug: string
           space_type: string
           state: string
@@ -470,6 +472,7 @@ export type Database = {
           shifts_available?: Json
           short_summary?: string | null
           show_exact_location?: boolean
+          space_type_other?: string | null
           slug?: string
           space_type?: string
           state?: string
@@ -576,6 +579,31 @@ export type Database = {
           display_name: string
           email: string
           whatsapp_number: string
+        }[]
+      }
+      admin_owner_contact_pattern: {
+        Args: { p_owner: string; p_since: string }
+        Returns: {
+          dow: number
+          hour: number
+          total: number
+        }[]
+      }
+      admin_owner_daily_metrics: {
+        Args: { p_owner: string; p_since: string }
+        Returns: {
+          day: string
+          kind: string
+          listing_id: string
+          total: number
+        }[]
+      }
+      admin_owner_listing_favorites: {
+        Args: { p_owner: string; p_since?: string }
+        Returns: {
+          listing_id: string
+          since_count: number
+          total: number
         }[]
       }
       owner_contact_pattern: {

@@ -103,6 +103,7 @@ type Draft = AddressValues & {
   id: string;
   step: number;
   space_type: SpaceType | "";
+  space_type_other: string;
   latitude: number | null;
   longitude: number | null;
   show_exact_location: boolean;
@@ -131,6 +132,7 @@ function emptyDraft({ whatsapp, email }: Profile): Draft {
     id: crypto.randomUUID(),
     step: 0,
     space_type: "",
+    space_type_other: "",
     zip_code: "",
     street: "",
     number: "",
@@ -281,6 +283,7 @@ function Wizard({
   function validate(current: number): Errors {
     const found: Errors = {};
     if (current === 0 && !draft.space_type) found.space_type = "Escolha uma opção para continuar.";
+    if (current === 0 && draft.space_type === "outro" && !draft.space_type_other.trim()) found.space_type_other = "Diga que tipo de espaço é.";
     if (current === 1) {
       if (draft.zip_code && !/^\d{5}-\d{3}$/.test(draft.zip_code)) found.zip_code = "Digite o CEP no formato 00000-000.";
       if (!draft.neighborhood.trim()) found.neighborhood = "Informe o bairro.";
@@ -318,6 +321,7 @@ function Wizard({
       const result = await createListing({
         id: draft.id,
         space_type: draft.space_type as SpaceType,
+        space_type_other: draft.space_type === "outro" ? draft.space_type_other : "",
         zip_code: draft.zip_code,
         street_address: street,
         neighborhood: draft.neighborhood,
@@ -426,6 +430,16 @@ function Wizard({
                   );
                 })}
               </ChoiceGrid>
+            )}
+
+            {step === 0 && draft.space_type === "outro" && (
+              <div className="mt-6">
+                <Field label="Que tipo de espaço você deseja anunciar?" hint="Ex.: estúdio de pilates, sala de fonoaudiologia infantil." error={errors.space_type_other}>
+                  {(props) => (
+                    <input {...props} type="text" maxLength={80} value={draft.space_type_other} onChange={(event) => set("space_type_other", event.target.value)} className={`${INPUT} h-12 ${props.className}`} />
+                  )}
+                </Field>
+              </div>
             )}
 
             {step === 1 && <LocationStep draft={draft} set={set} errors={errors} />}

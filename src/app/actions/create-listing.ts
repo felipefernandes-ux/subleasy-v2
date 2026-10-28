@@ -30,6 +30,7 @@ const optionalText = z
 const schema = z.object({
   id: z.uuid(),
   space_type: z.enum(SPACE_TYPE_KEYS),
+  space_type_other: optionalText.pipe(z.string().max(80).nullable()),
   zip_code: optionalText.pipe(z.string().regex(/^[0-9]{5}-?[0-9]{3}$/).nullable()),
   street_address: optionalText,
   neighborhood: z.string().trim().min(1),
@@ -96,6 +97,8 @@ export async function createListing(input: NewListing): Promise<CreateListingRes
     slug: createSlug(data.title),
     status: "draft",
     space_type: data.space_type,
+    // Só vale para "Outro espaço"; fica para análise, não vira categoria.
+    space_type_other: data.space_type === "outro" ? data.space_type_other : null,
     title: data.title,
     short_summary: data.short_summary,
     description: data.description,
