@@ -6,7 +6,7 @@
 -- 1. A página pública precisa saber se há WhatsApp sem ler o número (que fica fora da tabela pública).
 --    A marca é mantida por trigger a partir de listing_contacts; a função de envio não confia nela.
 alter table public.listings
-  add column whatsapp_contact boolean not null default false;
+  add column if not exists whatsapp_contact boolean not null default false;
 
 update public.listings l
 set whatsapp_contact = exists (
@@ -34,6 +34,7 @@ begin
 end;
 $$;
 
+drop trigger if exists sync_whatsapp_contact on public.listing_contacts;
 create trigger sync_whatsapp_contact
   after insert or update of whatsapp_number or delete on public.listing_contacts
   for each row execute function public.sync_whatsapp_contact();

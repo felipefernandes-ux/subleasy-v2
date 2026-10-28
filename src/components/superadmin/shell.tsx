@@ -253,7 +253,10 @@ export function SuperAdminShell({ children, footer }: { children: ReactNode; foo
         </Suspense>
       </aside>
 
-      <AdminTabBar footer={footer} />
+      {/* usePathname precisa de Suspense para a página poder ser pré-renderizada. */}
+      <Suspense>
+        <AdminTabBar footer={footer} />
+      </Suspense>
 
       <div className="lg:pl-56">
         <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-sa-line bg-sa-canvas/90 px-4 backdrop-blur sm:px-6">
