@@ -21,6 +21,7 @@ import {
   ScrollIcon,
   ShieldCheckIcon,
   SparkleIcon,
+  TargetIcon,
   TrayArrowDownIcon,
   UploadSimpleIcon,
   UserPlusIcon,
@@ -162,6 +163,15 @@ export const NAV_GROUPS: NavGroup[] = [
         summary: "Link com token por contato e acompanhamento do convite: enviado, clicado, migrado.",
         note: "Base da campanha de migração para o 2.0.",
       },
+    ],
+  },
+  {
+    label: "Prospecção",
+    icon: TargetIcon,
+    href: `${base}/prospeccao`,
+    items: [
+      { href: `${base}/prospeccao`, label: "Prospects", icon: TargetIcon, phase: "mvp" },
+      { href: `${base}/prospeccao/importar`, label: "Importar planilha", icon: UploadSimpleIcon, phase: "mvp" },
     ],
   },
   {

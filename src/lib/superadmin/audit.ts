@@ -17,6 +17,8 @@ export const AUDIT_ACTIONS: Record<string, string> = {
   "user.delete": "Excluiu conta",
   "user.view_as": "Abriu o painel de um usuário",
   "leads.brevo_sync": "Enviou contatos ao Brevo",
+  "prospect.import": "Importou prospects da planilha",
+  "prospect.preview": "Criou a prévia de um prospect",
 };
 
 export type AuditEntry = {

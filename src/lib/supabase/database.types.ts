@@ -562,6 +562,198 @@ export type Database = {
         }
         Relationships: []
       }
+      prospect_claims: {
+        Row: {
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          handled_at: string | null
+          id: string
+          prospect_id: string
+        }
+        Insert: {
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          created_at?: string
+          handled_at?: string | null
+          id?: string
+          prospect_id: string
+        }
+        Update: {
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string
+          handled_at?: string | null
+          id?: string
+          prospect_id?: string
+        }
+        Relationships: []
+      }
+      prospect_events: {
+        Row: {
+          created_at: string
+          detail: Json
+          id: number
+          kind: string
+          prospect_id: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          id?: number
+          kind: string
+          prospect_id: string
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          id?: number
+          kind?: string
+          prospect_id?: string
+        }
+        Relationships: []
+      }
+      prospect_previews: {
+        Row: {
+          amenities: string[]
+          city: string
+          created_at: string
+          description: string | null
+          expires_at: string
+          first_viewed_at: string | null
+          generated_by: string
+          last_viewed_at: string | null
+          neighborhood: string
+          prospect_id: string
+          revoked_at: string | null
+          short_summary: string | null
+          space_type: string
+          state: string
+          title: string
+          token: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          amenities?: string[]
+          city: string
+          created_at?: string
+          description?: string | null
+          expires_at: string
+          first_viewed_at?: string | null
+          generated_by?: string
+          last_viewed_at?: string | null
+          neighborhood: string
+          prospect_id: string
+          revoked_at?: string | null
+          short_summary?: string | null
+          space_type: string
+          state: string
+          title: string
+          token: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          amenities?: string[]
+          city?: string
+          created_at?: string
+          description?: string | null
+          expires_at?: string
+          first_viewed_at?: string | null
+          generated_by?: string
+          last_viewed_at?: string | null
+          neighborhood?: string
+          prospect_id?: string
+          revoked_at?: string | null
+          short_summary?: string | null
+          space_type?: string
+          state?: string
+          title?: string
+          token?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
+      prospects: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          id: string
+          instagram: string | null
+          last_contact_at: string | null
+          link_note: string | null
+          message_model: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          place_id: string | null
+          priority: number | null
+          recipient: string | null
+          source: string | null
+          specialty: string | null
+          status: string
+          touches: number
+          treatment: string | null
+          updated_at: string
+          website: string | null
+          whatsapp_number: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          instagram?: string | null
+          last_contact_at?: string | null
+          link_note?: string | null
+          message_model?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          place_id?: string | null
+          priority?: number | null
+          recipient?: string | null
+          source?: string | null
+          specialty?: string | null
+          status?: string
+          touches?: number
+          treatment?: string | null
+          updated_at?: string
+          website?: string | null
+          whatsapp_number?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          instagram?: string | null
+          last_contact_at?: string | null
+          link_note?: string | null
+          message_model?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          place_id?: string | null
+          priority?: number | null
+          recipient?: string | null
+          source?: string | null
+          specialty?: string | null
+          status?: string
+          touches?: number
+          treatment?: string | null
+          updated_at?: string
+          website?: string | null
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_path: string | null

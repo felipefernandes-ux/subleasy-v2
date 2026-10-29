@@ -132,6 +132,8 @@ export function isPortrait(size: readonly [number, number] | undefined) {
 
 /** URL pública de uma foto guardada no Storage (bucket público). */
 export function photoUrl(path: string) {
+  // Caminho que começa com "/" é um arquivo da pasta public (as fotos ilustrativas da prospecção).
+  if (path.startsWith("/")) return path;
   return `${SUPABASE_URL}/storage/v1/object/public/${PHOTO_BUCKET}/${path}`;
 }
 

@@ -65,12 +65,24 @@ export function ListingView({
   host,
   action,
   related,
+  contact,
+  hostName,
+  priceNote,
+  amenitiesNote,
 }: {
   listing: PublicListing;
   host?: PublicHost | null;
   action?: ReactNode;
   /** Anúncios semelhantes, no fim da página. */
   related?: ReactNode;
+  /** Prévia de prospecção: botão de contato no bloco da direita, sem compartilhar, salvar nem barra fixa. */
+  contact?: ReactNode;
+  /** Prévia de prospecção: anunciante que ainda não tem perfil (o nome do local), no lugar do bloco do anunciante. */
+  hostName?: string;
+  /** Texto pequeno abaixo do preço no bloco de contato (ex.: “Valor de exemplo”). */
+  priceNote?: string;
+  /** Texto pequeno abaixo da lista de comodidades. */
+  amenitiesNote?: string;
 }) {
   const sizes = parsePhotoSizes(listing.photo_sizes);
   const offers = listing.offers.filter((key): key is Offer => key in OFFERS);
@@ -159,6 +171,7 @@ export function ListingView({
                   );
                 })}
               </ul>
+              {amenitiesNote && <p className="mt-5 text-sm text-ink-500">{amenitiesNote}</p>}
             </section>
           )}
 
@@ -193,6 +206,7 @@ export function ListingView({
         <aside id="contato" className="scroll-mt-24 lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-panel bg-white p-6 shadow-raised ring-1 ring-ink-900/8">
             <p className="text-[1.375rem]">{price}</p>
+            {priceNote && <p className="mt-1 text-xs text-ink-500">{priceNote}</p>}
             {listing.short_summary && <p className="mt-3 text-sm text-ink-600">{listing.short_summary}</p>}
             {offers.length > 0 && (
               <div className="mt-5 rounded-card bg-mint-50 p-4 ring-1 ring-mint-500/30">
@@ -209,9 +223,10 @@ export function ListingView({
                 </ul>
               </div>
             )}
-            {action && <div className="mt-6">{action}</div>}
+            {(action ?? contact) && <div className="mt-6">{action ?? contact}</div>}
 
             {host?.public_name && <HostCard host={host} name={host.public_name} />}
+            {!host?.public_name && hostName && <NewHostCard name={hostName} />}
           </div>
         </aside>
       </div>
@@ -230,6 +245,19 @@ export function ListingView({
         </div>
       )}
     </article>
+  );
+}
+
+/** Anunciante da prévia de prospecção: o nome do local, ainda sem perfil nem anúncios no ar. */
+function NewHostCard({ name }: { name: string }) {
+  return (
+    <div className="-mx-2 mt-4 flex items-center gap-3 border-t border-ink-200 px-2 pt-5 pb-1">
+      <ProfileAvatar name={name} path={null} size={44} />
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-bold text-ink-900">Anunciado por {name}</span>
+        <span className="block text-xs text-ink-600">Novo no Subleasy</span>
+      </span>
+    </div>
   );
 }
 
