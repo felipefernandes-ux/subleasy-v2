@@ -1,0 +1,154 @@
+/*
+ * Animações da página de convite (/convite/[token]). Cada uma começa parada e dispara quando o
+ * <Reveal> ancestral ganha [data-shown]. Quem pede menos movimento recebe o estado final na hora
+ * (a regra global de prefers-reduced-motion encurta as durações para ~0).
+ */
+
+@keyframes iv-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--iv-tilt, 0deg));
+  }
+  50% {
+    transform: translateY(-10px) rotate(var(--iv-tilt, 0deg));
+  }
+}
+
+@keyframes iv-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes iv-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes iv-type {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes iv-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes iv-line {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes iv-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.iv-float {
+  animation: iv-float 6s ease-in-out infinite;
+}
+
+.iv-glow {
+  animation: iv-glow 7s ease-in-out infinite;
+}
+
+/* Contagem regressiva: os pontos acendem em cascata, o último (dia 9) é menta. */
+.iv-dot {
+  opacity: 0;
+}
+[data-shown] .iv-dot,
+.iv-dot[data-live] {
+  animation: iv-pop-in 0.4s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  animation-delay: calc(500ms + var(--i, 0) * 70ms);
+}
+
+/* Título escrito pela IA: revela da esquerda para a direita, em passos. */
+.iv-type {
+  clip-path: inset(0 100% 0 0);
+}
+[data-shown] .iv-type {
+  animation: iv-type 1.6s steps(38, end) 1.3s both;
+}
+
+/* Respostas e linhas de texto que entram uma a uma. */
+.iv-rise {
+  opacity: 0;
+}
+[data-shown] .iv-rise {
+  animation: iv-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(200ms + var(--i, 0) * 140ms);
+}
+
+/* Barras do gráfico de visitas crescem de baixo para cima. */
+.iv-bar {
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+[data-shown] .iv-bar {
+  animation: iv-grow 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(250ms + var(--i, 0) * 90ms);
+}
+
+/* Linha do tempo: o trilho se desenha e cada marco acende quando a linha passa. */
+.iv-track {
+  transform: scaleX(0);
+  transform-origin: left;
+}
+[data-shown] .iv-track {
+  animation: iv-line 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s both;
+}
+@media (max-width: 47.99rem) {
+  .iv-track {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  [data-shown] .iv-track {
+    animation-name: iv-grow-down;
+  }
+}
+@keyframes iv-grow-down {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iv-float,
+  .iv-glow {
+    animation: none;
+  }
+}
