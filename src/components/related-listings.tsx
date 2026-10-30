@@ -67,7 +67,7 @@ export function RelatedListings({
         {title}
       </h2>
       {description && <p className="mt-1 text-ink-600">{description}</p>}
-      <ul className="mt-6 grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
         {listings.map((listing) => (
           <li key={listing.slug}>
             <ListingCard listing={listing} />

@@ -14,7 +14,7 @@ export default function NewListingPage() {
         description="O anúncio sempre pertence a uma conta real de anunciante; você aparece só como quem criou. É o mesmo caminho que a importação do WordPress vai usar."
       />
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_20rem]">
         <div className="space-y-6">
           <Card>
             <CardHeader title="1. Anunciante" description="Busque por nome, e-mail ou WhatsApp." />
@@ -23,7 +23,7 @@ export default function NewListingPage() {
               <div className="relative text-center text-sa-xs text-sa-muted before:absolute before:inset-x-0 before:top-1/2 before:h-px before:bg-sa-line">
                 <span className="relative bg-sa-canvas px-3">ou, se a pessoa não tem conta</span>
               </div>
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <Field label="Nome" htmlFor="owner-name">
                   <input id="owner-name" className="sa-input" placeholder="Nome completo" />
                 </Field>
@@ -43,7 +43,7 @@ export default function NewListingPage() {
               title="2. Autorização do anunciante"
               description="Sem isso o anúncio não pode ir ao ar, porque expõe o contato de um terceiro."
             />
-            <div className="grid gap-4 p-5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
               <Field label="Por onde a pessoa pediu" htmlFor="auth-channel">
                 <select id="auth-channel" className="sa-input" defaultValue="">
                   <option value="" disabled>

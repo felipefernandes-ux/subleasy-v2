@@ -89,7 +89,7 @@ async function InviteContent({ params }: { params: Promise<{ token: string }> })
       <section className="relative isolate overflow-hidden bg-brand-600 text-white">
         <div aria-hidden className="iv-glow absolute -top-24 -right-24 -z-10 size-[28rem] rounded-full bg-mint-400/25 blur-3xl" />
         <div aria-hidden className="absolute -bottom-40 -left-32 -z-10 size-[26rem] rounded-full bg-brand-400/40 blur-3xl" />
-        <div className="container-page grid items-center gap-14 py-14 sm:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10 lg:py-24">
+        <div className="container-page grid grid-cols-1 items-center gap-14 py-14 sm:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10 lg:py-24">
           <div className="max-w-[38rem]">
             <p className="inline-flex animate-fade-up items-center gap-2 text-sm font-bold text-brand-100">
               <span className="size-2 rounded-full bg-mint-400" aria-hidden />
@@ -123,7 +123,7 @@ async function InviteContent({ params }: { params: Promise<{ token: string }> })
             </h2>
           </Reveal>
 
-          <div className="mt-12 grid gap-5 lg:grid-cols-3">
+          <div className="mt-12 grid grid-cols-1 gap-5 lg:grid-cols-3">
             <Reveal>
               <FeatureCard
                 before="Formulário longo"
@@ -374,7 +374,7 @@ const STEPS = [
 
 function Timeline() {
   return (
-    <ol className="relative mt-14 grid gap-10 md:grid-cols-4 md:gap-6">
+    <ol className="relative mt-14 grid grid-cols-1 gap-10 md:grid-cols-4 md:gap-6">
       <span aria-hidden className="iv-track absolute top-1 bottom-1 left-[0.6875rem] w-0.5 bg-brand-300 md:top-[0.6875rem] md:right-0 md:bottom-auto md:left-0 md:h-0.5 md:w-auto" />
       {STEPS.map((step, i) => (
         <li key={step.when} className="relative pl-10 md:pt-10 md:pl-0">

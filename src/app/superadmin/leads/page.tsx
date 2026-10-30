@@ -45,7 +45,7 @@ async function Leads() {
   const fromWordPress = leads.filter((lead) => lead.origin === "WordPress atual").length;
   return (
     <>
-      <div className="mb-6 grid gap-4 md:grid-cols-3">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatCard label="Contatos na base" value={leads.length} hint={`${fromWordPress} do WordPress atual`} />
         <StatCard label="Podem receber campanha" value={canReceive} hint="Consentimento ou legítimo interesse" />
         <StatCard label="Só e-mails do serviço" value={leads.length - canReceive} hint="Sem base legal para marketing" />

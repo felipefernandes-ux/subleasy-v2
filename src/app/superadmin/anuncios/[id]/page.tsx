@@ -69,7 +69,7 @@ async function ListingDetail({
         description={`${listing.type} · ${listing.neighborhood}, ${listing.city} · ${listing.price}`}
         actions={
           <>
-            <ButtonLink href="/anuncios" variant="ghost">
+            <ButtonLink href="/anuncios" variant="ghost" className="max-lg:hidden">
               Voltar
             </ButtonLink>
             {/* /espaco/[slug] mostra uma prévia para o admin mesmo se o anúncio não estiver no ar. */}
@@ -108,7 +108,7 @@ async function ListingDetail({
         </p>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
           <Card className="overflow-hidden">
             {listing.photoUrls.length > 0 ? (

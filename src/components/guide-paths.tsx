@@ -75,7 +75,7 @@ export function GuidePaths({ paths }: { paths: readonly [Path, Path] }) {
           className="mt-10"
         >
           <h3 className="text-h3 font-bold text-ink-900">{path.title}</h3>
-          <ol className="relative mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(13rem,1fr))]">
+          <ol className="relative mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(13rem,1fr))]">
             {path.steps.map((step, index) => (
               <li
                 key={step.title}

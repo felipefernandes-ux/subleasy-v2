@@ -65,14 +65,14 @@ async function UserDetail({ params }: { params: PageProps<"/superadmin/usuarios/
               <EyeIcon className="size-4" weight="bold" aria-hidden />
               Ver painel do usuário
             </ButtonLink>
-            <ButtonLink href="/usuarios" variant="ghost">
+            <ButtonLink href="/usuarios" variant="ghost" className="max-lg:hidden">
               Voltar
             </ButtonLink>
           </>
         }
       />
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
           <Card>
             <div className="flex items-center gap-4 border-b border-sa-haze px-5 py-4">

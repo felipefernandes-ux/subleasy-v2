@@ -58,7 +58,7 @@ async function Lists() {
   }
 
   return (
-    <ul className="mt-8 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <ul className="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {lists.map((list) => {
         // Capas das salas mais recentes da lista: até 3, em mosaico.
         const covers = [...list.favorite_items]

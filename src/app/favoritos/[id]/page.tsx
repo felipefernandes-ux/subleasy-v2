@@ -74,7 +74,7 @@ async function FavoriteList({ id }: { id: string }) {
           </Link>
         </div>
       ) : (
-        <ul className="mt-8 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
           {available.map((listing) => (
             <li key={listing.id}>
               <ListingCard listing={listing} corner={<RemoveFavoriteButton listId={list.id} listingId={listing.id} title={listing.title} />} />
