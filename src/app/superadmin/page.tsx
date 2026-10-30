@@ -29,7 +29,7 @@ export default function SuperAdminHome() {
       </Suspense>
 
       <h2 className="sr-only">Fila do dia</h2>
-      <section aria-label="Fila do dia" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section aria-label="Fila do dia" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Suspense fallback={<p className="text-sa-sm text-sa-muted sm:col-span-2 xl:col-span-4">Carregando…</p>}>
           <DayQueue />
         </Suspense>
@@ -41,7 +41,7 @@ export default function SuperAdminHome() {
         </Suspense>
       </section>
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_24rem]">
+      <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_24rem]">
         <Card className="overflow-hidden">
           <CardHeader
             title="Aprovar agora"
@@ -115,7 +115,7 @@ async function DailyNumbers() {
         <h2 className="sa-display text-sa-title font-semibold">Números do dia</h2>
         <span className="text-sa-sm text-sa-muted">Atualizado às {numbers.updatedAt}</span>
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatCard label="Novos cadastros hoje" value={numbers.signups.value} hint={numbers.signups.hint} series={numbers.signups.series} />
         <StatCard label="Anúncios no ar" value={numbers.liveListings.value} hint={numbers.liveListings.hint} series={numbers.liveListings.series} />
         <StatCard label="Contatos nos últimos 7 dias" value={numbers.contacts.value} hint={numbers.contacts.hint} series={numbers.contacts.series} />

@@ -225,7 +225,7 @@ export default function ComoFuncionaPage() {
         {/* ── Abertura ─────────────────────────────────────────── */}
         <section className="relative isolate overflow-hidden border-b border-ink-200 bg-white">
           <AgendaTexture />
-          <div className="container-page grid items-center gap-16 pt-12 pb-20 sm:pt-16 lg:grid-cols-[1fr_1.05fr] lg:gap-12 lg:pt-20 lg:pb-28">
+          <div className="container-page grid grid-cols-1 items-center gap-16 pt-12 pb-20 sm:pt-16 lg:grid-cols-[1fr_1.05fr] lg:gap-12 lg:pt-20 lg:pb-28">
             <div className="max-w-[36rem]">
               <nav aria-label="Você está em" className="text-sm text-ink-500">
                 <Link href="/" className="focus-ring rounded-control hover:text-ink-900">
@@ -280,7 +280,7 @@ export default function ComoFuncionaPage() {
                 O que você precisa saber antes de sublocar uma sala
               </h2>
             </Reveal>
-            <dl className="mt-12 grid gap-px overflow-hidden rounded-panel bg-ink-200 ring-1 ring-ink-200 sm:grid-cols-2 lg:grid-cols-4">
+            <dl className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-panel bg-ink-200 ring-1 ring-ink-200 sm:grid-cols-2 lg:grid-cols-4">
               {FACTS.map((fact, index) => (
                 <Reveal key={fact.big} delay={index * 90} className="flex flex-col bg-white p-6 sm:p-7">
                   <dt className="text-2xl leading-tight font-bold tracking-tight text-brand-600">{fact.big}</dt>
@@ -296,7 +296,7 @@ export default function ComoFuncionaPage() {
           <span id="anunciante" className="absolute -top-16" aria-hidden />
           <span id="profissional" className="absolute -top-16" aria-hidden />
           <div className="container-page py-20 sm:py-24">
-            <Reveal className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+            <Reveal className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
               <div>
                 <Eyebrow>Passo a passo</Eyebrow>
                 <h2 id="passos-titulo" className={`${H2} mt-3 max-w-2xl`}>
@@ -361,7 +361,7 @@ export default function ComoFuncionaPage() {
                 Cada anúncio mostra o preço numa dessas quatro formas. A escolha depende do ritmo da sua agenda.
               </p>
             </Reveal>
-            <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <ul className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {MODELS.map((model, index) => (
                 <Reveal
                   as="li"
@@ -390,7 +390,7 @@ export default function ComoFuncionaPage() {
 
         {/* ── Sublocação × aluguel ─────────────────────────────── */}
         <section aria-labelledby="comparar-titulo" className="overflow-hidden bg-brand-900 text-white">
-          <div className="container-page grid gap-12 py-20 sm:py-24 lg:grid-cols-[1fr_1.5fr] lg:gap-16">
+          <div className="container-page grid grid-cols-1 gap-12 py-20 sm:py-24 lg:grid-cols-[1fr_1.5fr] lg:gap-16">
             <Reveal>
               <p className="text-sm font-bold text-mint-400">Antes de decidir</p>
               <h2 id="comparar-titulo" className="mt-3 text-h1 font-bold">
@@ -443,7 +443,7 @@ export default function ComoFuncionaPage() {
                 O que conferir para sublocar com segurança
               </h2>
             </Reveal>
-            <div className="mt-12 grid gap-6 lg:grid-cols-2">
+            <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
               {CHECKLIST.map((group, index) => (
                 <Reveal key={group.who} delay={index * 120} className="rounded-panel border border-ink-200 p-6 sm:p-8">
                   <h3 className="text-h3 font-bold text-ink-900">{group.who}</h3>
@@ -465,7 +465,7 @@ export default function ComoFuncionaPage() {
 
         {/* ── Perguntas ────────────────────────────────────────── */}
         <section aria-labelledby="duvidas-titulo" className="border-t border-ink-200 bg-white">
-          <div className="container-page grid gap-10 py-20 sm:py-24 lg:grid-cols-[1fr_2fr] lg:gap-16">
+          <div className="container-page grid grid-cols-1 gap-10 py-20 sm:py-24 lg:grid-cols-[1fr_2fr] lg:gap-16">
             <Reveal>
               <Eyebrow>Perguntas frequentes</Eyebrow>
               <h2 id="duvidas-titulo" className={`${H2} mt-3`}>
@@ -499,7 +499,7 @@ export default function ComoFuncionaPage() {
             <h2 id="final-titulo" className="sr-only">
               Comece pela sua parte da agenda
             </h2>
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <Reveal className="relative isolate overflow-hidden rounded-panel bg-brand-600 p-8 text-white sm:p-12">
                 <AgendaTexture tone="dark" />
                 <p className="text-sm font-bold text-mint-400">Tenho uma sala</p>

@@ -5,12 +5,14 @@ import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
 import {
   AddressBookIcon,
+  ArrowLeftIcon,
   BellIcon,
   BuildingsIcon,
   CaretRightIcon,
   HouseSimpleIcon,
   ListIcon,
   MagnifyingGlassIcon,
+  TargetIcon,
   UsersIcon,
 } from "@phosphor-icons/react/ssr";
 import type { Icon } from "@phosphor-icons/react";
@@ -150,23 +152,58 @@ function Breadcrumb() {
   );
 }
 
+/**
+ * Destino do botão Voltar no celular: sobe um nível na hierarquia (detalhe → lista, subpágina →
+ * área, área → início). Nas raízes das abas e no início não há para onde voltar.
+ */
+function parentOf(pathname: string, tabHrefs: string[]) {
+  const clean = pathname.replace(/\/$/, "") || "/";
+  if (clean === "/" || tabHrefs.includes(clean)) return null;
+  const found = findNav(clean);
+  if (!found) return "/";
+  if (clean !== found.item.href) return found.item.href;
+  if (found.group && found.item.href !== found.group.href) return found.group.href;
+  return "/";
+}
+
+/** Cabeçalho do celular, no estilo de app: Voltar + título da tela, no lugar do breadcrumb. */
+function MobileTitle() {
+  const pathname = usePathname();
+  const found = findNav(pathname);
+  const isDetail = found && (pathname.replace(/\/$/, "") || "/") !== found.item.href;
+  const isGroupRoot = found?.group && found.item.href === found.group.href;
+  const title = isDetail ? "Detalhe" : isGroupRoot ? found.group!.label : (found?.item.label ?? "Admin");
+  const back = parentOf(pathname, TAB_HREFS);
+  return (
+    <div className="flex min-w-0 items-center gap-1">
+      {back && (
+        <Link href={back} aria-label="Voltar" className="-ml-2 grid size-11 shrink-0 place-items-center rounded-full text-sa-ink active:bg-sa-haze">
+          <ArrowLeftIcon className="size-5" weight="bold" aria-hidden />
+        </Link>
+      )}
+      <span className="sa-display truncate text-sa-lg">{title}</span>
+    </div>
+  );
+}
+
 /** Abas fixas da barra do celular; o resto das áreas fica na aba Menu. */
 const TABS: { href: string; label: string; icon: Icon }[] = [
   { href: "/", label: "Início", icon: HouseSimpleIcon },
   { href: "/anuncios", label: "Anúncios", icon: BuildingsIcon },
   { href: "/usuarios", label: "Usuários", icon: UsersIcon },
   { href: "/leads", label: "Leads", icon: AddressBookIcon },
+  { href: "/prospeccao", label: "Prospecção", icon: TargetIcon },
 ];
 const TAB_HREFS = TABS.map((tab) => tab.href);
 const MENU_GROUPS = NAV_GROUPS.filter((group) => !TAB_HREFS.includes(group.href));
 
 const tabClass = (active: boolean) =>
   cx(
-    "flex h-16 w-full flex-col items-center justify-center gap-1 text-[0.6875rem] leading-none font-semibold transition-colors",
+    "flex h-16 w-full flex-col items-center justify-center gap-1 px-0.5 text-[0.6875rem] leading-none font-semibold transition-colors",
     active ? "text-brand-600" : "text-sa-muted",
   );
 
-/** Única navegação no celular e no tablet: Início, Anúncios, Usuários, Leads e Menu (o restante). */
+/** Única navegação no celular e no tablet: Início, Anúncios, Usuários, Leads, Prospecção e Menu (o restante). */
 function AdminTabBar({ footer }: { footer: ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -187,7 +224,7 @@ function AdminTabBar({ footer }: { footer: ReactNode }) {
         aria-label="Super Admin"
         className="fixed inset-x-0 bottom-0 z-40 border-t border-sa-line bg-sa-canvas pb-[env(safe-area-inset-bottom)] lg:hidden"
       >
-        <ul className="mx-auto grid h-16 max-w-lg grid-cols-5">
+        <ul className="mx-auto grid h-16 max-w-xl grid-cols-6">
           {TABS.map(({ href, label, icon: TabIcon }) => {
             const active = is(href) && !open;
             return (
@@ -262,7 +299,12 @@ export function SuperAdminShell({ children, footer }: { children: ReactNode; foo
         <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-sa-line bg-sa-canvas/90 px-4 backdrop-blur sm:px-6">
           <div className="min-w-0 flex-1">
             <Suspense>
-              <Breadcrumb />
+              <div className="hidden lg:block">
+                <Breadcrumb />
+              </div>
+              <div className="lg:hidden">
+                <MobileTitle />
+              </div>
             </Suspense>
           </div>
           <label className="relative hidden w-72 md:block">

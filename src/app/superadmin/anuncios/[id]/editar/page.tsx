@@ -29,7 +29,7 @@ async function EditListing({ params }: { params: PageProps<"/superadmin/anuncios
         title="Editar anúncio"
         description={listing.title}
         actions={
-          <ButtonLink href={`/anuncios/${id}`} variant="ghost">
+          <ButtonLink href={`/anuncios/${id}`} variant="ghost" className="max-lg:hidden">
             Voltar ao anúncio
           </ButtonLink>
         }

@@ -10,14 +10,14 @@ export default function InviteUserPage() {
         title="Convidar usuário"
         description="Cria a conta sem senha e envia o link de acesso por e-mail. Use quando alguém pediu ajuda por telefone ou veio da importação."
       />
-      <div className="grid max-w-4xl gap-6 lg:grid-cols-[1fr_18rem]">
+      <div className="grid grid-cols-1 max-w-4xl gap-6 lg:grid-cols-[1fr_18rem]">
         <Card>
           <CardHeader title="Dados da pessoa" />
           <form className="space-y-5 p-5">
             <Field label="Nome" htmlFor="name">
               <input id="name" className="sa-input" placeholder="Nome completo" />
             </Field>
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <Field label="E-mail" htmlFor="email">
                 <input id="email" type="email" className="sa-input" placeholder="nome@exemplo.com" />
               </Field>

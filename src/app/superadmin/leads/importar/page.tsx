@@ -11,7 +11,7 @@ export default function ImportLeadsPage() {
         title="Importar lista do WordPress"
         description="Traz os anunciantes do Subleasy atual para a base de leads, com origem importado_wp e a base legal registrada. É a base da campanha de lançamento."
       />
-      <div className="grid max-w-5xl gap-6 lg:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 max-w-5xl gap-6 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-6">
           <Card>
             <CardHeader title="1. Arquivo" />

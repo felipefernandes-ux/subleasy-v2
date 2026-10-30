@@ -73,7 +73,7 @@ async function PublicProfile({ id }: { id: string }) {
   const firstName = profile.public_name.split(" ")[0];
 
   return (
-    <div className="grid items-start gap-10 lg:grid-cols-[22rem_1fr] lg:gap-14">
+    <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-[22rem_1fr] lg:gap-14">
       <aside className="lg:sticky lg:top-24">
         <div className="rounded-panel border border-ink-200 bg-white p-6 shadow-card">
           <div className="flex flex-col items-center text-center">
@@ -168,7 +168,7 @@ async function PublicProfile({ id }: { id: string }) {
             <p className="mt-1 text-ink-600">
               {listings.length} {listings.length === 1 ? "anúncio no ar" : "anúncios no ar"} no Subleasy
             </p>
-            <ul className="mt-8 grid gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
+            <ul className="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
               {listings.map((listing) => (
                 <li key={listing.slug}>
                   <ListingCard listing={listing} />

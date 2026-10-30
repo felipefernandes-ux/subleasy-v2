@@ -63,7 +63,7 @@ async function ProspectDetail({ params }: { params: PageProps<"/superadmin/prosp
 
   return (
     <>
-      <Link href="/prospeccao" className="mb-3 inline-flex items-center gap-1.5 text-sa-sm text-sa-muted hover:text-sa-ink">
+      <Link href="/prospeccao" className="mb-3 inline-flex max-lg:hidden items-center gap-1.5 text-sa-sm text-sa-muted hover:text-sa-ink">
         <ArrowLeftIcon className="size-3.5" aria-hidden />
         Prospects
       </Link>
@@ -90,7 +90,7 @@ async function ProspectDetail({ params }: { params: PageProps<"/superadmin/prosp
         </Card>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="space-y-6">
           <MessagePanel
             prospectId={prospect.id}

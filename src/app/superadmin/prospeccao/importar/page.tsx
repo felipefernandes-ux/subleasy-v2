@@ -11,7 +11,7 @@ export default function ImportProspectsPage() {
         title="Importar planilha"
         description="Traz os locais da planilha de prospecção para a base, cada um como Novo. Importar de novo atualiza os contatos sem apagar status nem anotações."
       />
-      <div className="grid max-w-5xl gap-6 lg:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 max-w-5xl gap-6 lg:grid-cols-[1fr_20rem]">
         <ProspectImportForm />
         <aside>
           <Card className="space-y-3 p-5 text-sa-sm text-sa-muted">

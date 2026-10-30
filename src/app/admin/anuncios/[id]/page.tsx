@@ -66,7 +66,7 @@ async function AdminReview({
           <h1 className="text-h3 font-bold text-ink-900">Revisão do anúncio</h1>
           <StatusChip status={listing.status} />
         </div>
-        <dl className="mt-4 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+        <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
           <Info label="Anunciante" value={owner?.display_name ?? "Sem perfil"} />
           <Info label="E-mail" value={owner?.email ?? "-"} />
           <Info label="WhatsApp do anúncio" value={contact?.whatsapp_number ? formatWhatsApp(contact.whatsapp_number) : "Sem WhatsApp"} />
@@ -82,7 +82,7 @@ async function AdminReview({
         )}
 
         {pending ? (
-          <div className="mt-6 grid gap-4 border-t border-ink-200 pt-6 sm:grid-cols-[auto_1fr] sm:items-start">
+          <div className="mt-6 grid grid-cols-1 gap-4 border-t border-ink-200 pt-6 sm:grid-cols-[auto_1fr] sm:items-start">
             <form action={approveListing.bind(null, listing.id)}>
               <button type="submit" className={`${buttonClasses("primary", "lg")} w-full`}>
                 Aprovar e publicar

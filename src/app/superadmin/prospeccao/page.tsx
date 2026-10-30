@@ -69,7 +69,7 @@ async function Prospects({ searchParams }: { searchParams: PageProps<"/superadmi
   const pending = items.reduce((sum, item) => sum + item.pendingClaims, 0);
   return (
     <>
-      <div className="mb-6 grid gap-4 md:grid-cols-4">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
         <StatCard label="Na base" value={all} />
         <StatCard label="Mensagem ou prévia enviada" value={(byStatus.mensagem_enviada ?? 0) + (byStatus.previa_enviada ?? 0)} />
         <StatCard label="Responderam" value={byStatus.respondeu ?? 0} />
