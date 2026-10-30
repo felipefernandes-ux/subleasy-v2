@@ -32,6 +32,10 @@ function question(specialty: string | null, personal: boolean) {
   return entry[personal ? 0 : 1];
 }
 
+function lowerFirst(text: string) {
+  return text.charAt(0).toLowerCase() + text.slice(1);
+}
+
 /** Texto da mensagem, ou null quando faltam dados (ex.: prévia sem link). */
 export function buildMessage(prospect: MessageProspect, kind: MessageKind, previewUrl?: string | null): string | null {
   const center = prospect.message_model === "A";
@@ -61,12 +65,14 @@ export function buildMessage(prospect: MessageProspect, kind: MessageKind, previ
 
   if (!previewUrl) return null;
   const who = center ? "Olá, tudo bem?" : personal ? `Oi, ${prospect.treatment}, tudo bem?` : "Olá, tudo bem?";
-  const place = center ? `da administração ${prospect.recipient ?? "do local"}` : "";
+  const q = center ? "alguma fica parada em certos dias ou turnos?" : lowerFirst(question(prospect.specialty, personal));
+  const plural = center || !personal;
   return [
-    `${who} Aqui é o Felipe, fundador do Subleasy, site onde profissionais de saúde anunciam sala por turno.${place ? ` Escrevo ${place}.` : ""} Peguei ${personal ? "seu contato" : "o contato de vocês"} no Google.`,
-    `Em vez de pedir informação, montei uma prévia de como ${center ? "o anúncio de uma sala de vocês" : personal ? "o anúncio da sua sala" : "o anúncio da sala de vocês"} ficaria no Subleasy:`,
+    `${who} Aqui é o Felipe, fundador do Subleasy, site onde profissionais de saúde anunciam sala por turno. Peguei ${personal ? "seu contato" : "o contato de vocês"} no Google.`,
+    `${center ? "Vocês têm várias salas e eu queria saber:" : "Eu queria saber:"} ${q}`,
+    `Montei uma prévia de como ${center ? "o anúncio de uma sala de vocês" : personal ? "o anúncio da sua sala" : "o anúncio da sala de vocês"} ficaria no Subleasy:`,
     previewUrl,
-    `É só uma prévia, com fotos ilustrativas. Se fizer sentido, ${center || !personal ? "vocês trocam" : "você troca"} pelas fotos reais e ${center || !personal ? "aprovam" : "aprova"} antes de publicar. Publicar é grátis.`,
+    `É só uma prévia, com fotos ilustrativas. Se fizer sentido, ${plural ? "vocês trocam" : "você troca"} pelas fotos reais e ${plural ? "aprovam" : "aprova"} antes de publicar. Publicar é grátis.`,
     OPT_OUT,
   ].join("\n\n");
 }
