@@ -18,7 +18,7 @@ export default function ImportProspectsPage() {
             <h2 className="text-sa-lg font-semibold text-sa-ink">O que a aba precisa ter</h2>
             <p>Colunas pelo nome, em qualquer ordem: nome, endereço, telefone, instagram, site, e-mail geral, place_id, prioridade.</p>
             <p>
-              Para a mensagem sair certa: modelo (A ou B), tratamento, destinatário (modelo A), especialidade e número WhatsApp usado. Sem o número, o Subleasy escolhe o melhor celular
+              Para a mensagem sair certa: modelo (A ou B), tratamento, destinatário (modelo A), área (a coluna pode se chamar área, especialidade ou segmento) e número WhatsApp usado. Sem o número, o Subleasy escolhe o melhor celular
               entre “whatsapp (site)” e “celular (Maps)”.
             </p>
             <p>Os locais sem celular entram sem botão de WhatsApp. A decisão de contatar fica com você, um a um.</p>

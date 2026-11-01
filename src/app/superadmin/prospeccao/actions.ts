@@ -4,12 +4,13 @@ import { refresh } from "next/cache";
 import { fetchSheetCsv } from "@/lib/prospecting/sheet";
 import { parseNeighborhood, parseProspectSheet } from "@/lib/prospecting/import";
 import { PREVIEW_DAYS, exampleAmenities, generatePreviewCopy, newPreviewToken } from "@/lib/prospecting/preview";
-import { SPECIALTY_SPACE_TYPE, isProspectStatus, type Specialty } from "@/lib/prospecting/status";
+import { SPECIALTIES, SPECIALTY_SPACE_TYPE, isProspectStatus, type Specialty } from "@/lib/prospecting/status";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/database.types";
 import { recordAudit } from "@/lib/superadmin/audit";
 import { requireAdmin } from "@/lib/superadmin/auth";
 
+const SPECIALTY_KEYS = Object.keys(SPECIALTIES) as Specialty[];
 const CITY = "Maringá";
 const STATE = "PR";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -41,6 +42,10 @@ export async function importProspects(_state: ImportState, formData: FormData): 
   if (parsed.error) return { status: "error", error: parsed.error };
   if (parsed.rows.length === 0) return { status: "error", error: "Nenhuma linha com nome foi encontrada." };
 
+  // A coluna “especialidade” da planilha vale por linha; a área padrão do formulário cobre as linhas sem ela.
+  const fallbackSpecialty = SPECIALTY_KEYS.find((key) => key === formData.get("specialty")) ?? null;
+  for (const row of parsed.rows) row.specialty ??= fallbackSpecialty;
+
   const db = createAdminClient();
   const [{ data: existingPlaces }, { data: existingNames }] = await Promise.all([
     db.from("prospects").select("place_id").not("place_id", "is", null),
@@ -60,10 +65,14 @@ export async function importProspects(_state: ImportState, formData: FormData): 
   let created = 0;
   let updated = 0;
   try {
-    for (let i = 0; i < withPlace.length; i += 100) {
-      const batch = withPlace.slice(i, i + 100).map((row) => ({ ...row, source: "planilha" }));
-      const { error } = await db.from("prospects").upsert(batch, { onConflict: "place_id" });
-      if (error) throw error;
+    // Linhas sem área vão em lotes sem a chave: reimportar não pode apagar a área que já estava na base.
+    for (const withArea of [true, false]) {
+      const rows = withPlace.filter((row) => (row.specialty !== null) === withArea);
+      for (let i = 0; i < rows.length; i += 100) {
+        const batch = rows.slice(i, i + 100).map(({ specialty, ...row }) => ({ ...row, ...(withArea && { specialty }), source: "planilha" }));
+        const { error } = await db.from("prospects").upsert(batch, { onConflict: "place_id" });
+        if (error) throw error;
+      }
     }
     for (const row of withPlace) {
       if (knownPlaces.has(row.place_id)) updated++;

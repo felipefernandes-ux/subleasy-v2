@@ -695,6 +695,7 @@ export type Database = {
           place_id: string | null
           priority: number | null
           recipient: string | null
+          segment: string | null
           source: string | null
           specialty: string | null
           status: string
@@ -719,6 +720,7 @@ export type Database = {
           place_id?: string | null
           priority?: number | null
           recipient?: string | null
+          segment?: string | null
           source?: string | null
           specialty?: string | null
           status?: string
@@ -743,6 +745,7 @@ export type Database = {
           place_id?: string | null
           priority?: number | null
           recipient?: string | null
+          segment?: string | null
           source?: string | null
           specialty?: string | null
           status?: string

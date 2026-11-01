@@ -1,7 +1,7 @@
 import { getPublicOrigin } from "@/lib/origin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
-import { PROSPECT_STATUS_KEYS, type ProspectStatus } from "@/lib/prospecting/status";
+import { PROSPECT_STATUS_KEYS, SPECIALTIES, type ProspectStatus } from "@/lib/prospecting/status";
 
 export type Prospect = Database["public"]["Tables"]["prospects"]["Row"];
 export type ProspectPreview = Database["public"]["Tables"]["prospect_previews"]["Row"];
@@ -13,7 +13,7 @@ export type ProspectListItem = Pick<
   "id" | "name" | "address" | "priority" | "specialty" | "status" | "whatsapp_number" | "touches" | "last_contact_at" | "message_model"
 > & { previewViews: number; hasPreview: boolean; pendingClaims: number };
 
-export type ProspectFilters = { status?: string; q?: string; channel?: string; page?: number };
+export type ProspectFilters = { status?: string; q?: string; channel?: string; specialty?: string; page?: number };
 
 export const PAGE_SIZE = 50;
 
@@ -36,12 +36,14 @@ export async function loadProspects(filters: ProspectFilters) {
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
   if (filters.status && (PROSPECT_STATUS_KEYS as string[]).includes(filters.status)) query = query.eq("status", filters.status);
+  if (filters.specialty === "sem_area") query = query.is("specialty", null);
+  else if (filters.specialty && filters.specialty in SPECIALTIES) query = query.eq("specialty", filters.specialty);
   if (filters.channel === "whatsapp") query = query.not("whatsapp_number", "is", null);
   if (filters.channel === "sem_whatsapp") query = query.is("whatsapp_number", null);
   const q = filters.q?.trim().replace(/[%,()]/g, " ");
   if (q) query = query.or(`name.ilike.%${q}%,address.ilike.%${q}%`);
 
-  const [{ data, count, error }, statuses] = await Promise.all([query, db.from("prospects").select("status")]);
+  const [{ data, count, error }, statuses] = await Promise.all([query, db.from("prospects").select("status, specialty")]);
   if (error) throw new Error(`Não foi possível ler os prospects: ${error.message}`);
 
   const ids = (data ?? []).map((row) => row.id);
@@ -53,8 +55,17 @@ export async function loadProspects(filters: ProspectFilters) {
   const claimsBy = new Map<string, number>();
   for (const row of claims.data ?? []) claimsBy.set(row.prospect_id, (claimsBy.get(row.prospect_id) ?? 0) + 1);
 
+  // A contagem por área alimenta o filtro; os totais por status respeitam a área escolhida.
+  const specialtyCounts: Record<string, number> = {};
   const byStatus: Record<string, number> = {};
-  for (const row of statuses.data ?? []) byStatus[row.status] = (byStatus[row.status] ?? 0) + 1;
+  let all = 0;
+  for (const row of statuses.data ?? []) {
+    const area = row.specialty ?? "sem_area";
+    specialtyCounts[area] = (specialtyCounts[area] ?? 0) + 1;
+    if (filters.specialty && area !== filters.specialty) continue;
+    byStatus[row.status] = (byStatus[row.status] ?? 0) + 1;
+    all++;
+  }
 
   const items: ProspectListItem[] = (data ?? []).map((row) => ({
     ...row,
@@ -62,7 +73,7 @@ export async function loadProspects(filters: ProspectFilters) {
     previewViews: previewBy.get(row.id) ?? 0,
     pendingClaims: claimsBy.get(row.id) ?? 0,
   }));
-  return { items, total: count ?? 0, page, byStatus: byStatus as Partial<Record<ProspectStatus, number>>, all: statuses.data?.length ?? 0 };
+  return { items, total: count ?? 0, page, byStatus: byStatus as Partial<Record<ProspectStatus, number>>, all, specialtyCounts, totalAll: statuses.data?.length ?? 0 };
 }
 
 /** Um prospect com prévia, linha do tempo e pedidos. Chame depois de requireAdmin(). */

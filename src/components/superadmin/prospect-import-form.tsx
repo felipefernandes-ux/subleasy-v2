@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { FileCsvIcon } from "@phosphor-icons/react";
 import { importProspects, type ImportState } from "@/app/superadmin/prospeccao/actions";
+import { SPECIALTIES, type Specialty } from "@/lib/prospecting/status";
 import { Button, ButtonLink, Card, CardHeader, Field } from "@/components/superadmin/ui";
 
 export function ProspectImportForm() {
@@ -28,6 +29,26 @@ export function ProspectImportForm() {
               <span className="text-sa-body">Escolher arquivo</span>
               <input id="sheet-file" name="file" type="file" accept=".csv,text/csv" className="min-w-0 text-sa-sm text-sa-muted" />
             </label>
+          </Field>
+        </div>
+      </Card>
+
+      <Card>
+        <CardHeader title="2. Área" description="Em qual área esses contatos entram (por exemplo, Psicologia). Serve para filtrar a lista de prospects e escolher o tipo de sala da prévia." />
+        <div className="p-5">
+          <Field
+            label="Área padrão"
+            htmlFor="specialty"
+            hint="Vale para as linhas em que a coluna “área” (ou “especialidade”, ou “segmento”) da planilha está vazia ou não existe. Quando a coluna está preenchida, ela manda."
+          >
+            <select id="specialty" name="specialty" defaultValue="" className="sa-input">
+              <option value="">Nenhuma (deixar sem área)</option>
+              {(Object.keys(SPECIALTIES) as Specialty[]).map((key) => (
+                <option key={key} value={key}>
+                  {SPECIALTIES[key]}
+                </option>
+              ))}
+            </select>
           </Field>
         </div>
       </Card>

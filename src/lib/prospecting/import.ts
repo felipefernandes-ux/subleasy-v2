@@ -16,6 +16,7 @@ export type ProspectRow = {
   treatment: string | null;
   recipient: string | null;
   specialty: Specialty | null;
+  /** Segmento da planilha (“Clínica de psicologia”, “Hospital”…). Nulo quando a coluna não existe ou a célula está vazia. */
   link_note: string | null;
 };
 
@@ -50,6 +51,25 @@ export function parseNeighborhood(address: string | null): string | null {
 
 export type ParsedSheet = { rows: ProspectRow[]; skipped: number; error?: string };
 
+const SPECIALTY_HINTS: Array<[RegExp, Specialty]> = [
+  [/psic/, "psi"],
+  [/odont|dentis/, "odonto"],
+  [/estet/, "est"],
+  [/fisio|nutri/, "fisio"],
+  [/centro|policlin|condominio/, "centro"],
+  [/medic|clinica geral/, "med"],
+];
+
+/** Aceita a chave (psi), o nome da área (Psicologia) ou um texto que a cite (“Clínica de psicologia”), sem diferenciar maiúsculas nem acentos. */
+function toSpecialty(value: string | null): Specialty | null {
+  if (!value) return null;
+  const plain = (v: string) => v.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim();
+  const wanted = plain(value);
+  const keys = Object.keys(SPECIALTIES) as Specialty[];
+  const exact = keys.find((key) => key === wanted || plain(SPECIALTIES[key]) === wanted);
+  return exact ?? SPECIALTY_HINTS.find(([pattern]) => pattern.test(wanted))?.[1] ?? null;
+}
+
 /** Lê o CSV da planilha de prospecção pelo nome das colunas (a ordem não importa). */
 export function parseProspectSheet(csv: string): ParsedSheet {
   const objects = csvToObjects(csv);
@@ -65,7 +85,8 @@ export function parseProspectSheet(csv: string): ParsedSheet {
       continue;
     }
     const model = text(row["modelo"]);
-    const specialty = text(row["especialidade"]);
+    // A coluna da área pode se chamar Área, Especialidade ou Segmento; vale a primeira preenchida.
+    const specialty = text(row["área"]) ?? text(row["area"]) ?? text(row["especialidade"]) ?? text(row["segmento"]);
     const priority = Number.parseInt(row["prioridade"] ?? "", 10);
     rows.push({
       place_id: text(row["place_id"]),
@@ -81,7 +102,7 @@ export function parseProspectSheet(csv: string): ParsedSheet {
       message_model: model === "A" || model === "B" ? model : null,
       treatment: text(row["tratamento"]),
       recipient: text(row["destinatário (modelo a)"]),
-      specialty: specialty && specialty in SPECIALTIES ? (specialty as Specialty) : null,
+      specialty: toSpecialty(specialty),
       link_note: text(row["obs. do link"]),
     });
   }

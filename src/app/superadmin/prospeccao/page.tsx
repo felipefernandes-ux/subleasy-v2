@@ -46,10 +46,11 @@ async function Prospects({ searchParams }: { searchParams: PageProps<"/superadmi
   const status = first(query.status);
   const q = first(query.q);
   const channel = first(query.canal);
+  const area = first(query.area);
   const page = Number(first(query.p)) || 1;
-  const { items, total, byStatus, all } = await loadProspects({ status, q, channel, page });
+  const { items, total, byStatus, all, specialtyCounts, totalAll } = await loadProspects({ status, q, channel, specialty: area, page });
 
-  if (all === 0) {
+  if (totalAll === 0) {
     return (
       <Card>
         <EmptyState
@@ -70,18 +71,18 @@ async function Prospects({ searchParams }: { searchParams: PageProps<"/superadmi
   return (
     <>
       <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-        <StatCard label="Na base" value={all} />
+        <StatCard label={area ? `Em ${area === "sem_area" ? "Sem área" : SPECIALTIES[area as Specialty] ?? area}` : "Na base"} value={all} />
         <StatCard label="Mensagem ou prévia enviada" value={(byStatus.mensagem_enviada ?? 0) + (byStatus.previa_enviada ?? 0)} />
         <StatCard label="Responderam" value={byStatus.respondeu ?? 0} />
         <StatCard label="Querem o anúncio" value={byStatus.quer_anuncio ?? 0} hint={pending ? `${pending} pedido(s) por tratar nesta página` : undefined} />
       </div>
 
       <nav aria-label="Filtrar por status" className="mb-4 flex flex-wrap gap-1.5">
-        <Link href={href({ q, canal: channel })} className={`sa-btn sa-btn-sm ${status ? "sa-btn-ghost" : "sa-btn-outline"}`}>
+        <Link href={href({ q, canal: channel, area })} className={`sa-btn sa-btn-sm ${status ? "sa-btn-ghost" : "sa-btn-outline"}`}>
           Todos <span className="text-sa-muted">{all}</span>
         </Link>
         {PROSPECT_STATUS_KEYS.map((key) => (
-          <Link key={key} href={href({ status: key, q, canal: channel })} className={`sa-btn sa-btn-sm ${status === key ? "sa-btn-outline" : "sa-btn-ghost"}`}>
+          <Link key={key} href={href({ status: key, q, canal: channel, area })} className={`sa-btn sa-btn-sm ${status === key ? "sa-btn-outline" : "sa-btn-ghost"}`}>
             {PROSPECT_STATUSES[key]} <span className="text-sa-muted">{byStatus[key] ?? 0}</span>
           </Link>
         ))}
@@ -93,6 +94,15 @@ async function Prospects({ searchParams }: { searchParams: PageProps<"/superadmi
           <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-sa-subtle" aria-hidden />
           <input type="search" name="q" defaultValue={q} placeholder="Buscar por nome ou endereço" aria-label="Buscar por nome ou endereço" className="sa-input w-72 pl-9" />
         </div>
+        <select name="area" defaultValue={area ?? ""} aria-label="Área" className="sa-input w-auto min-w-44 pr-8">
+          <option value="">Todas as áreas</option>
+          {(Object.keys(SPECIALTIES) as Specialty[]).map((key) => (
+            <option key={key} value={key}>
+              {SPECIALTIES[key]} ({specialtyCounts[key] ?? 0})
+            </option>
+          ))}
+          <option value="sem_area">Sem área ({specialtyCounts.sem_area ?? 0})</option>
+        </select>
         <select name="canal" defaultValue={channel ?? ""} aria-label="Canal" className="sa-input w-auto min-w-40 pr-8">
           <option value="">Todos os canais</option>
           <option value="whatsapp">Com WhatsApp</option>
@@ -116,12 +126,12 @@ async function Prospects({ searchParams }: { searchParams: PageProps<"/superadmi
               </span>
               <span className="flex gap-1.5">
                 {page > 1 && (
-                  <Link href={href({ status, q, canal: channel, p: page - 1 })} className="sa-btn sa-btn-outline sa-btn-sm">
+                  <Link href={href({ status, q, canal: channel, area, p: page - 1 })} className="sa-btn sa-btn-outline sa-btn-sm">
                     Anterior
                   </Link>
                 )}
                 {page * PAGE_SIZE < total && (
-                  <Link href={href({ status, q, canal: channel, p: page + 1 })} className="sa-btn sa-btn-outline sa-btn-sm">
+                  <Link href={href({ status, q, canal: channel, area, p: page + 1 })} className="sa-btn sa-btn-outline sa-btn-sm">
                     Próxima
                   </Link>
                 )}
