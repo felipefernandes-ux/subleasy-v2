@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { CookiePreferencesButton } from "./cookie-consent";
 import { ArrowRightIcon, Logo, buttonClasses } from "./ui";
 
 export function FinalCta() {
@@ -101,8 +102,9 @@ export function SiteFooter() {
           </nav>
         ))}
       </div>
-      <div className="container-page border-t border-ink-200 py-6 text-sm text-ink-500">
-        © 2026 Subleasy
+      <div className="container-page flex flex-wrap items-center justify-between gap-x-6 border-t border-ink-200 py-3 text-sm text-ink-500">
+        <span>© 2026 Subleasy</span>
+        <CookiePreferencesButton />
       </div>
     </footer>
   );

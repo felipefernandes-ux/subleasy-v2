@@ -160,16 +160,27 @@ export default function PrivacidadePage() {
       </ul>
       <p>O perfil não mostra e-mail, CPF, endereço da sala nem endereço pessoal.</p>
 
-      <h3>Quando você visita o site</h3>
+      <h3 id="cookies">Quando você visita o site (cookies)</h3>
+      <p>Cookies são pequenos arquivos que o site guarda no seu navegador. Usamos dois tipos:</p>
       <ul>
         <li>
-          Cookies de sessão, que mantêm você conectado. Sem eles, o login não funciona.
+          <strong>Necessários</strong>, que ficam ativos sempre: os cookies de sessão, que mantêm você
+          conectado, o de segurança que lembra do código de 6 dígitos, e um identificador aleatório que
+          conta visualizações e cliques no WhatsApp de cada anúncio. Esse identificador não está ligado ao
+          seu nome nem ao seu e-mail, e cada pessoa conta uma vez por anúncio por dia.
         </li>
         <li>
-          Um identificador aleatório, guardado em cookie, que conta visualizações e cliques no
-          WhatsApp de cada anúncio. Ele não está ligado ao seu nome nem ao seu e-mail, e cada
-          pessoa conta uma vez por anúncio por dia.
+          <strong>De medição (Google Analytics)</strong>, que só ligam se você aceitar no aviso de cookies.
+          Eles mostram, de forma agregada, quais páginas são visitadas e de onde vêm os acessos, para
+          melhorarmos o site. Não usamos esses dados para anúncios nem para identificar você.
         </li>
+      </ul>
+      <p>
+        Você pode recusar a medição sem perder nada no site. Para mudar a escolha a qualquer momento, use
+        &quot;Preferências de cookies&quot; no rodapé. Ao recusar, apagamos os cookies do Google Analytics.
+        Guardamos a sua escolha só no seu navegador.
+      </p>
+      <ul>
         <li>
           Registros de acesso (endereço IP, data e hora), que a lei exige guardar por 6 meses.
         </li>
@@ -199,8 +210,8 @@ export default function PrivacidadePage() {
           Marco Civil da Internet.
         </li>
         <li>
-          <strong>Consentimento</strong> (art. 7º, I): enviar novidades e dicas por e-mail e mostrar
-          seu WhatsApp no perfil público. Você pode retirar o consentimento quando quiser, pela
+          <strong>Consentimento</strong> (art. 7º, I): medir o uso do site com o Google Analytics, enviar
+          novidades e dicas por e-mail e mostrar seu WhatsApp no perfil público. Você pode retirar o consentimento quando quiser, pela
           chave em Configurações, pelo link em cada e-mail ou escrevendo para nós.
         </li>
       </ul>
@@ -226,7 +237,8 @@ export default function PrivacidadePage() {
           em São Paulo.
         </li>
         <li>
-          <strong>Google</strong>: login com Google e processamento do texto pela IA.
+          <strong>Google</strong>: login com Google, processamento do texto pela IA e, se você aceitar os
+          cookies de medição, o Google Analytics.
         </li>
         <li>
           <strong>Brevo</strong>: envio de e-mails, como códigos de acesso, lembretes, avisos sobre a
@@ -260,6 +272,7 @@ export default function PrivacidadePage() {
           guardar.
         </li>
         <li>Registros de acesso: 6 meses, pelo Marco Civil da Internet.</li>
+        <li>Dados do Google Analytics: até 14 meses.</li>
       </ul>
 
       <h2 id="seguranca">8. Como protegemos</h2>
@@ -288,7 +301,7 @@ export default function PrivacidadePage() {
         <li>Anonimização, bloqueio ou eliminação de dados desnecessários.</li>
         <li>Portabilidade dos dados para outro serviço.</li>
         <li>Informação sobre com quem compartilhamos seus dados.</li>
-        <li>Retirada do consentimento para receber novidades.</li>
+        <li>Retirada do consentimento para receber novidades e para a medição por cookies.</li>
         <li>Exclusão da conta e dos dados ligados a ela.</li>
       </ul>
       <p>

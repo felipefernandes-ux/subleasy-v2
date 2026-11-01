@@ -2,8 +2,8 @@
  * Versão dos Termos e da Política. Mude a data a cada alteração relevante:
  * o cadastro grava a versão aceita em profiles.terms_version.
  */
-export const TERMS_VERSION = "2026-10-28";
-export const TERMS_UPDATED_LABEL = "28 de outubro de 2026";
+export const TERMS_VERSION = "2026-11-01";
+export const TERMS_UPDATED_LABEL = "1 de novembro de 2026";
 
 // Dados do responsável pelo Subleasy (aparecem nos Termos e na Política de privacidade).
 // Valores que começam com [PREENCHER] saem destacados nas páginas até serem trocados.
