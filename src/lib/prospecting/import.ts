@@ -16,7 +16,8 @@ export type ProspectRow = {
   treatment: string | null;
   recipient: string | null;
   specialty: Specialty | null;
-  /** Segmento da planilha (“Clínica de psicologia”, “Hospital”…). Nulo quando a coluna não existe ou a célula está vazia. */
+  /** Cidade da coluna “cidade” da planilha. Nula quando a coluna não existe ou a célula está vazia. */
+  city: string | null;
   link_note: string | null;
 };
 
@@ -103,6 +104,7 @@ export function parseProspectSheet(csv: string): ParsedSheet {
       treatment: text(row["tratamento"]),
       recipient: text(row["destinatário (modelo a)"]),
       specialty: toSpecialty(specialty),
+      city: text(row["cidade"])?.replace(/\s+/g, " ").slice(0, 80) ?? null,
       link_note: text(row["obs. do link"]),
     });
   }

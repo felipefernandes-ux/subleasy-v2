@@ -74,7 +74,7 @@ const rows = [...found.values()].filter((p) => {
 });
 
 const csvCell = (v) => (/[",\n]/.test(v ?? "") ? `"${v.replaceAll('"', '""')}"` : (v ?? ""));
-const header = ["nome", "endereço", "telefone", "celular (maps)", "instagram", "site", "place_id", "prioridade", "modelo", "especialidade"];
+const header = ["nome", "endereço", "telefone", "celular (maps)", "instagram", "site", "place_id", "prioridade", "modelo", "especialidade", "cidade"];
 const lines = [header.join(",")];
 let skippedKnown = 0;
 for (const p of rows) {
@@ -83,7 +83,7 @@ for (const p of rows) {
   const insta = /instagram\.com\/([^/?#]+)/i.exec(site)?.[1];
   lines.push([
     p.displayName?.text, p.formattedAddress?.replace(/, Brasil$/, ""), p.nationalPhoneNumber, p.internationalPhoneNumber,
-    insta ? `@${insta}` : "", insta ? "" : site, p.id, "4", "B", "psi",
+    insta ? `@${insta}` : "", insta ? "" : site, p.id, "4", "B", "psi", "Maringá",
   ].map((v) => csvCell(v ?? "")).join(","));
 }
 fs.writeFileSync(out, lines.join("\n") + "\n");

@@ -45,6 +45,9 @@ export async function importProspects(_state: ImportState, formData: FormData): 
   // A coluna “especialidade” da planilha vale por linha; a área padrão do formulário cobre as linhas sem ela.
   const fallbackSpecialty = SPECIALTY_KEYS.find((key) => key === formData.get("specialty")) ?? null;
   for (const row of parsed.rows) row.specialty ??= fallbackSpecialty;
+  // Idem para a cidade: a coluna “cidade” manda; a cidade padrão do formulário cobre as linhas sem ela.
+  const fallbackCity = String(formData.get("city") ?? "").replace(/\s+/g, " ").trim().slice(0, 80) || null;
+  for (const row of parsed.rows) row.city ??= fallbackCity;
 
   const db = createAdminClient();
   const [{ data: existingPlaces }, { data: existingNames }] = await Promise.all([
@@ -65,11 +68,20 @@ export async function importProspects(_state: ImportState, formData: FormData): 
   let created = 0;
   let updated = 0;
   try {
-    // Linhas sem área vão em lotes sem a chave: reimportar não pode apagar a área que já estava na base.
-    for (const withArea of [true, false]) {
-      const rows = withPlace.filter((row) => (row.specialty !== null) === withArea);
+    // Área e cidade vazias ficam fora do lote: reimportar não pode apagar o que já estava na base.
+    const groups = new Map<string, typeof withPlace>();
+    for (const row of withPlace) {
+      const key = `${row.specialty !== null}|${row.city !== null}`;
+      groups.set(key, [...(groups.get(key) ?? []), row]);
+    }
+    for (const rows of groups.values()) {
       for (let i = 0; i < rows.length; i += 100) {
-        const batch = rows.slice(i, i + 100).map(({ specialty, ...row }) => ({ ...row, ...(withArea && { specialty }), source: "planilha" }));
+        const batch = rows.slice(i, i + 100).map(({ specialty, city, ...row }) => ({
+          ...row,
+          ...(specialty !== null && { specialty }),
+          ...(city !== null && { city }),
+          source: "planilha",
+        }));
         const { error } = await db.from("prospects").upsert(batch, { onConflict: "place_id" });
         if (error) throw error;
       }
@@ -175,11 +187,11 @@ export async function createProspectPreview(id: string): Promise<ActionResult> {
   await requireAdmin("/prospeccao");
   if (!UUID.test(id)) return { ok: false, error: "Prospect inválido." };
   const db = createAdminClient();
-  const { data: prospect } = await db.from("prospects").select("name, address, specialty").eq("id", id).maybeSingle();
+  const { data: prospect } = await db.from("prospects").select("name, address, specialty, city").eq("id", id).maybeSingle();
   if (!prospect) return { ok: false, error: "Prospect não encontrado." };
 
   const specialty = (prospect.specialty as Specialty | null) ?? null;
-  const copy = await generatePreviewCopy({ name: prospect.name, specialty, address: prospect.address, city: CITY });
+  const copy = await generatePreviewCopy({ name: prospect.name, specialty, address: prospect.address, city: prospect.city ?? CITY });
   const expires = new Date(Date.now() + PREVIEW_DAYS * 24 * 60 * 60 * 1000).toISOString();
 
   const { data: existing } = await db.from("prospect_previews").select("token").eq("prospect_id", id).maybeSingle();
@@ -189,7 +201,7 @@ export async function createProspectPreview(id: string): Promise<ActionResult> {
     description: copy.description,
     space_type: SPECIALTY_SPACE_TYPE[specialty ?? "med"],
     neighborhood: parseNeighborhood(prospect.address) ?? "Centro",
-    city: CITY,
+    city: prospect.city ?? CITY,
     state: STATE,
     amenities: exampleAmenities(specialty),
     generated_by: copy.generated_by,

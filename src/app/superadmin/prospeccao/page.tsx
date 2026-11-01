@@ -47,8 +47,9 @@ async function Prospects({ searchParams }: { searchParams: PageProps<"/superadmi
   const q = first(query.q);
   const channel = first(query.canal);
   const area = first(query.area);
+  const city = first(query.cidade);
   const page = Number(first(query.p)) || 1;
-  const { items, total, byStatus, all, specialtyCounts, totalAll } = await loadProspects({ status, q, channel, specialty: area, page });
+  const { items, total, byStatus, all, specialtyCounts, cities, totalAll } = await loadProspects({ status, q, channel, specialty: area, city, page });
 
   if (totalAll === 0) {
     return (
@@ -78,11 +79,11 @@ async function Prospects({ searchParams }: { searchParams: PageProps<"/superadmi
       </div>
 
       <nav aria-label="Filtrar por status" className="mb-4 flex flex-wrap gap-1.5">
-        <Link href={href({ q, canal: channel, area })} className={`sa-btn sa-btn-sm ${status ? "sa-btn-ghost" : "sa-btn-outline"}`}>
+        <Link href={href({ q, canal: channel, area, cidade: city })} className={`sa-btn sa-btn-sm ${status ? "sa-btn-ghost" : "sa-btn-outline"}`}>
           Todos <span className="text-sa-muted">{all}</span>
         </Link>
         {PROSPECT_STATUS_KEYS.map((key) => (
-          <Link key={key} href={href({ status: key, q, canal: channel, area })} className={`sa-btn sa-btn-sm ${status === key ? "sa-btn-outline" : "sa-btn-ghost"}`}>
+          <Link key={key} href={href({ status: key, q, canal: channel, area, cidade: city })} className={`sa-btn sa-btn-sm ${status === key ? "sa-btn-outline" : "sa-btn-ghost"}`}>
             {PROSPECT_STATUSES[key]} <span className="text-sa-muted">{byStatus[key] ?? 0}</span>
           </Link>
         ))}
@@ -102,6 +103,15 @@ async function Prospects({ searchParams }: { searchParams: PageProps<"/superadmi
             </option>
           ))}
           <option value="sem_area">Sem área ({specialtyCounts.sem_area ?? 0})</option>
+        </select>
+        <select name="cidade" defaultValue={city ?? ""} aria-label="Cidade" className="sa-input w-auto min-w-40 pr-8">
+          <option value="">Todas as cidades</option>
+          {cities.map((item) => (
+            <option key={item.name} value={item.name}>
+              {item.name} ({item.count})
+            </option>
+          ))}
+          {city && !cities.some((item) => item.name === city) && <option value={city}>{city}</option>}
         </select>
         <select name="canal" defaultValue={channel ?? ""} aria-label="Canal" className="sa-input w-auto min-w-40 pr-8">
           <option value="">Todos os canais</option>
@@ -126,12 +136,12 @@ async function Prospects({ searchParams }: { searchParams: PageProps<"/superadmi
               </span>
               <span className="flex gap-1.5">
                 {page > 1 && (
-                  <Link href={href({ status, q, canal: channel, area, p: page - 1 })} className="sa-btn sa-btn-outline sa-btn-sm">
+                  <Link href={href({ status, q, canal: channel, area, cidade: city, p: page - 1 })} className="sa-btn sa-btn-outline sa-btn-sm">
                     Anterior
                   </Link>
                 )}
                 {page * PAGE_SIZE < total && (
-                  <Link href={href({ status, q, canal: channel, area, p: page + 1 })} className="sa-btn sa-btn-outline sa-btn-sm">
+                  <Link href={href({ status, q, canal: channel, area, cidade: city, p: page + 1 })} className="sa-btn sa-btn-outline sa-btn-sm">
                     Próxima
                   </Link>
                 )}
@@ -144,6 +154,7 @@ async function Prospects({ searchParams }: { searchParams: PageProps<"/superadmi
               <tr>
                 <th scope="col">Local</th>
                 <th scope="col">Área</th>
+                <th scope="col">Cidade</th>
                 <th scope="col">Canal</th>
                 <th scope="col">Status</th>
                 <th scope="col">Toques</th>
@@ -160,6 +171,7 @@ async function Prospects({ searchParams }: { searchParams: PageProps<"/superadmi
                     <span className="block truncate text-sa-xs text-sa-muted">{item.address ?? "Sem endereço"}</span>
                   </td>
                   <td className="whitespace-nowrap text-sa-body">{item.specialty ? SPECIALTIES[item.specialty as Specialty] : "—"}</td>
+                  <td className="whitespace-nowrap text-sa-body">{item.city ?? "—"}</td>
                   <td>{item.whatsapp_number ? <Badge tone="success">WhatsApp</Badge> : <Badge>Sem WhatsApp</Badge>}</td>
                   <td>
                     <ProspectStatusBadge status={item.status} />

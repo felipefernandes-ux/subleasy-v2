@@ -53,6 +53,15 @@ export function ProspectImportForm() {
         </div>
       </Card>
 
+      <Card>
+        <CardHeader title="3. Cidade" description="Em qual cidade esses contatos ficam. A coluna “cidade” da planilha tem prioridade." />
+        <div className="p-5">
+          <Field label="Cidade padrão" htmlFor="city" hint="Vale para as linhas em que a coluna “cidade” está vazia ou não existe.">
+            <input id="city" name="city" type="text" maxLength={80} placeholder="Maringá" className="sa-input" />
+          </Field>
+        </div>
+      </Card>
+
       {state.status === "error" && (
         <p role="alert" className="rounded-sa-card border border-danger-600/30 bg-[#fde4e1] px-4 py-3 text-sa-base text-[#7a1b12]">
           {state.error}

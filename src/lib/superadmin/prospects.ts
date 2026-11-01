@@ -10,10 +10,10 @@ export type ProspectClaim = Database["public"]["Tables"]["prospect_claims"]["Row
 
 export type ProspectListItem = Pick<
   Prospect,
-  "id" | "name" | "address" | "priority" | "specialty" | "status" | "whatsapp_number" | "touches" | "last_contact_at" | "message_model"
+  "id" | "name" | "address" | "priority" | "specialty" | "city" | "status" | "whatsapp_number" | "touches" | "last_contact_at" | "message_model"
 > & { previewViews: number; hasPreview: boolean; pendingClaims: number };
 
-export type ProspectFilters = { status?: string; q?: string; channel?: string; specialty?: string; page?: number };
+export type ProspectFilters = { status?: string; q?: string; channel?: string; specialty?: string; city?: string; page?: number };
 
 export const PAGE_SIZE = 50;
 
@@ -30,12 +30,13 @@ export async function loadProspects(filters: ProspectFilters) {
 
   let query = db
     .from("prospects")
-    .select("id, name, address, priority, specialty, status, whatsapp_number, touches, last_contact_at, message_model", { count: "exact" })
+    .select("id, name, address, priority, specialty, city, status, whatsapp_number, touches, last_contact_at, message_model", { count: "exact" })
     .order("priority", { ascending: false, nullsFirst: false })
     .order("name")
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
   if (filters.status && (PROSPECT_STATUS_KEYS as string[]).includes(filters.status)) query = query.eq("status", filters.status);
+  if (filters.city) query = query.eq("city", filters.city);
   if (filters.specialty === "sem_area") query = query.is("specialty", null);
   else if (filters.specialty && filters.specialty in SPECIALTIES) query = query.eq("specialty", filters.specialty);
   if (filters.channel === "whatsapp") query = query.not("whatsapp_number", "is", null);
@@ -43,7 +44,7 @@ export async function loadProspects(filters: ProspectFilters) {
   const q = filters.q?.trim().replace(/[%,()]/g, " ");
   if (q) query = query.or(`name.ilike.%${q}%,address.ilike.%${q}%`);
 
-  const [{ data, count, error }, statuses] = await Promise.all([query, db.from("prospects").select("status, specialty")]);
+  const [{ data, count, error }, statuses] = await Promise.all([query, db.from("prospects").select("status, specialty, city")]);
   if (error) throw new Error(`Não foi possível ler os prospects: ${error.message}`);
 
   const ids = (data ?? []).map((row) => row.id);
@@ -57,15 +58,20 @@ export async function loadProspects(filters: ProspectFilters) {
 
   // A contagem por área alimenta o filtro; os totais por status respeitam a área escolhida.
   const specialtyCounts: Record<string, number> = {};
+  const cityCounts = new Map<string, number>();
   const byStatus: Record<string, number> = {};
   let all = 0;
   for (const row of statuses.data ?? []) {
+    if (row.city) cityCounts.set(row.city, (cityCounts.get(row.city) ?? 0) + 1);
     const area = row.specialty ?? "sem_area";
     specialtyCounts[area] = (specialtyCounts[area] ?? 0) + 1;
     if (filters.specialty && area !== filters.specialty) continue;
+    if (filters.city && row.city !== filters.city) continue;
     byStatus[row.status] = (byStatus[row.status] ?? 0) + 1;
     all++;
   }
+
+  const cities = [...cityCounts].sort((a, b) => a[0].localeCompare(b[0], "pt-BR")).map(([name, count]) => ({ name, count }));
 
   const items: ProspectListItem[] = (data ?? []).map((row) => ({
     ...row,
@@ -73,7 +79,7 @@ export async function loadProspects(filters: ProspectFilters) {
     previewViews: previewBy.get(row.id) ?? 0,
     pendingClaims: claimsBy.get(row.id) ?? 0,
   }));
-  return { items, total: count ?? 0, page, byStatus: byStatus as Partial<Record<ProspectStatus, number>>, all, specialtyCounts, totalAll: statuses.data?.length ?? 0 };
+  return { items, total: count ?? 0, page, byStatus: byStatus as Partial<Record<ProspectStatus, number>>, all, specialtyCounts, cities, totalAll: statuses.data?.length ?? 0 };
 }
 
 /** Um prospect com prévia, linha do tempo e pedidos. Chame depois de requireAdmin(). */
