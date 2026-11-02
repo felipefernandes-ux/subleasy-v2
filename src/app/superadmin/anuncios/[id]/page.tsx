@@ -72,10 +72,10 @@ async function ListingDetail({
             <ButtonLink href="/anuncios" variant="ghost" className="max-lg:hidden">
               Voltar
             </ButtonLink>
-            {/* /espaco/[slug] mostra uma prévia para o admin mesmo se o anúncio não estiver no ar. */}
-            <ButtonLink href={`${publicOrigin}/espaco/${listing.slug}`} target="_blank" rel="noopener">
+            {/* Fora do ar, a prévia abre neste mesmo domínio: a sessão do admin não vale em subleasy.com.br. */}
+            <ButtonLink href={row.status === "active" ? `${publicOrigin}/espaco/${listing.slug}` : `/espaco/${listing.slug}`} target="_blank" rel="noopener">
               <ArrowSquareOutIcon className="size-4" weight="bold" aria-hidden />
-              Ver ao vivo
+              {row.status === "active" ? "Ver ao vivo" : "Ver prévia"}
             </ButtonLink>
             <ButtonLink href={`/anuncios/${id}/editar`} variant="primary">
               <PencilSimpleIcon className="size-4" weight="bold" aria-hidden />
