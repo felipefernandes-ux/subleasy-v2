@@ -8,6 +8,7 @@ import { Badge, ButtonLink, Card, PageHeader, StatCard, TableCard } from "@/comp
 import { PROSPECT_STATUSES, PROSPECT_STATUS_KEYS, SPECIALTIES, type Specialty } from "@/lib/prospecting/status";
 import { requireAdmin } from "@/lib/superadmin/auth";
 import { PAGE_SIZE, loadProspects } from "@/lib/superadmin/prospects";
+import { TableSkeleton } from "@/components/superadmin/skeletons";
 
 export const metadata: Metadata = { title: "Prospects" };
 
@@ -24,7 +25,7 @@ export default function ProspectsPage({ searchParams }: PageProps<"/superadmin/p
           </ButtonLink>
         }
       />
-      <Suspense fallback={<p className="py-10 text-center text-sa-muted">Carregando…</p>}>
+      <Suspense fallback={<TableSkeleton label="Carregando prospects" tabs={5} filters={3} />}>
         <Prospects searchParams={searchParams} />
       </Suspense>
     </>

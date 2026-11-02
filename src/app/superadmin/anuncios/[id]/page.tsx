@@ -24,12 +24,13 @@ import { AMENITIES, BILLING_TYPES, HIGHLIGHTS, OFFERS, SPACE_TYPES, formatWhatsA
 import { getPublicOrigin } from "@/lib/origin";
 import { loadListingFull } from "@/lib/superadmin/listing-detail";
 import { loadAdminListings } from "@/lib/superadmin/listings";
+import { DetailSkeleton } from "@/components/superadmin/skeletons";
 
 export const metadata: Metadata = { title: "Anúncio" };
 
 export default function ListingDetailPage({ params, searchParams }: PageProps<"/superadmin/anuncios/[id]">) {
   return (
-    <Suspense fallback={<p className="py-10 text-center text-sa-muted">Carregando anúncio…</p>}>
+    <Suspense fallback={<DetailSkeleton label="Carregando anúncio" />}>
       <ListingDetail params={params} searchParams={searchParams} />
     </Suspense>
   );

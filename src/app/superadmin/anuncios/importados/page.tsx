@@ -5,6 +5,7 @@ import { ListingsTable } from "@/components/superadmin/listings-table";
 import { Button, Card, PageHeader } from "@/components/superadmin/ui";
 import { requireAdmin } from "@/lib/superadmin/auth";
 import { loadAdminListings } from "@/lib/superadmin/listings";
+import { TableSkeleton } from "@/components/superadmin/skeletons";
 
 export const metadata: Metadata = { title: "Importados sem dono" };
 
@@ -21,7 +22,7 @@ export default function ImportedListingsPage() {
           </Button>
         }
       />
-      <Suspense fallback={<p className="py-10 text-center text-sa-muted">Carregando…</p>}>
+      <Suspense fallback={<TableSkeleton label="Carregando importados" />}>
         <Imported />
       </Suspense>
     </>

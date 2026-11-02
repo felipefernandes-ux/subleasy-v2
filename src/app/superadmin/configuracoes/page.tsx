@@ -4,6 +4,7 @@ import { PlusIcon, ShieldCheckIcon } from "@phosphor-icons/react/ssr";
 import { Avatar, Badge, Button, Card, PageHeader, TableCard } from "@/components/superadmin/ui";
 import { requireAdmin } from "@/lib/superadmin/auth";
 import { loadAdmins } from "@/lib/superadmin/admins";
+import { TableSkeleton } from "@/components/superadmin/skeletons";
 
 export const metadata: Metadata = { title: "Administradores" };
 
@@ -20,7 +21,7 @@ export default function AdminsPage() {
           </Button>
         }
       />
-      <Suspense fallback={<p className="py-10 text-center text-sa-muted">Carregando…</p>}>
+      <Suspense fallback={<TableSkeleton label="Carregando admins" rows={4} />}>
         <Admins />
       </Suspense>
     </>

@@ -6,6 +6,7 @@ import { EmptyState, QuietTimelineArt } from "@/components/superadmin/empty-stat
 import { createClient } from "@/lib/supabase/server";
 import { AUDIT_ACTIONS } from "@/lib/superadmin/audit";
 import { requireAdmin } from "@/lib/superadmin/auth";
+import { TableSkeleton } from "@/components/superadmin/skeletons";
 
 export const metadata: Metadata = { title: "Registro de auditoria" };
 
@@ -21,7 +22,7 @@ export default function AuditPage() {
         title="Registro de auditoria"
         description="Cada ação do admin grava quem fez, quando, o quê e o motivo. O registro só cresce: não tem edição nem exclusão, nem para você."
       />
-      <Suspense fallback={<p className="py-10 text-center text-sa-muted">Carregando registro…</p>}>
+      <Suspense fallback={<TableSkeleton label="Carregando registro" rows={8} thumb={false} />}>
         <AuditData />
       </Suspense>
     </>

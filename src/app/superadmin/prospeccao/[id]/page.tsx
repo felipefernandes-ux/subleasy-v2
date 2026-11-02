@@ -10,12 +10,13 @@ import { buildMessage, whatsappLink } from "@/lib/prospecting/messages";
 import { SPECIALTIES, type Specialty } from "@/lib/prospecting/status";
 import { requireAdmin } from "@/lib/superadmin/auth";
 import { loadProspect, previewUrl } from "@/lib/superadmin/prospects";
+import { DetailSkeleton } from "@/components/superadmin/skeletons";
 
 export const metadata: Metadata = { title: "Prospect" };
 
 export default function ProspectDetailPage({ params }: PageProps<"/superadmin/prospeccao/[id]">) {
   return (
-    <Suspense fallback={<p className="py-10 text-center text-sa-muted">Carregando…</p>}>
+    <Suspense fallback={<DetailSkeleton label="Carregando prospect" />}>
       <ProspectDetail params={params} />
     </Suspense>
   );

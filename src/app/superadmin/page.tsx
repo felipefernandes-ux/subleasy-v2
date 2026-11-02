@@ -17,6 +17,7 @@ import { getAdminIdentity, requireAdmin } from "@/lib/superadmin/auth";
 import { loadDailyNumbers } from "@/lib/superadmin/daily-numbers";
 import { loadAdminListings } from "@/lib/superadmin/listings";
 import { loadTrafficNumbers, type TrafficPair } from "@/lib/superadmin/posthog-analytics";
+import { DailyNumbersSkeleton, QueueSkeleton, RowsSkeleton, StatCardsSkeleton } from "@/components/superadmin/skeletons";
 
 export const metadata: Metadata = { title: "Início" };
 
@@ -38,7 +39,7 @@ export default function SuperAdminHome() {
             label: "Anúncios",
             content: (
               <section aria-label="Fila do dia" className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-                <Suspense fallback={<p className="col-span-2 text-sa-sm text-sa-muted xl:col-span-4">Carregando…</p>}>
+                <Suspense fallback={<QueueSkeleton />}>
                   <DayQueue />
                 </Suspense>
               </section>
@@ -49,7 +50,7 @@ export default function SuperAdminHome() {
             label: "Tráfego do site",
             content: (
               <section aria-label="Tráfego do site">
-                <Suspense fallback={<p className="py-6 text-sa-sm text-sa-muted">Carregando…</p>}>
+                <Suspense fallback={<StatCardsSkeleton />}>
                   <TrafficNumbers />
                 </Suspense>
               </section>
@@ -59,7 +60,7 @@ export default function SuperAdminHome() {
       />
 
       <section aria-label="Números do dia" className="mt-8">
-        <Suspense fallback={<p className="py-6 text-sa-sm text-sa-muted">Carregando…</p>}>
+        <Suspense fallback={<DailyNumbersSkeleton />}>
           <DailyNumbers />
         </Suspense>
       </section>
@@ -71,7 +72,7 @@ export default function SuperAdminHome() {
             description="Do mais antigo para o mais novo."
             action={<ButtonLink href="/anuncios/revisao" small>Ver todos</ButtonLink>}
           />
-          <Suspense fallback={<p className="px-5 py-8 text-center text-sa-sm text-sa-muted">Carregando…</p>}>
+          <Suspense fallback={<RowsSkeleton rows={4} thumb={false} />}>
             <ReviewList />
           </Suspense>
         </Card>

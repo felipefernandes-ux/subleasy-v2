@@ -306,26 +306,47 @@ export function Select({ label, options, className }: { label: string; options: 
   );
 }
 
-/** Abas de filtro: só visual, sem estado. A aba ativa vem por parâmetro. */
-export function Segmented({ items, active }: { items: Array<{ label: string; count?: number }>; active: string }) {
+/** Abas de filtro. Sem `onChange` são só visuais; com ele viram botões e a aba ativa vem por parâmetro. */
+export function Segmented({
+  items,
+  active,
+  onChange,
+}: {
+  items: Array<{ label: string; count?: number }>;
+  active: string;
+  onChange?: (label: string) => void;
+}) {
   return (
-    <div role="tablist" className="flex gap-1 border-b border-sa-line">
+    <div role="tablist" className="flex gap-1 overflow-x-auto border-b border-sa-line [scrollbar-width:none]">
       {items.map((item) => {
         const current = item.label === active;
-        return (
-          <span
-            key={item.label}
-            role="tab"
-            aria-selected={current}
-            className={cx(
-              "-mb-px flex items-center gap-1.5 border-b-2 px-3 pb-2.5 pt-1 text-sa-base",
-              current ? "border-brand-600 font-semibold text-brand-700" : "border-transparent text-sa-muted",
-            )}
-          >
+        const className = cx(
+          "-mb-px flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 px-3 pb-2.5 pt-1 text-sa-base transition-colors duration-200",
+          current ? "border-brand-600 font-semibold text-brand-700" : "border-transparent text-sa-muted",
+          onChange && !current && "hover:text-sa-ink",
+        );
+        const content = (
+          <>
             {item.label}
             {item.count !== undefined && (
-              <span className="rounded-sa-badge bg-sa-haze px-1.5 text-sa-xs text-sa-body">{item.count}</span>
+              <span
+                className={cx(
+                  "rounded-sa-badge px-1.5 text-sa-xs transition-colors duration-200",
+                  current ? "bg-brand-50 text-brand-700" : "bg-sa-haze text-sa-body",
+                )}
+              >
+                {item.count}
+              </span>
             )}
+          </>
+        );
+        return onChange ? (
+          <button key={item.label} type="button" role="tab" aria-selected={current} onClick={() => onChange(item.label)} className={className}>
+            {content}
+          </button>
+        ) : (
+          <span key={item.label} role="tab" aria-selected={current} className={className}>
+            {content}
           </span>
         );
       })}

@@ -23,12 +23,13 @@ import {
 import { requireAdmin } from "@/lib/superadmin/auth";
 import { loadAdminListings } from "@/lib/superadmin/listings";
 import { loadAdminUsers } from "@/lib/superadmin/users";
+import { DetailSkeleton } from "@/components/superadmin/skeletons";
 
 export const metadata: Metadata = { title: "Ficha do usuário" };
 
 export default function UserDetailPage({ params }: PageProps<"/superadmin/usuarios/[id]">) {
   return (
-    <Suspense fallback={<p className="py-10 text-center text-sa-muted">Carregando ficha…</p>}>
+    <Suspense fallback={<DetailSkeleton label="Carregando ficha" />}>
       <UserDetail params={params} />
     </Suspense>
   );

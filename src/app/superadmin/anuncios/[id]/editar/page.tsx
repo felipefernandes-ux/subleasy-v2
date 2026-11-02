@@ -5,12 +5,13 @@ import { ButtonLink, PageHeader } from "@/components/superadmin/ui";
 import { ListingEditForm } from "@/components/superadmin/listing-edit-form";
 import { requireAdmin } from "@/lib/superadmin/auth";
 import { loadListingFull } from "@/lib/superadmin/listing-detail";
+import { DetailSkeleton } from "@/components/superadmin/skeletons";
 
 export const metadata: Metadata = { title: "Editar anúncio" };
 
 export default function EditListingPage({ params }: PageProps<"/superadmin/anuncios/[id]/editar">) {
   return (
-    <Suspense fallback={<p className="py-10 text-center text-sa-muted">Carregando anúncio…</p>}>
+    <Suspense fallback={<DetailSkeleton label="Carregando anúncio" />}>
       <EditListing params={params} />
     </Suspense>
   );

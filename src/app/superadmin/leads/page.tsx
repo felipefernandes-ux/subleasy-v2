@@ -14,6 +14,7 @@ import {
 import { EmptyState, QueueClearArt } from "@/components/superadmin/empty-state";
 import { requireAdmin } from "@/lib/superadmin/auth";
 import { loadLeads } from "@/lib/superadmin/leads";
+import { TableSkeleton, StatCardsSkeleton } from "@/components/superadmin/skeletons";
 
 export const metadata: Metadata = { title: "Base de leads" };
 
@@ -31,7 +32,7 @@ export default function LeadsPage() {
         }
       />
       <BrevoSyncCard />
-      <Suspense fallback={<p className="py-10 text-center text-sa-muted">Carregando…</p>}>
+      <Suspense fallback={<><StatCardsSkeleton count={3} className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3" /><TableSkeleton label="Carregando contatos" /></>}>
         <Leads />
       </Suspense>
     </>
