@@ -4,6 +4,8 @@
  * o fluxo continua funcionando em desenvolvimento.
  */
 
+import { noteToPlainText, parseInline, parseNote } from "./note-format";
+
 const RESEND_URL = "https://api.resend.com/emails";
 // Sem domínio verificado no Resend, só o remetente de teste funciona,
 // e ele só entrega para o e-mail da própria conta do Resend.
@@ -33,7 +35,8 @@ type Email = {
   to: string;
   subject: string;
   heading: string;
-  paragraphs: string[];
+  /** Texto simples, ou { note } para a nota da equipe (parágrafos, listas e negrito). */
+  paragraphs: (string | { note: string })[];
   card?: EmailCard;
   cta?: { label: string; url: string };
   /** Código de verificação, em destaque. */
@@ -152,7 +155,7 @@ export function listingReturnedEmail(to: string, name: string, title: string, no
     heading: "Falta um ajuste para publicar",
     paragraphs: [
       `Oi, ${firstName(name)}. Revisamos o anúncio ${bold(title)} e ele precisa de um ajuste antes de ir ao ar:`,
-      note,
+      { note },
       "Corrija e envie de novo. A nova revisão também leva até " + REVIEW_TIME + ".",
     ],
     cta: { label: "Corrigir anúncio", url },
@@ -194,7 +197,7 @@ function escape(value: string) {
 // Cabeçalho em brand-600 com o logo branco; botões também em brand-600 (bgcolor para o Outlook).
 export function renderEmailHtml({ heading, paragraphs, card, cta, code, footnote }: Email) {
   const body = paragraphs
-    .map((p) => `<p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#344054;">${richText(p)}</p>`)
+    .map((p) => (typeof p === "string" ? `<p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#344054;">${richText(p)}</p>` : renderNote(p.note)))
     .join("");
   const cardBlock = card ? renderCard(card) : "";
   const codeBlock = code
@@ -217,6 +220,25 @@ ${body}${cardBlock}${codeBlock}${button}${note}
 </td></tr></table>
 <p style="margin:16px 0 0;font-size:12px;color:#98a2b3;">Subleasy · Sua sala no turno certo.</p>
 </td></tr></table></body></html>`;
+}
+
+const NOTE_TEXT = "font-size:16px;line-height:1.6;color:#344054;";
+const noteInline = (text: string) =>
+  parseInline(text)
+    .map((span) => (span.bold ? `<strong style="color:#101828;">${escape(span.text)}</strong>` : escape(span.text)))
+    .join("")
+    .replace(/\n/g, "<br>");
+
+/** Nota da equipe em HTML de e-mail: parágrafos, listas e negrito, sempre escapados. */
+function renderNote(note: string) {
+  return parseNote(note)
+    .map((block) => {
+      if (block.type === "p") return `<p style="margin:0 0 16px;${NOTE_TEXT}">${noteInline(block.text)}</p>`;
+      const items = block.items.map((item) => `<li style="margin:0 0 6px;">${noteInline(item)}</li>`).join("");
+      const tag = block.type;
+      return `<${tag} style="margin:0 0 16px;padding-left:24px;${NOTE_TEXT}">${items}</${tag}>`;
+    })
+    .join("");
 }
 
 /** Parágrafo escapado, com os títulos marcados por bold() em negrito. */
@@ -242,7 +264,7 @@ function renderCard({ image, status, title, place, price }: EmailCard) {
 }
 
 function renderText({ heading, paragraphs, card, cta, code, footnote }: Email) {
-  return [heading, "", ...paragraphs.map(stripMarks), "", card ? `“${card.title}” · ${card.place} · ${card.price}` : "", "", code ? `Código: ${code}` : "", "", cta ? `${cta.label}: ${cta.url}` : "", footnote ?? ""]
+  return [heading, "", ...paragraphs.map((p) => (typeof p === "string" ? stripMarks(p) : noteToPlainText(p.note))), "", card ? `“${card.title}” · ${card.place} · ${card.price}` : "", "", code ? `Código: ${code}` : "", "", cta ? `${cta.label}: ${cta.url}` : "", footnote ?? ""]
     .filter((line, index, all) => line !== "" || all[index - 1] !== "")
     .join("\n")
     .trim();

@@ -5,6 +5,7 @@ import { startTransition, useActionState, useId, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useSearchParams } from "next/navigation";
 import { CircleNotchIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import posthog from "posthog-js";
 import {
   requestLoginCode,
   signInWithGoogle,
@@ -134,7 +135,7 @@ export function AuthForm({
         </p>
       )}
 
-      <form action={signInWithGoogle} className="mt-8">
+      <form action={signInWithGoogle} onSubmit={() => posthog.capture("google_sign_in_started", { auth_mode: mode })} className="mt-8">
         <input type="hidden" name="next" value={next} />
         <input type="hidden" name="mode" value={mode} />
         <GoogleButton label={copy.google} />
@@ -146,7 +147,7 @@ export function AuthForm({
         <span className="h-px flex-1 bg-ink-200" />
       </div>
 
-      <form action={formAction} noValidate>
+      <form action={formAction} onSubmit={() => posthog.capture("authentication_code_requested", { auth_mode: mode })} noValidate>
         <input type="hidden" name="next" value={next} />
         <input type="hidden" name="mode" value={mode} />
         <label htmlFor={emailId} className="block text-sm font-bold text-ink-800">

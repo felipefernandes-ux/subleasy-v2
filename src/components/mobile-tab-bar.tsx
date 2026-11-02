@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import posthog from "posthog-js";
 import {
   ArrowSquareOutIcon,
   CaretRightIcon,
@@ -20,6 +21,7 @@ import {
 } from "@phosphor-icons/react";
 import { signOut } from "@/app/actions/auth";
 import { isAdminHost } from "@/lib/admin-host";
+import { createClient } from "@/lib/supabase/client";
 import { useSignedIn } from "@/lib/use-signed-in";
 import { AnnounceAiIcon } from "./announce-ai-icon";
 import { AnnounceButton } from "./announce-button";
@@ -34,12 +36,62 @@ const TAB_BAR_HIDDEN = [/^\/painel\/anuncios\/[^/]+\/editar/];
 /** Mostra a barra só nas rotas de TAB_BAR_ROUTES e na home. Vive no layout raiz, então não some ao navegar. */
 export function TabBarGate() {
   const pathname = usePathname();
+  const identifiedUserId = useRef<string | null>(null);
   // No admin.<domínio> a raiz e /configuracoes são do Super Admin, que tem a própria barra.
   const onAdminHost = useSyncExternalStore(
     () => () => {},
     () => isAdminHost(window.location.host),
     () => false,
   );
+
+  useEffect(() => {
+    if (!process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN || !process.env.NEXT_PUBLIC_POSTHOG_HOST) return;
+
+    const supabase = createClient();
+    let active = true;
+
+    const identify = (user: { id: string; email?: string; user_metadata: Record<string, unknown> }) => {
+      const previousUserId = identifiedUserId.current ?? posthog.get_property("$user_id");
+      if (previousUserId && previousUserId !== user.id) posthog.reset();
+
+      const personProperties: Record<string, string> = {};
+      if (user.email) personProperties.email = user.email;
+      const name = user.user_metadata.full_name ?? user.user_metadata.name;
+      if (typeof name === "string" && name) personProperties.name = name;
+
+      posthog.identify(user.id, personProperties);
+      identifiedUserId.current = user.id;
+    };
+
+    const syncSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!active) return;
+      if (session?.user) {
+        if (identifiedUserId.current !== session.user.id) identify(session.user);
+      } else if (identifiedUserId.current || posthog.get_property("$user_id")) {
+        posthog.reset();
+        identifiedUserId.current = null;
+      }
+    };
+
+    void syncSession();
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        posthog.reset();
+        identifiedUserId.current = null;
+      } else if (session?.user && (event === "SIGNED_IN" || event === "USER_UPDATED")) {
+        identify(session.user);
+      }
+    });
+
+    return () => {
+      active = false;
+      data.subscription.unsubscribe();
+    };
+  }, []);
+
   const show =
     !onAdminHost &&
     (pathname === "/" || TAB_BAR_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`))) &&

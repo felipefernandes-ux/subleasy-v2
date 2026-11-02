@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
-import { EXTRACTION_MODEL, geminiClient } from "@/lib/ai";
+import { EXTRACTION_MODEL, aiObservabilityOptions, geminiClient } from "@/lib/ai";
 import { AMENITIES, SPACE_TYPES } from "@/lib/listing-options";
 import { parseNeighborhood } from "./import";
 import { SPECIALTIES, SPECIALTY_SPACE_TYPE, type Specialty } from "./status";
@@ -152,6 +152,7 @@ export async function generatePreviewCopy(input: CopyInput): Promise<PreviewCopy
         },
       ],
       response_format: zodResponseFormat(copySchema, "anuncio"),
+      ...aiObservabilityOptions(),
     });
     const parsed = response.choices[0]?.message.parsed;
     if (!parsed) return fallback;

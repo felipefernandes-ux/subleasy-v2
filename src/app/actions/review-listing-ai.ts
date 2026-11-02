@@ -3,7 +3,7 @@
 import { zodResponseFormat } from "openai/helpers/zod";
 import type { ChatCompletionContentPart } from "openai/resources/chat/completions";
 import { z } from "zod";
-import { EXTRACTION_MODEL, aiErrorMessage, geminiClient } from "@/lib/ai";
+import { EXTRACTION_MODEL, aiErrorMessage, aiObservabilityOptions, geminiClient } from "@/lib/ai";
 import { checkListing } from "@/lib/listing-review";
 import { AMENITIES, SPACE_TYPES, photoUrl, type SpaceType } from "@/lib/listing-options";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -51,7 +51,9 @@ Regras da nota:
 - Português do Brasil, tratando o anunciante por "você", tom cordial e direto.
 - Comece pelo que está bom, em uma frase. Depois liste no máximo 5 ajustes, um por linha, cada um com o que mudar e como (use o exemplo do próprio anúncio quando ajudar).
 - Cite as fotos pelo número (foto 1, foto 2).
-- Máximo de ${NOTE_MAX - 100} caracteres. Sem markdown, sem emojis.
+- Escreva com a acentuação e a cedilha corretas do português (ação, não, você, será, é). Nunca omita acentos.
+- Formatação permitida, só esta: parágrafos separados por uma linha em branco, lista com "- " no início de cada linha e **negrito** com dois asteriscos para destacar a palavra-chave de cada ajuste. Quebre as linhas de verdade. Sem títulos, tabelas, links nem emojis.
+- Máximo de ${NOTE_MAX - 100} caracteres.
 - Use só o que está no anúncio e nas fotos. Nunca invente defeito. Os "problemas medidos" já são fatos: inclua os que importam.`;
 
 /** Baixa a foto e devolve como data URL: o Gemini não busca imagens por link no endpoint compatível. */
@@ -76,6 +78,9 @@ export async function reviewListingAI(listingId: string): Promise<ReviewListingR
   const supabase = await createClient();
   const { data: isAdmin } = await supabase.rpc("is_admin");
   if (!isAdmin) return { ok: false, error: "Sem permissão." };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const ai = geminiClient();
   if (!ai) return { ok: false, error: "Serviço de IA não configurado." };
@@ -124,6 +129,7 @@ export async function reviewListingAI(listingId: string): Promise<ReviewListingR
         { role: "user", content: [{ type: "text", text: `<anuncio>\n${facts}\n</anuncio>` }, ...photoParts] },
       ],
       response_format: zodResponseFormat(reviewSchema, "revisao"),
+      ...aiObservabilityOptions(user?.id),
     });
     const review = response.choices[0]?.message.parsed;
     if (!review || !review.note.trim()) return { ok: false, error: "A IA não devolveu uma análise. Tente de novo." };

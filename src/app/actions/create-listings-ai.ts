@@ -2,7 +2,7 @@
 
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
-import { EXTRACTION_MODEL, aiErrorMessage, geminiClient } from "@/lib/ai";
+import { EXTRACTION_MODEL, aiErrorMessage, aiObservabilityOptions, geminiClient } from "@/lib/ai";
 import { AMENITIES, BILLING_TYPE_KEYS, HIGHLIGHTS, HIGHLIGHT_KEYS, MAX_HIGHLIGHTS, SPACE_TYPE_KEYS } from "@/lib/listing-options";
 import { createClient } from "@/lib/supabase/server";
 import type { AIExtraction } from "@/lib/wizard-draft";
@@ -125,6 +125,7 @@ export async function createListingAI(rawText: string): Promise<CreateListingAIR
         { role: "user", content: text },
       ],
       response_format: zodResponseFormat(extractionSchema, "listing"),
+      ...aiObservabilityOptions(user.id),
     });
 
     const extracted = response.choices[0]?.message.parsed;

@@ -1,20 +1,56 @@
+import { randomUUID } from "node:crypto";
+import { OpenAI as PostHogOpenAI } from "@posthog/ai/openai";
 import OpenAI from "openai";
+import { PostHog } from "posthog-node";
 
 // Gemini pelo endpoint compatível com a SDK da OpenAI (plano gratuito do Google AI Studio).
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/";
 export const EXTRACTION_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash-lite";
+const posthogToken = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
+const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+const posthog =
+  posthogToken && posthogHost
+    ? new PostHog(posthogToken, {
+        host: posthogHost,
+        privacyMode: false,
+        enableExceptionAutocapture: true,
+        flushAt: 1,
+        flushInterval: 0,
+      })
+    : null;
+
+if (!posthog && process.env.NODE_ENV === "development") {
+  const missingVariable = posthogToken ? "NEXT_PUBLIC_POSTHOG_HOST" : "NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN";
+  console.error(
+    `${missingVariable} variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once ${missingVariable} is configured`,
+  );
+}
 // Trocar o modelo de embedding exige regerar os vetores de todos os anúncios.
 const EMBEDDING_MODEL = "gemini-embedding-001";
 const EMBEDDING_DIMENSIONS = 1536;
 
 /** Cliente do Gemini, ou null quando falta GEMINI_API_KEY no .env.local. */
-export function geminiClient() {
+export function geminiClient(): OpenAI | null {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     console.error("[ai] Falta GEMINI_API_KEY no .env.local");
     return null;
   }
-  return new OpenAI({ apiKey, baseURL: GEMINI_BASE_URL, timeout: 30_000 });
+  if (!posthog) return new OpenAI({ apiKey, baseURL: GEMINI_BASE_URL, timeout: 30_000 });
+  return new PostHogOpenAI({ apiKey, baseURL: GEMINI_BASE_URL, timeout: 30_000, posthog }) as unknown as OpenAI;
+}
+
+/** Contexto da observabilidade para uma única chamada de IA. */
+export function aiObservabilityOptions(distinctId?: string) {
+  if (!posthog) return {};
+  return {
+    ...(distinctId ? { posthogDistinctId: distinctId } : {}),
+    posthogTraceId: randomUUID(),
+    posthogProperties: {
+      $ai_session_id: `process-${process.pid}`,
+      $ai_provider: "google",
+    },
+  };
 }
 
 type EmbeddableListing = {
@@ -30,11 +66,12 @@ type EmbeddableListing = {
 };
 
 /** Vetor do anúncio para a busca semântica, no formato de texto do pgvector. */
-export async function embedListing(ai: OpenAI, listing: EmbeddableListing) {
+export async function embedListing(ai: OpenAI, listing: EmbeddableListing, observability = aiObservabilityOptions()) {
   const result = await ai.embeddings.create({
     model: EMBEDDING_MODEL,
     input: embeddingInput(listing),
     dimensions: EMBEDDING_DIMENSIONS,
+    ...observability,
   });
   const embedding = result.data[0]?.embedding ?? [];
   if (embedding.length !== EMBEDDING_DIMENSIONS) {

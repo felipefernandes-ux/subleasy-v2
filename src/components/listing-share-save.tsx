@@ -22,6 +22,7 @@ import {
   XIcon,
   XLogoIcon,
 } from "@phosphor-icons/react";
+import posthog from "posthog-js";
 import { createFavoriteList, getFavoriteState, toggleFavorite, type FavoriteList, type FavoriteState } from "@/app/actions/favorites";
 import { AuthForm } from "./auth-form";
 import { buttonClasses } from "./ui";
@@ -109,9 +110,10 @@ function ShareDialog({ dialogRef, listing, canShare }: { dialogRef: React.RefObj
   // E-mail e SMS abrem o app do sistema, na mesma aba.
   const launch = (href: string) => window.location.assign(href);
 
-  const options: { label: string; icon: ReactNode; onClick: () => void }[] = [
+  const options: { label: string; channel: string; icon: ReactNode; onClick: () => void }[] = [
     {
       label: copied ? "Link copiado" : "Copiar link",
+      channel: "copy_link",
       icon: copied ? <CheckIcon className="size-6 text-mint-700" weight="bold" aria-hidden /> : <CopyIcon className="size-6" aria-hidden />,
       onClick: async () => {
         await navigator.clipboard.writeText(url());
@@ -119,18 +121,19 @@ function ShareDialog({ dialogRef, listing, canShare }: { dialogRef: React.RefObj
         setTimeout(() => setCopied(false), 2000);
       },
     },
-    { label: "E-mail", icon: <EnvelopeSimpleIcon className="size-6" aria-hidden />, onClick: () => launch(`mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(`${listing.title}\n${url()}`)}`) },
-    { label: "Mensagens", icon: <ChatCircleDotsIcon className="size-6" aria-hidden />, onClick: () => launch(`sms:?&body=${encodeURIComponent(`${text}: ${url()}`)}`) },
-    { label: "WhatsApp", icon: <WhatsappLogoIcon className="size-6" aria-hidden />, onClick: () => open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${url()}`)}`) },
-    { label: "Facebook", icon: <FacebookLogoIcon className="size-6" aria-hidden />, onClick: () => open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url())}`) },
-    { label: "X", icon: <XLogoIcon className="size-6" aria-hidden />, onClick: () => open(`https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url())}`) },
-    { label: "LinkedIn", icon: <LinkedinLogoIcon className="size-6" aria-hidden />, onClick: () => open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url())}`) },
-    { label: "Telegram", icon: <TelegramLogoIcon className="size-6" aria-hidden />, onClick: () => open(`https://t.me/share/url?url=${encodeURIComponent(url())}&text=${encodeURIComponent(text)}`) },
+    { label: "E-mail", channel: "email", icon: <EnvelopeSimpleIcon className="size-6" aria-hidden />, onClick: () => launch(`mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(`${listing.title}\n${url()}`)}`) },
+    { label: "Mensagens", channel: "sms", icon: <ChatCircleDotsIcon className="size-6" aria-hidden />, onClick: () => launch(`sms:?&body=${encodeURIComponent(`${text}: ${url()}`)}`) },
+    { label: "WhatsApp", channel: "whatsapp", icon: <WhatsappLogoIcon className="size-6" aria-hidden />, onClick: () => open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${url()}`)}`) },
+    { label: "Facebook", channel: "facebook", icon: <FacebookLogoIcon className="size-6" aria-hidden />, onClick: () => open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url())}`) },
+    { label: "X", channel: "x", icon: <XLogoIcon className="size-6" aria-hidden />, onClick: () => open(`https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url())}`) },
+    { label: "LinkedIn", channel: "linkedin", icon: <LinkedinLogoIcon className="size-6" aria-hidden />, onClick: () => open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url())}`) },
+    { label: "Telegram", channel: "telegram", icon: <TelegramLogoIcon className="size-6" aria-hidden />, onClick: () => open(`https://t.me/share/url?url=${encodeURIComponent(url())}&text=${encodeURIComponent(text)}`) },
   ];
   // "Mais opções" usa o compartilhamento do sistema (celular), quando existe.
   if (canShare) {
     options.push({
       label: "Mais opções",
+      channel: "native_share",
       icon: <DotsThreeOutlineIcon className="size-6" aria-hidden />,
       onClick: () => navigator.share({ title: listing.title, text, url: url() }).catch(() => {}),
     });
@@ -150,7 +153,10 @@ function ShareDialog({ dialogRef, listing, canShare }: { dialogRef: React.RefObj
           <button
             key={option.label}
             type="button"
-            onClick={option.onClick}
+            onClick={() => {
+              posthog.capture("listing_share_option_selected", { listing_id: listing.id, share_channel: option.channel });
+              option.onClick();
+            }}
             className="focus-ring flex h-16 items-center gap-3 rounded-card px-4 text-left font-bold text-ink-900 ring-1 ring-ink-300 transition-colors hover:bg-ink-50"
           >
             {option.icon}
@@ -182,6 +188,7 @@ function SaveLists({ listingId, lists, onChange }: { listingId: string; lists: F
           startTransition(async () => {
             const result = await createFavoriteList(name, listingId);
             if ("error" in result) return setError(result.error);
+            posthog.capture("favorite_list_created", { listing_id: listingId });
             onChange(result);
             // A lista nova é a mais recente: vem primeiro.
             if (result.loggedIn && result.lists[0]) setSavedIn({ id: result.lists[0].id, name: result.lists[0].name });
@@ -238,6 +245,7 @@ function SaveLists({ listingId, lists, onChange }: { listingId: string; lists: F
                   const next = await toggleFavorite(list.id, listingId);
                   onChange(next);
                   const added = next.loggedIn && next.lists.find((item) => item.id === list.id)?.hasListing;
+                  posthog.capture(added ? "listing_favorite_added" : "listing_favorite_removed", { listing_id: listingId });
                   setSavedIn(added ? { id: list.id, name: list.name } : null);
                   setPendingId(null);
                 });

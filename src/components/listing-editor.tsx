@@ -2,6 +2,7 @@
 
 import { startTransition, useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowLeftIcon, CheckCircleIcon, CircleNotchIcon, PencilSimpleIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import posthog from "posthog-js";
 import { saveListing, type ListingField, type ListingFormState } from "@/app/actions/listing";
 import {
   AMENITIES,
@@ -34,6 +35,7 @@ import {
   usePhotoSizes,
   type Photo,
 } from "./listing-fields";
+import { FormattedNote } from "./formatted-note";
 import { AiHint, buttonClasses } from "./ui";
 
 export type EditableListing = {
@@ -219,6 +221,11 @@ export function ListingEditor({ listing, userId, published = false }: { listing:
         const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
         // Enviar para revisão só vale no último passo (Enter num campo não pula etapas).
         if (submitter?.value !== "save" && step !== STEPS.length - 1) return;
+        if (submitter?.value === "save") {
+          posthog.capture("listing_draft_save_requested", { listing_id: listing.id });
+        } else {
+          posthog.capture("listing_review_submission_requested", { listing_id: listing.id, is_listing_update: published });
+        }
         const formData = new FormData(event.currentTarget, submitter);
         startTransition(() => formAction(formData));
       }}
@@ -246,7 +253,7 @@ export function ListingEditor({ listing, userId, published = false }: { listing:
             <WarningCircleIcon className="size-5 text-warning-500" weight="fill" aria-hidden />
             A equipe do Subleasy pediu um ajuste
           </p>
-          <p className="mt-2 text-ink-700">{listing.review_note}</p>
+          <FormattedNote note={listing.review_note} className="mt-2 text-ink-700" />
         </div>
       )}
       {state.status === "error" && (

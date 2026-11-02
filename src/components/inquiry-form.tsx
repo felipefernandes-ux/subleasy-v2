@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { ArrowLeftIcon, CheckCircleIcon, CircleNotchIcon } from "@phosphor-icons/react";
+import posthog from "posthog-js";
 import { submitInquiry, type InquiryState } from "@/app/actions/listing";
 import { buttonClasses } from "./ui";
 
@@ -31,7 +32,7 @@ export function InquiryForm({ listingId, title, about, onCancel }: { listingId: 
   }
 
   return (
-    <form action={formAction} className="space-y-3">
+    <form action={formAction} onSubmit={() => posthog.capture("listing_inquiry_submission_requested", { listing_id: listingId })} className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <p className="font-bold text-ink-900">{onCancel ? "Mensagem para o anunciante" : "Fale com o anunciante"}</p>
         {onCancel && (

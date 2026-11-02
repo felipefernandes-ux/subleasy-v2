@@ -2,10 +2,11 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { embedListing, geminiClient } from "@/lib/ai";
+import { aiObservabilityOptions, embedListing, geminiClient } from "@/lib/ai";
 import { CONTACT_STEP, newListingSchema as schema } from "@/lib/listing-schema";
 import { PHOTO_BUCKET, MIN_PHOTOS, createSlug, publicPoint, toBrazilianWhatsApp } from "@/lib/listing-options";
 import { notifySubmitted } from "@/lib/listing-notify";
+import { emitPostHogLog } from "@/lib/posthog-logs";
 import { createClient } from "@/lib/supabase/server";
 
 export type NewListing = z.input<typeof schema>;
@@ -76,7 +77,7 @@ export async function createListing(input: NewListing): Promise<CreateListingRes
   const ai = geminiClient();
   if (ai) {
     try {
-      embedding = await embedListing(ai, listing);
+      embedding = await embedListing(ai, listing, aiObservabilityOptions(user.id));
     } catch (error) {
       console.error("[createListing] Embedding não gerado:", error);
     }
@@ -88,6 +89,12 @@ export async function createListing(input: NewListing): Promise<CreateListingRes
     console.error("[createListing] Erro ao salvar:", error);
     return { ok: false, error: error.code === "23505" ? "Este anúncio já foi enviado." : "Não foi possível salvar. Tente de novo." };
   }
+
+  await emitPostHogLog("listing_created", {
+    listing_id: data.id,
+    photo_count: photos.length,
+    space_type: data.space_type,
+  });
 
   const [{ error: contactError }, { error: submitError }] = await Promise.all([
     supabase
@@ -102,6 +109,10 @@ export async function createListing(input: NewListing): Promise<CreateListingRes
   }
 
   await notifySubmitted(supabase, user, { ...listing, photos: photos.length, cover: photos[0] ?? null });
+  await emitPostHogLog("listing_submitted", {
+    listing_id: data.id,
+    photo_count: photos.length,
+  });
   redirect(`/painel/anuncios/${data.id}`);
 }
 

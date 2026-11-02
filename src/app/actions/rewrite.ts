@@ -2,7 +2,7 @@
 
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
-import { EXTRACTION_MODEL, aiErrorMessage, geminiClient } from "@/lib/ai";
+import { EXTRACTION_MODEL, aiErrorMessage, aiObservabilityOptions, geminiClient } from "@/lib/ai";
 import { createClient } from "@/lib/supabase/server";
 
 export type RewriteField = "title" | "short_summary" | "description" | "rules";
@@ -74,6 +74,7 @@ export async function rewriteField(
           content: `<regra>${rule}</regra>\n<pedido>${TONES[tone]}</pedido>\n<fatos>${facts.slice(0, 3000)}</fatos>\n<texto_atual>${current.slice(0, 3000)}</texto_atual>`,
         },
       ],
+      ...aiObservabilityOptions(user.id),
     });
     let text = (response.choices[0]?.message.content ?? "").trim();
     // Título e resumo são de uma linha: se o modelo mandar opções, fica a primeira.
@@ -118,6 +119,7 @@ export async function suggestListingCopy(facts: string): Promise<ListingCopyResu
         },
       ],
       response_format: zodResponseFormat(copySchema, "anuncio"),
+      ...aiObservabilityOptions(user.id),
     });
     const parsed = response.choices[0]?.message.parsed;
     if (!parsed) return { ok: false, error: "A IA não devolveu um texto. Tente de novo." };

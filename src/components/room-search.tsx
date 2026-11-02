@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useId, useRef, useState } from "react";
+import posthog from "posthog-js";
 import { searchUrl } from "@/lib/search-text";
 import { SearchIcon, buttonClasses } from "./ui";
 
@@ -27,6 +28,7 @@ export function RoomSearch({ suggestions }: { suggestions: string[] }) {
         role="search"
         onSubmit={(event) => {
           event.preventDefault();
+          posthog.capture("listing_search_submitted");
           go(query);
         }}
         className="rounded-panel bg-white p-2 shadow-raised ring-1 ring-ink-900/8"

@@ -11,10 +11,12 @@ import {
   QueueCard,
   StatCard,
 } from "@/components/superadmin/ui";
+import { Tabs } from "@/components/superadmin/tabs";
 import { EmptyState, QueueClearArt, QuietTimelineArt } from "@/components/superadmin/empty-state";
 import { getAdminIdentity, requireAdmin } from "@/lib/superadmin/auth";
 import { loadDailyNumbers } from "@/lib/superadmin/daily-numbers";
 import { loadAdminListings } from "@/lib/superadmin/listings";
+import { loadTrafficNumbers, type TrafficPair } from "@/lib/superadmin/posthog-analytics";
 
 export const metadata: Metadata = { title: "Início" };
 
@@ -28,12 +30,33 @@ export default function SuperAdminHome() {
         <HomeHeader />
       </Suspense>
 
-      <h2 className="sr-only">Fila do dia</h2>
-      <section aria-label="Fila do dia" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Suspense fallback={<p className="text-sa-sm text-sa-muted sm:col-span-2 xl:col-span-4">Carregando…</p>}>
-          <DayQueue />
-        </Suspense>
-      </section>
+      <Tabs
+        label="Resumo"
+        tabs={[
+          {
+            id: "anuncios",
+            label: "Anúncios",
+            content: (
+              <section aria-label="Fila do dia" className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+                <Suspense fallback={<p className="col-span-2 text-sa-sm text-sa-muted xl:col-span-4">Carregando…</p>}>
+                  <DayQueue />
+                </Suspense>
+              </section>
+            ),
+          },
+          {
+            id: "trafego",
+            label: "Tráfego do site",
+            content: (
+              <section aria-label="Tráfego do site">
+                <Suspense fallback={<p className="py-6 text-sa-sm text-sa-muted">Carregando…</p>}>
+                  <TrafficNumbers />
+                </Suspense>
+              </section>
+            ),
+          },
+        ]}
+      />
 
       <section aria-label="Números do dia" className="mt-8">
         <Suspense fallback={<p className="py-6 text-sa-sm text-sa-muted">Carregando…</p>}>
@@ -115,11 +138,53 @@ async function DailyNumbers() {
         <h2 className="sa-display text-sa-title font-semibold">Números do dia</h2>
         <span className="text-sa-sm text-sa-muted">Atualizado às {numbers.updatedAt}</span>
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <StatCard label="Novos cadastros hoje" value={numbers.signups.value} hint={numbers.signups.hint} series={numbers.signups.series} />
-        <StatCard label="Anúncios no ar" value={numbers.liveListings.value} hint={numbers.liveListings.hint} series={numbers.liveListings.series} />
-        <StatCard label="Contatos nos últimos 7 dias" value={numbers.contacts.value} hint={numbers.contacts.hint} series={numbers.contacts.series} />
+      <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-4 px-4 pb-1 sm:-mx-6 sm:scroll-px-6 sm:px-6 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
+        <div className="w-[calc(50%-0.375rem)] shrink-0 snap-start md:w-auto">
+          <StatCard label="Novos cadastros hoje" value={numbers.signups.value} hint={numbers.signups.hint} series={numbers.signups.series} />
+        </div>
+        <div className="w-[calc(50%-0.375rem)] shrink-0 snap-start md:w-auto">
+          <StatCard label="Anúncios no ar" value={numbers.liveListings.value} hint={numbers.liveListings.hint} series={numbers.liveListings.series} />
+        </div>
+        <div className="w-[calc(50%-0.375rem)] shrink-0 snap-start md:w-auto">
+          <StatCard label="Contatos nos últimos 7 dias" value={numbers.contacts.value} hint={numbers.contacts.hint} series={numbers.contacts.series} />
+        </div>
       </div>
+    </>
+  );
+}
+
+/** Compara com os 7 dias anteriores: "+12% vs. 7 dias anteriores". */
+function versus(pair: TrafficPair) {
+  if (pair.previous === 0) return "Sem base nos 7 dias anteriores";
+  const change = Math.round(((pair.current - pair.previous) / pair.previous) * 100);
+  return `${change > 0 ? "+" : change < 0 ? "−" : ""}${Math.abs(change)}% vs. 7 dias anteriores`;
+}
+
+function duration(seconds: number) {
+  const rounded = Math.round(seconds);
+  return rounded < 60 ? `${rounded}s` : `${Math.floor(rounded / 60)}min ${String(rounded % 60).padStart(2, "0")}s`;
+}
+
+async function TrafficNumbers() {
+  await requireAdmin("/");
+  const result = await loadTrafficNumbers();
+  return (
+    <>
+      <p className="mb-3 text-sa-sm text-sa-muted">PostHog, últimos 7 dias, sem admins.</p>
+      {result.ok ? (
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+          <StatCard label="Usuários" value={result.data.users.current} hint={versus(result.data.users)} />
+          <StatCard label="Novos usuários" value={result.data.firstTimeUsers.current} hint={versus(result.data.firstTimeUsers)} />
+          <StatCard label="Em tempo real" value={result.data.live} hint="Nos últimos 5 minutos" />
+          <StatCard
+            label="Duração da sessão"
+            value={duration(result.data.sessionSeconds.current)}
+            hint={versus(result.data.sessionSeconds)}
+          />
+        </div>
+      ) : (
+        <Card className="p-5 text-sa-sm text-sa-muted">Não foi possível ler o PostHog: {result.reason}</Card>
+      )}
     </>
   );
 }

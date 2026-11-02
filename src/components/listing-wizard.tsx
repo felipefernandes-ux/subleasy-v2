@@ -62,6 +62,7 @@ import {
 import { SPACE_ICONS } from "@/lib/space-type-icons";
 import { wizardHandoffKey, wizardStorageKey } from "@/lib/wizard-draft";
 import { ListingPreview } from "./listing-preview";
+import { FormattedNote } from "./formatted-note";
 import { LocationMap } from "./location-map";
 import { Logo, SparkleIcon, WhatsAppIcon, buttonClasses } from "./ui";
 
@@ -534,7 +535,7 @@ function Wizard({
                 <WarningCircleIcon className="size-5 text-warning-500" weight="fill" aria-hidden />
                 A equipe do Subleasy pediu um ajuste
               </p>
-              <p className="mt-2 whitespace-pre-line text-ink-700">{editing.reviewNote}</p>
+              <FormattedNote note={editing.reviewNote} className="mt-2 text-ink-700" />
             </div>
           )}
 

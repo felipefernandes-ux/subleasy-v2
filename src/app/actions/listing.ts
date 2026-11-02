@@ -4,7 +4,7 @@ import { refresh, updateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { embedListing, geminiClient } from "@/lib/ai";
+import { aiObservabilityOptions, embedListing, geminiClient } from "@/lib/ai";
 import { listingPublishedEmail, listingReturnedEmail, newInquiryEmail, sendEmail } from "@/lib/email";
 import {
   BILLING_TYPE_KEYS,
@@ -20,6 +20,7 @@ import {
   type Offer,
 } from "@/lib/listing-options";
 import { notifySubmitted } from "@/lib/listing-notify";
+import { emitPostHogLog } from "@/lib/posthog-logs";
 import { recordAudit } from "@/lib/superadmin/audit";
 import { getOrigin, getPublicOrigin } from "@/lib/origin";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -194,7 +195,7 @@ export async function saveListing(
     const ai = geminiClient();
     if (ai) {
       try {
-        embedding = await embedListing(ai, listing);
+        embedding = await embedListing(ai, listing, aiObservabilityOptions(user.id));
       } catch (error) {
         console.error("[saveListing] Embedding não atualizado:", error);
       }
@@ -422,6 +423,7 @@ export async function submitInquiry(listingId: string, title: string, _previous:
 
   const origin = await getOrigin();
   await sendEmail(newInquiryEmail(hostEmail, title, { ...data, phone: data.phone || null }, `${origin}/painel/anuncios/${listingId}`));
+  await emitPostHogLog("listing_inquiry_submitted", { listing_id: listingId });
   return { status: "sent" };
 }
 

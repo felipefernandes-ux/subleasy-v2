@@ -3,7 +3,7 @@
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { embedListing, geminiClient } from "@/lib/ai";
+import { aiObservabilityOptions, embedListing, geminiClient } from "@/lib/ai";
 import {
   AMENITIES,
   BILLING_TYPE_KEYS,
@@ -134,6 +134,9 @@ export async function adminSaveListing(listingId: string, _previous: AdminListin
   }
 
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { data: current } = await supabase.from("listings").select("id, slug, status, published_at, expires_at").eq("id", listingId).maybeSingle();
   if (!current) return { status: "error", error: "Anúncio não encontrado.", fields: {} };
 
@@ -172,7 +175,7 @@ export async function adminSaveListing(listingId: string, _previous: AdminListin
   const ai = geminiClient();
   if (ai) {
     try {
-      embedding = await embedListing(ai, content);
+      embedding = await embedListing(ai, content, aiObservabilityOptions(user?.id));
     } catch (error) {
       console.error("[superadmin] embedding não atualizado:", error);
     }

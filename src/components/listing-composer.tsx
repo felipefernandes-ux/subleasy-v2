@@ -9,6 +9,7 @@ import {
   SparkleIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react";
+import posthog from "posthog-js";
 import { createListingAI, type CreateListingAIResult } from "@/app/actions/create-listings-ai";
 import { storeAIDraft } from "@/lib/wizard-draft";
 import { buttonClasses } from "./ui";
@@ -67,6 +68,7 @@ export function ListingComposer() {
 
   function submit() {
     if (!canSubmit) return;
+    posthog.capture("listing_ai_generation_requested", { description_length: length });
     setResult(null);
     setStep(0);
     startTransition(async () => {

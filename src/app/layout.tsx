@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CookieConsent } from "@/components/cookie-consent";
+import { PostHogIdentify } from "@/components/posthog-identify";
 import { TabBarGate } from "@/components/mobile-tab-bar";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <TabBarGate />
         </Suspense>
         <CookieConsent gaId={process.env.GOOGLE_ANALYTICS_ID} />
+        <PostHogIdentify />
       </body>
     </html>
   );

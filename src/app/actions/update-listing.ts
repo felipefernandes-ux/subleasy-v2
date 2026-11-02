@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
-import { embedListing, geminiClient } from "@/lib/ai";
+import { aiObservabilityOptions, embedListing, geminiClient } from "@/lib/ai";
 import { CONTACT_STEP, newListingSchema } from "@/lib/listing-schema";
 import { PHOTO_BUCKET, MIN_PHOTOS, publicPoint, toBrazilianWhatsApp } from "@/lib/listing-options";
 import { notifySubmitted } from "@/lib/listing-notify";
@@ -80,7 +80,7 @@ export async function updateListing(input: NewListing): Promise<CreateListingRes
   const ai = geminiClient();
   if (ai) {
     try {
-      embedding = await embedListing(ai, listing);
+      embedding = await embedListing(ai, listing, aiObservabilityOptions(user.id));
     } catch (error) {
       console.error("[updateListing] Embedding não atualizado:", error);
     }
