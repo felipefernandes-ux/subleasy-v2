@@ -22,6 +22,7 @@ import {
 import { notifySubmitted } from "@/lib/listing-notify";
 import { recordAudit } from "@/lib/superadmin/audit";
 import { getOrigin, getPublicOrigin } from "@/lib/origin";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export type ListingField =
@@ -311,11 +312,14 @@ export async function returnListing(
   }
 
   const supabase = await requireAdmin();
+  // Anúncio importado do WordPress entra como rascunho ("Convite pendente"): também pode voltar com nota.
+  // listing_imports só o service role lê.
+  const { data: imported } = await createAdminClient().from("listing_imports").select("listing_id").eq("listing_id", listingId).maybeSingle();
   const { data: listing, error } = await supabase
     .from("listings")
     .update({ status: "draft", review_note: note.slice(0, 1000) })
     .eq("id", listingId)
-    .eq("status", "pending_approval")
+    .in("status", imported ? ["pending_approval", "draft"] : ["pending_approval"])
     .select("title")
     .maybeSingle();
   if (error || !listing) {

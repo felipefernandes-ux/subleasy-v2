@@ -258,6 +258,7 @@ async function ListingDetail({
                   <ReturnListingDialog listingId={row.id} />
                 </>
               )}
+              {!inReview && listing.status === "convite_pendente" && <ReturnListingDialog listingId={row.id} />}
               {row.status === "active" && (
                 <ConfirmDialog
                   trigger={

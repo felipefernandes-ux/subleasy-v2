@@ -86,7 +86,8 @@ for (const l of data.listings) {
 
   const problems = [];
   if (!l.title || l.title.trim().length < 10) problems.push("título com menos de 10 caracteres");
-  if (!(l.price >= 10)) problems.push("preço ausente ou abaixo de R$ 10");
+  // Fiel ao WordPress: qualquer preço entra como está (sem preço vira 0).
+  if (!(l.price >= 10)) notes.push({ source_id: l.source_id, note: `preço ${l.price ?? "ausente"} no WordPress; entra como está, devolver ao anunciante para corrigir` });
   if (!l.billing_type) problems.push("sem tipo de cobrança");
   if (!l.address.city) problems.push("sem cidade");
   if (!/^[A-Z]{2}$/.test(l.address.state ?? "")) problems.push("sem UF");
@@ -107,7 +108,7 @@ for (const l of data.listings) {
 
   const wa = l.metrics.whatsapp_clicks_monthly ?? [];
   const views = (l.metrics.views_daily ?? []).map((d) => ({ day: d.date, n: d.visits > 0 ? d.visits : d.views })).filter((d) => d.n > 0);
-  plans.push({ l, advertiser, whatsapp, title: cut(l.title.trim()), photos: l.photos.slice(0, MAX_PHOTOS), views, clicks: wa.filter((m) => m.clicks > 0) });
+  plans.push({ l, price: l.price > 0 ? l.price : 0, advertiser, whatsapp, title: cut(l.title.trim()), photos: l.photos.slice(0, MAX_PHOTOS), views, clicks: wa.filter((m) => m.clicks > 0) });
 }
 
 const owners = new Map(); // e-mail → anunciante
@@ -250,7 +251,7 @@ for (const p of plans) {
     description: l.description || null,
     space_type: l.space_type,
     billing_type: l.billing_type,
-    price: l.price,
+    price: p.price,
     city: l.address.city,
     state: l.address.state,
     neighborhood: l.address.neighborhood,

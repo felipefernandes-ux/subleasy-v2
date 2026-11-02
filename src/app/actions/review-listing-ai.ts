@@ -6,6 +6,7 @@ import { z } from "zod";
 import { EXTRACTION_MODEL, aiErrorMessage, geminiClient } from "@/lib/ai";
 import { checkListing } from "@/lib/listing-review";
 import { AMENITIES, SPACE_TYPES, photoUrl, type SpaceType } from "@/lib/listing-options";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 // A nota vai por e-mail e cabe em 1000 caracteres (returnListing corta nesse tamanho).
@@ -79,11 +80,13 @@ export async function reviewListingAI(listingId: string): Promise<ReviewListingR
   const ai = geminiClient();
   if (!ai) return { ok: false, error: "Serviço de IA não configurado." };
 
+  // Rascunho importado do WordPress ("Convite pendente") também pode ser analisado e devolvido.
+  const { data: imported } = await createAdminClient().from("listing_imports").select("listing_id").eq("listing_id", listingId).maybeSingle();
   const { data: listing } = await supabase
     .from("listings")
     .select("title, short_summary, description, space_type, neighborhood, city, state, amenities, rules, photos, photo_sizes")
     .eq("id", listingId)
-    .eq("status", "pending_approval")
+    .in("status", imported ? ["pending_approval", "draft"] : ["pending_approval"])
     .maybeSingle();
   if (!listing) return { ok: false, error: "O anúncio não está mais esperando aprovação." };
 
