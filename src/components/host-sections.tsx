@@ -1,4 +1,4 @@
-import { AiBadge, ArrowRightIcon, CheckIcon, Eyebrow, buttonClasses } from "./ui";
+import { AiBadge, ArrowRightIcon, CheckIcon, buttonClasses } from "./ui";
 
 const STEPS = [
   {
@@ -28,7 +28,7 @@ export function HowItWorks() {
       <div className="container-page py-20 sm:py-24">
         <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
           <div className="max-w-md">
-            <Eyebrow>Para quem tem sala</Eyebrow>
+            <p className="text-sm font-bold text-ink-500">Para quem tem sala</p>
             <h2
               id="como-funciona-titulo"
               className="mt-3 text-h1 font-bold text-ink-900"
@@ -44,7 +44,7 @@ export function HowItWorks() {
                 Começar meu anúncio
                 <ArrowRightIcon />
               </a>
-              <a href="/como-funciona" className="focus-ring inline-flex min-h-11 items-center gap-1.5 rounded-control text-sm font-bold text-brand-600 hover:text-brand-700">
+              <a href="/como-funciona" className="focus-ring inline-flex min-h-11 items-center gap-1.5 rounded-control text-sm font-bold text-ink-700 underline decoration-ink-300 underline-offset-4 hover:text-ink-900 hover:decoration-ink-700">
                 Como funciona a sublocação de consultório
                 <ArrowRightIcon />
               </a>
@@ -57,13 +57,13 @@ export function HowItWorks() {
                 key={step.title}
                 className="flex gap-5 rounded-card border border-ink-200 p-5 sm:flex-col sm:gap-4 lg:flex-row lg:gap-5"
               >
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-control bg-brand-600 text-sm font-bold text-white tabular-nums">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-ink-50 text-sm font-bold text-ink-700 tabular-nums ring-1 ring-inset ring-ink-200">
                   {index + 1}
                 </span>
                 <div>
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                     <h3 className="text-lg font-bold text-ink-900">{step.title}</h3>
-                    <span className="text-sm text-mint-700">{step.meta}</span>
+                    <span className="inline-flex items-center rounded-full bg-mint-50 px-2.5 py-0.5 text-xs font-bold text-mint-700 ring-1 ring-inset ring-mint-100">{step.meta}</span>
                   </div>
                   <p className="mt-1.5 text-ink-600">{step.body}</p>
                 </div>
