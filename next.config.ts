@@ -50,7 +50,9 @@ const nextConfig: NextConfig = {
         wp("/blog/feed/"),
         wp("/blog/:path*/feed"),
         wp("/blog/:path*/feed/"),
-        wp("/blog/:file(.+\\.(?:xml|xsl|txt))", "/blog/:file"),
+        // Os sitemaps passam por src/app/blog-xml, que tira a folha XSLT do Rank Math.
+        { source: "/blog/:file([\\w-]+\\.xml)", destination: "/blog-xml/:file" },
+        wp("/blog/:file([\\w-]+\\.(?:xsl|txt))", "/blog/:file"),
         wp("/blog/wp-content/:path*"),
         wp("/blog/wp-includes/:path*"),
       ],
