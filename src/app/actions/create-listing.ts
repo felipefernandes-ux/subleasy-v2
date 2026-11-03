@@ -70,6 +70,8 @@ export async function createListing(input: NewListing): Promise<CreateListingRes
     rules: data.rules,
     offers: [...new Set(data.offers)],
     email_contact: true,
+    // Só o cadastro passo a passo informa; anúncio importado nunca passa por aqui e fica null.
+    creation_method: data.creation_method ?? null,
   };
 
   // A busca usa o embedding; se ele falhar, o anúncio segue sem e é gerado na aprovação.
@@ -112,6 +114,7 @@ export async function createListing(input: NewListing): Promise<CreateListingRes
   await emitPostHogLog("listing_submitted", {
     listing_id: data.id,
     photo_count: photos.length,
+    creation_method: data.creation_method ?? "desconhecido",
   });
   redirect(`/painel/anuncios/${data.id}`);
 }

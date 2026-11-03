@@ -43,6 +43,8 @@ export const newListingSchema = z.object({
   offers: z.array(z.enum(OFFER_KEYS)),
   whatsapp: z.string(),
   contact_email: z.string().trim().toLowerCase().pipe(z.email()),
+  // Como a pessoa chegou aqui, detectado pelo app sem perguntar: ia (texto livre em /anunciar/ia) ou campo a campo.
+  creation_method: z.enum(["ia", "campo_a_campo"]).optional(),
 });
 
 // Índice do passo de contato no cadastro, para levar a pessoa até o erro.

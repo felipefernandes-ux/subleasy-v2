@@ -7,6 +7,8 @@ import { ListingEditWizard } from "@/components/listing-wizard";
 import { ListingDashboard, type DashboardListing, type DashboardMetrics, type Inquiry } from "@/components/host-listing-dashboard";
 import { formatLeadDate } from "@/components/host-leads";
 import { SubmittedPanel } from "@/components/listing-status-panels";
+import { FirstListingFeedback } from "@/components/first-listing-feedback";
+import { loadFeedbackMethod } from "@/lib/feedback";
 import { getOrigin } from "@/lib/origin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -49,9 +51,12 @@ async function ListingReview({ params }: { params: PageProps<"/painel/anuncios/[
   const publicUrl = `${await getOrigin()}/espaco/${listing.slug}`;
 
   if (listing.status === "pending_approval") {
+    // A pesquisa de facilidade só vale no primeiro anúncio que a pessoa cadastrou sozinha.
+    const method = await loadFeedbackMethod(supabase, user.id, listing.id);
     return (
       <HostShell>
         <SubmittedPanel title={listing.title} email={user.email ?? ""} />
+        {method && <FirstListingFeedback listingId={listing.id} method={method} />}
       </HostShell>
     );
   }

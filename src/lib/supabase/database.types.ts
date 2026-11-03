@@ -411,6 +411,7 @@ export type Database = {
           confirmation_interval_days: number
           consecutive_confirmations: number
           created_at: string
+          creation_method: string | null
           description: string | null
           email_contact: boolean
           embedding: string | null
@@ -451,6 +452,7 @@ export type Database = {
           confirmation_interval_days?: number
           consecutive_confirmations?: number
           created_at?: string
+          creation_method?: string | null
           description?: string | null
           email_contact?: boolean
           embedding?: string | null
@@ -491,6 +493,7 @@ export type Database = {
           confirmation_interval_days?: number
           consecutive_confirmations?: number
           created_at?: string
+          creation_method?: string | null
           description?: string | null
           email_contact?: boolean
           embedding?: string | null

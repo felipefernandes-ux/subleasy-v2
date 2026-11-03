@@ -475,6 +475,8 @@ function Wizard({
         offers: draft.offers,
         whatsapp: draft.whatsapp,
         contact_email: draft.contact_email,
+        // Sem perguntar: o rascunho que veio de /anunciar/ia guarda o texto livre da pessoa.
+        creation_method: draft.ai_text.trim() ? "ia" : "campo_a_campo",
       };
       const result = await (editing ? updateListing(input) : createListing(input));
       if (result && !result.ok) {
