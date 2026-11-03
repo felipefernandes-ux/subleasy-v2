@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
@@ -61,4 +62,29 @@ export async function recordAudit(entry: AuditEntry) {
   } catch (error) {
     console.error(`[audit] ação ${entry.action} sem registro:`, error);
   }
+}
+
+// São Paulo está em UTC-3 o ano todo (sem horário de verão desde 2019).
+const SP_OFFSET = 3 * 36e5;
+const DAY = 864e5;
+
+/**
+ * Anúncios aprovados hoje (dia de São Paulo), lidos do registro de auditoria. Conta anúncios, não
+ * cliques: um anúncio devolvido e aprovado de novo no mesmo dia vale um. Lê com a sessão do admin
+ * (a política da tabela só libera a leitura para ele): chame só depois de requireAdmin().
+ */
+export async function loadApprovedToday(): Promise<{ count: number; lastAt: string | null }> {
+  // O corte do dia lê o relógio; sem isto o Next tenta pré-renderizar.
+  await connection();
+  const startOfDay = new Date(Math.floor((Date.now() - SP_OFFSET) / DAY) * DAY + SP_OFFSET).toISOString();
+  const { data, error } = await (await createClient())
+    .from("admin_audit_log")
+    .select("created_at, target_id")
+    .eq("action", "listing.approve")
+    .gte("created_at", startOfDay)
+    .order("created_at", { ascending: false })
+    .limit(1000);
+  if (error) throw new Error(`Não foi possível ler as aprovações de hoje: ${error.message}`);
+  const rows = data ?? [];
+  return { count: new Set(rows.map((row) => row.target_id)).size, lastAt: rows[0]?.created_at ?? null };
 }

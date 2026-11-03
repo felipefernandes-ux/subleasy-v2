@@ -1,7 +1,7 @@
 import { Suspense, cache } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { FlagIcon, ListChecksIcon, ScrollIcon, TrayArrowDownIcon } from "@phosphor-icons/react/ssr";
+import { CheckCircleIcon, FlagIcon, ListChecksIcon, TrayArrowDownIcon } from "@phosphor-icons/react/ssr";
 import {
   ButtonLink,
   Card,
@@ -13,9 +13,10 @@ import {
 } from "@/components/superadmin/ui";
 import { Tabs } from "@/components/superadmin/tabs";
 import { EmptyState, QueueClearArt, QuietTimelineArt } from "@/components/superadmin/empty-state";
+import { loadApprovedToday } from "@/lib/superadmin/audit";
 import { getAdminIdentity, requireAdmin } from "@/lib/superadmin/auth";
 import { loadDailyNumbers } from "@/lib/superadmin/daily-numbers";
-import { loadAdminListings } from "@/lib/superadmin/listings";
+import { ago, loadAdminListings } from "@/lib/superadmin/listings";
 import { loadTrafficNumbers, type TrafficPair } from "@/lib/superadmin/posthog-analytics";
 import { DailyNumbersSkeleton, QueueSkeleton, RowsSkeleton, StatCardsSkeleton } from "@/components/superadmin/skeletons";
 
@@ -192,7 +193,7 @@ async function TrafficNumbers() {
 
 async function DayQueue() {
   await requireAdmin("/");
-  const listings = await loadListings();
+  const [listings, approved] = await Promise.all([loadListings(), loadApprovedToday()]);
   // A lista vem do mais novo para o mais antigo; o último da fila é o que espera há mais tempo.
   const pending = listings.filter((listing) => listing.status === "em_revisao");
   const imported = listings.filter((listing) => listing.status === "convite_pendente");
@@ -206,11 +207,11 @@ async function DayQueue() {
         icon={ListChecksIcon}
       />
       <QueueCard
-        href="/usuarios/pedidos"
-        label="Pedidos do titular (LGPD)"
-        count="—"
-        detail="Nenhum pedido registrado"
-        icon={ScrollIcon}
+        href="/configuracoes/auditoria"
+        label="Anúncios aprovados"
+        count={approved.count}
+        detail={approved.count ? `Hoje · última ${ago(approved.lastAt)}` : "Nenhum aprovado hoje"}
+        icon={CheckCircleIcon}
       />
       <QueueCard
         href="/moderacao"
