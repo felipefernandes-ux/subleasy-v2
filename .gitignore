@@ -43,3 +43,7 @@ next-env.d.ts
 # exportações do Subleasy atual (têm e-mail e telefone de anunciantes)
 /imports/
 .env.local
+
+# skills dos agentes (instaladas por `npx skills add`; têm node_modules próprio)
+/.agents/
+/.claude/skills/

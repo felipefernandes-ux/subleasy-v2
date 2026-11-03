@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { smoothPath } from "@/lib/dashboard-metrics";
 import {
   AiBadge,
   ArrowRightIcon,
@@ -14,7 +15,7 @@ export function HeroSection() {
     <section className="relative isolate overflow-hidden border-b border-ink-200 bg-white">
       <GridBackdrop />
 
-      <div className="container-page grid items-center gap-10 pt-8 pb-14 sm:gap-14 sm:pt-20 sm:pb-20 lg:grid-cols-[1.05fr_1fr] lg:gap-12 lg:pt-24 lg:pb-28">
+      <div className="container-page grid items-center gap-10 pt-8 pb-14 sm:gap-14 sm:pt-20 sm:pb-28 lg:grid-cols-[1.05fr_1fr] lg:gap-12 lg:pt-24 lg:pb-28">
         <div className="max-w-[38rem]">
           {/* Compacto no celular: uma linha, texto de 12px. Cresce a partir de sm. */}
           <p className="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-white py-0.5 pr-2.5 pl-0.5 text-xs text-ink-700 shadow-xs sm:gap-2 sm:py-1 sm:pr-3 sm:pl-1 sm:text-sm">
@@ -61,13 +62,18 @@ export function HeroSection() {
   );
 }
 
-/** Prévia do cadastro com IA: mostra a origem de cada campo, como no produto. */
+/**
+ * Prévia do anúncio com IA e do painel: mostra a origem de cada campo e, logo abaixo, os insights
+ * que o painel dá depois. O cartão abre pronto (serve de imagem parada); só o que vem do painel
+ * se anima, em cascata e uma vez: insights, barra de qualidade e o pulso da semana.
+ */
 function ListingEditorPreview() {
   return (
     <figure className="relative mx-auto w-full max-w-[34rem] lg:mr-0">
       <figcaption className="sr-only">
-        Exemplo de anúncio gerado pela IA do Subleasy, com título sugerido,
-        comodidades vistas nas fotos, turnos disponíveis e nota de qualidade.
+        Exemplo de anúncio gerado pela IA do Subleasy, com título sugerido, comodidades vistas nas
+        fotos, três sugestões do painel (preço acima do mercado, poucas fotos e dia de maior procura),
+        nota de qualidade e o resumo da semana: 12 pessoas viram a sala e 3 chamaram no WhatsApp.
       </figcaption>
 
       <div aria-hidden="true" className="absolute -inset-6 -z-10 rounded-[2rem] bg-brand-600/[0.06]" />
@@ -109,19 +115,22 @@ function ListingEditorPreview() {
           </div>
         </div>
 
-        <div className="border-t border-ink-200 px-5 py-4">
-          <p className="text-xs font-bold text-ink-700">Turnos disponíveis</p>
-          <ShiftGrid />
-        </div>
+        <InsightsBlock />
 
         <div className="flex items-center gap-4 border-t border-ink-200 bg-ink-50 px-5 py-4">
           <div className="flex-1">
             <div className="flex items-baseline justify-between">
               <p className="text-xs font-bold text-ink-700">Qualidade do anúncio</p>
-              <p className="text-sm font-bold text-ink-900 tabular-nums">82/100</p>
+              <p className="text-sm font-bold text-ink-900 tabular-nums">
+                <Counter value={82} delay={0.7} />
+                <span className="text-ink-500">/100</span>
+              </p>
             </div>
-            <div className="mt-2 h-1.5 rounded-full bg-ink-200">
-              <div className="h-full w-[82%] rounded-full bg-mint-500" />
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink-200">
+              <div
+                className="h-full w-[82%] origin-left animate-bar-fill rounded-full bg-mint-500"
+                style={{ animationDelay: "0.7s" }}
+              />
             </div>
           </div>
           <span className={`${buttonClasses("primary", "sm")} pointer-events-none`}>
@@ -130,16 +139,7 @@ function ListingEditorPreview() {
         </div>
       </div>
 
-      <div className="absolute -bottom-8 -left-4 hidden w-60 rounded-card bg-white p-4 shadow-raised ring-1 ring-ink-900/8 sm:block lg:-left-10">
-        <p className="text-xs text-ink-500">Esta semana</p>
-        <p className="mt-1 text-sm leading-snug text-ink-900">
-          <span className="text-2xl font-bold tracking-tight tabular-nums">12</span>{" "}
-          pessoas viram sua sala
-        </p>
-        <p className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-mint-700">
-          3 chamaram no WhatsApp
-        </p>
-      </div>
+      <WeekPulse />
     </figure>
   );
 }
@@ -156,45 +156,135 @@ function Source({ label, origin }: { label: string; origin: string }) {
   );
 }
 
-const DAYS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-const SHIFTS = ["Manhã", "Tarde", "Noite"];
-// Turnos livres no exemplo: [dia][turno]
-const FREE = [
-  [false, true, false],
-  [true, true, false],
-  [false, true, true],
-  [false, false, false],
-  [true, true, false],
-  [true, false, false],
+/** Um número que sobe até o valor final. O valor lido por leitores de tela fica no sr-only. */
+function Counter({ value, delay = 0 }: { value: number; delay?: number }) {
+  return (
+    <>
+      <span className="sr-only">{value}</span>
+      <span
+        aria-hidden="true"
+        className="hero-count"
+        style={{ "--hero-count": value, animationDelay: `${delay}s` } as React.CSSProperties}
+      />
+    </>
+  );
+}
+
+// Os três insights usam os textos do painel, na ordem em que ele os mostra: o que pede cuidado,
+// o que sugere e o que só informa. O ponto de cor é o mesmo do painel (aviso, sugestão, informação).
+const INSIGHTS = [
+  { dot: "bg-warning-500", title: "Preço 8% acima do mercado", action: "Revisar preço" },
+  { dot: "bg-brand-500", title: "Só 2 fotos", action: "Adicionar fotos" },
+  { dot: "bg-ink-400", title: "Mais procurado terça, à tarde", action: "Ajustar avisos" },
 ];
 
-function ShiftGrid() {
+function InsightsBlock() {
   return (
-    <div className="mt-2.5 grid grid-cols-[3rem_repeat(6,1fr)] gap-1 text-[11px]">
-      <span />
-      {DAYS.map((day) => (
-        <span key={day} className="text-center text-ink-500">
-          {day}
+    <div className="border-t border-ink-200 px-5 py-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-bold text-ink-700">Insights do painel</p>
+        <span
+          className="inline-flex animate-fade-up items-center gap-1.5 rounded-full bg-white py-0.5 pr-2.5 pl-2 text-xs font-bold text-ink-800 shadow-xs ring-1 ring-ink-900/8"
+          style={{ animationDelay: "0.5s" }}
+        >
+          <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-600" />
+          3 sugestões
         </span>
-      ))}
-      {SHIFTS.map((shift, s) => (
-        <ShiftRow key={shift} shift={shift} free={FREE.map((day) => day[s])} />
-      ))}
+      </div>
+
+      <ul className="mt-2.5 space-y-1.5 rounded-card bg-[linear-gradient(180deg,var(--color-brand-50),white)] p-1.5 ring-1 ring-brand-100">
+        {INSIGHTS.map((insight, i) => (
+          <li
+            key={insight.title}
+            className="flex animate-fade-up items-center gap-3 rounded-control bg-white px-3 py-2 shadow-xs ring-1 ring-ink-900/6"
+            style={{ animationDelay: `${0.6 + i * 0.16}s` }}
+          >
+            <span aria-hidden="true" className={`size-2 shrink-0 rounded-full ${insight.dot}`} />
+            <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-ink-900">{insight.title}</span>
+            <span className="shrink-0 text-xs font-bold text-brand-600">{insight.action}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
-function ShiftRow({ shift, free }: { shift: string; free: boolean[] }) {
+// ── O pulso da semana: o campo escuro do painel, em miniatura ─────────────────
+
+const WEEK = [3, 5, 4, 7, 6, 9, 12];
+const CONTACT_DAYS = [2, 4, 6];
+const PW = 100;
+const PH = 40;
+
+/**
+ * Cartão largo e baixo que só encosta na margem inferior do cartão principal: um satélite cobre
+ * moldura, nunca conteúdo. O hero reserva o espaço abaixo (pb-28 a partir do tablet).
+ */
+function WeekPulse() {
+  const max = Math.max(...WEEK) * 1.1;
+  const step = PW / (WEEK.length - 1);
+  const points = WEEK.map((value, i): [number, number] => [i * step, PH - 5 - (value / max) * (PH - 10)]);
+  const line = smoothPath(points);
+  const area = `${line} L${PW},${PH} L0,${PH} Z`;
+
   return (
-    <>
-      <span className="self-center text-ink-500">{shift}</span>
-      {free.map((isFree, i) => (
-        <span
-          key={i}
-          className={`h-5 rounded-[5px] ${isFree ? "bg-brand-600" : "bg-ink-100 ring-1 ring-ink-200 ring-inset"}`}
-        />
-      ))}
-    </>
+    <div
+      className="absolute -bottom-[6.1rem] -left-4 hidden w-[21rem] animate-fade-up overflow-hidden rounded-card bg-[linear-gradient(160deg,var(--color-brand-800),var(--color-brand-900)_65%)] p-4 text-white shadow-raised ring-1 ring-ink-900/10 sm:block lg:-left-10"
+      style={{ animationDelay: "1.2s" }}
+    >
+      <div className="flex items-end justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-xs text-brand-200">Esta semana</p>
+          <p className="mt-1 flex items-baseline gap-2 whitespace-nowrap">
+            <span className="text-3xl leading-none font-bold tracking-tight tabular-nums">
+              <Counter value={12} delay={1.4} />
+            </span>
+            <span className="text-sm text-brand-100">pessoas viram sua sala</span>
+          </p>
+        </div>
+
+        <svg viewBox={`0 0 ${PW} ${PH}`} className="block h-10 w-24 shrink-0 overflow-visible" aria-hidden="true">
+          <defs>
+            <linearGradient id="week-area" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="var(--color-brand-400)" stopOpacity="0.5" />
+              <stop offset="1" stopColor="var(--color-brand-400)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d={area} fill="url(#week-area)" className="animate-fade-up" style={{ animationDelay: "2.1s" }} />
+          <path
+            d={line}
+            pathLength={1}
+            fill="none"
+            stroke="var(--color-brand-300)"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeDasharray="1"
+            className="animate-line-draw"
+            style={{ animationDelay: "1.5s" }}
+          />
+          {CONTACT_DAYS.map((day, i) => {
+            const isLast = day === WEEK.length - 1;
+            return (
+              <g key={day} className="animate-pop" style={{ animationDelay: `${2.3 + i * 0.2}s`, transformBox: "fill-box", transformOrigin: "center" }}>
+                {isLast && (
+                  <circle
+                    className="animate-halo"
+                    style={{ animationDelay: "2.7s", transformBox: "fill-box", transformOrigin: "center" }}
+                    cx={points[day][0]}
+                    cy={points[day][1]}
+                    r="4"
+                    fill="var(--color-mint-400)"
+                  />
+                )}
+                <circle cx={points[day][0]} cy={points[day][1]} r="2.6" fill="var(--color-mint-400)" stroke="var(--color-brand-900)" strokeWidth="1.5" />
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      <p className="mt-2.5 text-xs font-bold text-mint-400">3 chamaram no WhatsApp</p>
+    </div>
   );
 }
 
