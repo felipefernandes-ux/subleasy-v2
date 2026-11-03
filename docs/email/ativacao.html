@@ -27,10 +27,10 @@
     <tr><td style="background:#ffffff;border:1px solid #e4e7ec;border-radius:14px;overflow:hidden;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 
-        <!-- Cabeçalho: brand-600 com o logo branco (params.LOGO_URL = email/logo-subleasy-white.png) -->
+        <!-- Cabeçalho: brand-600 com o logo branco (https://subleasy.com.br/email/logo-subleasy-white.png) -->
         <tr><td align="center" bgcolor="#3818d9" style="background:#3818d9;padding:40px 32px;">
           <a href="{{ params.URL_SITE }}" style="text-decoration:none;">
-            <img src="{{ params.LOGO_URL }}" width="148" alt="Subleasy" style="display:block;border:0;height:auto;width:148px;">
+            <img src="https://subleasy.com.br/email/logo-subleasy-white.png" width="148" alt="Subleasy" style="display:block;border:0;height:auto;width:148px;">
           </a>
         </td></tr>
 
@@ -50,7 +50,7 @@
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e4e7ec;border-radius:12px;overflow:hidden;">
             <tr><td style="padding:0;position:relative;">
               <a href="{{ contact.AD_URL }}" style="text-decoration:none;">
-                <img src="{{ contact.AD_IMAGE }}" width="534" alt="{{ contact.AD_TITLE }}" style="display:block;width:100%;height:auto;max-height:300px;object-fit:cover;border:0;">
+                <img src="{{ contact.AD_IMAGE | default: 'https://subleasy.com.br/salas/consultorio-odontologico-maringa.jpg' }}" width="534" alt="{{ contact.AD_TITLE }}" style="display:block;width:100%;height:auto;max-height:300px;object-fit:cover;border:0;">
               </a>
             </td></tr>
             <tr><td style="padding:16px 20px 20px 20px;">

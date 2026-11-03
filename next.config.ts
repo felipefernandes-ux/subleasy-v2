@@ -5,7 +5,9 @@ import type { NextConfig } from "next";
 const publicHost = [{ type: "host" as const, value: "admin\\..*" }];
 const legacy = (source: string, destination: string) => ({ source, destination, permanent: true, missing: publicHost });
 
-// Blog do WordPress, hoje em blog.subleasy.com.br. São os posts do site antigo (post-sitemap.xml).
+// Blog do WordPress: roda em blog.subleasy.com.br e é servido em subleasy.com.br/blog por rewrite (proxy).
+// No WordPress, "Endereço do site (URL)" deve ser https://subleasy.com.br/blog e "Endereço do WordPress" fica no subdomínio.
+// Os posts abaixo são os do site antigo (post-sitemap.xml).
 const BLOG = "https://blog.subleasy.com.br";
 const BLOG_POSTS = [
   "aluguel-tradicional-vs-sublocacao-flexivel-qual-a-melhor-para-voce",
@@ -34,6 +36,13 @@ const AMENITY_SLUGS: Record<string, string> = {
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
+  // Mantém o prefixo /blog no destino: o WordPress (home = .../blog) remove esse prefixo ao rotear.
+  async rewrites() {
+    return [
+      { source: "/blog", destination: `${BLOG}/blog/` },
+      { source: "/blog/:path*", destination: `${BLOG}/blog/:path*` },
+    ];
+  },
   async redirects() {
     return [
       // 2.0: o anúncio passou de /sala/ para /espaco/ e a busca de /salas para /espacos.
@@ -47,12 +56,11 @@ const nextConfig: NextConfig = {
       // WordPress: comodidades que existem como filtro; as outras caem na busca.
       ...Object.entries(AMENITY_SLUGS).map(([slug, key]) => legacy(`/comodidades/salas-para-sublocacao-com-${slug}`, `/espacos?comodidades=${key}`)),
       legacy("/comodidades/:slug", "/espacos"),
-      // WordPress: o blog passou para blog.subleasy.com.br, com os mesmos endereços dos posts.
+      // WordPress: o blog agora vive em /blog; os posts e categorias antigos (na raiz) apontam para lá.
       // A barra final evita um salto extra: o WordPress redireciona o endereço sem barra.
-      legacy("/blog", `${BLOG}/`),
-      legacy("/blog-2", `${BLOG}/`),
-      legacy("/category/:slug", `${BLOG}/category/:slug/`),
-      ...BLOG_POSTS.map((slug) => legacy(`/${slug}`, `${BLOG}/${slug}/`)),
+      legacy("/blog-2", "/blog/"),
+      legacy("/category/:slug", "/blog/category/:slug/"),
+      ...BLOG_POSTS.map((slug) => legacy(`/${slug}`, `/blog/${slug}/`)),
       // WordPress: páginas institucionais e da conta que têm equivalente no 2.0.
       legacy("/perguntas-frequentes", "/como-funciona"),
       legacy("/termos-de-uso", "/termos"),
