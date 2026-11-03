@@ -34,18 +34,27 @@ const AMENITY_SLUGS: Record<string, string> = {
 };
 
 const nextConfig: NextConfig = {
-  // O WordPress exige a barra final nos posts (/blog/slug/). Sem isto o Next a remove com um 308 e o WordPress redireciona para o subdomínio.
+  // /blog/feed/ e as demais rotas do WordPress precisam da barra final; sem isto o Next a remove com um 308.
   skipTrailingSlashRedirect: true,
   cacheComponents: true,
   partialPrefetching: true,
-  // Mantém o prefixo /blog no destino: o WordPress (home = .../blog) remove esse prefixo ao rotear.
+  // As páginas do blog são geradas em src/app/blog (o Next busca o HTML no WordPress). Aqui ficam só os
+  // endereços que não são página: API, feeds, sitemaps e arquivos do WordPress, direto do subdomínio.
+  // O prefixo /blog vai junto no destino: o WordPress (home = .../blog) o remove ao rotear.
   async rewrites() {
-    return [
-      { source: "/blog", destination: `${BLOG}/blog/` },
-      // Com barra final primeiro: o :path* sozinho a descartaria e o WordPress redirecionaria para o subdomínio.
-      { source: "/blog/:path*/", destination: `${BLOG}/blog/:path*/` },
-      { source: "/blog/:path*", destination: `${BLOG}/blog/:path*` },
-    ];
+    const wp = (source: string, destination = source) => ({ source, destination: `${BLOG}${destination}` });
+    return {
+      beforeFiles: [
+        wp("/blog/wp-json/:path*"),
+        wp("/blog/feed"),
+        wp("/blog/feed/"),
+        wp("/blog/:path*/feed"),
+        wp("/blog/:path*/feed/"),
+        wp("/blog/:file(.+\\.(?:xml|xsl|txt))", "/blog/:file"),
+        wp("/blog/wp-content/:path*"),
+        wp("/blog/wp-includes/:path*"),
+      ],
+    };
   },
   async redirects() {
     return [

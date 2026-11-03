@@ -33,3 +33,12 @@ Ainda faltam, previstos na fase 0: filtro de turno, seletor de disponibilidade e
 2. Todo texto gerado por IA leva `AiBadge` e mostra a origem: "Você informou", "Vimos na foto N" ou "Sugestão da IA".
 3. Foco visível com `focus-ring` em todo elemento interativo.
 4. Mobile primeiro: o cadastro precisa funcionar com uma mão.
+
+## Blog (subleasy.com.br/blog)
+
+O conteúdo é do WordPress (Bricks, blog.subleasy.com.br), mas o cabeçalho, a busca de salas, o rodapé e a tab bar são os do site. O Next busca o HTML de cada página (`src/lib/blog.ts`), aproveita só o `<main>` e o exibe num shadow root (`src/components/blog-shadow.tsx`), então o CSS do Bricks não vaza para o site nem o do site desmonta o blog.
+
+- **Design system no blog:** `scopeCss` adapta o CSS do Bricks ao site: Inter no lugar da Area Normal, pesos 500/600, paleta `--ink-*`/`--brand-*` apontando para `--color-*` do Tailwind e tokens (`--radius-*`, `--shadow-*`, `--text-*`) herdados de `globals.css`. Por isso o `@theme` é `static`: o blog herda todos os tokens, mesmo os que nenhuma classe do site usa.
+- **Busca do blog:** `?s=` nativa do WordPress, só nos posts. Fora do início e dos resultados, a faixa `BlogBar` mostra o campo.
+- **Rewrites** em `next.config.ts` só para o que não é página: `wp-json`, feeds, sitemaps e `wp-content`.
+- O README acima ainda cita a Area Normal; o código usa Inter (ver `globals.css`).
