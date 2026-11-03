@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import posthog from "posthog-js";
 import {
-  ArrowSquareOutIcon,
   CaretRightIcon,
   GearSixIcon,
   HeartIcon,
@@ -260,7 +259,7 @@ function MenuPanel({ open, onClose, signedIn }: { open: boolean; onClose: () => 
               </li>
             ))}
             <li className={item} style={stagger(NAV_LINKS.length + 1)}>
-              <Row href="https://blog.subleasy.com.br/" newTab onNavigate={requestClose}>
+              <Row href="/blog/" reload onNavigate={requestClose}>
                 Blog
               </Row>
             </li>
@@ -311,19 +310,22 @@ function MenuPanel({ open, onClose, signedIn }: { open: boolean; onClose: () => 
 const ROW =
   "focus-ring flex min-h-14 w-full items-center gap-3 rounded-control px-2 text-left text-lg font-semibold tracking-[-0.015em] text-ink-900 transition-colors active:bg-ink-100";
 
-function Row({ href, children, icon, newTab, onNavigate }: { href: string; children: ReactNode; icon?: ReactNode; newTab?: boolean; onNavigate: () => void }) {
-  return (
-    <Link href={href} onClick={onNavigate} className={ROW} {...(newTab && { target: "_blank", rel: "noopener noreferrer" })}>
+/** `reload`: página fora do roteador do Next (o blog, gerado a partir do WordPress), aberta com um link comum. */
+function Row({ href, children, icon, reload, onNavigate }: { href: string; children: ReactNode; icon?: ReactNode; reload?: boolean; onNavigate: () => void }) {
+  const content = (
+    <>
       {icon}
       <span className="flex-1">{children}</span>
-      {newTab ? (
-        <>
-          <ArrowSquareOutIcon className="size-4 text-ink-400" aria-hidden />
-          <span className="sr-only">(abre em nova aba)</span>
-        </>
-      ) : (
-        <CaretRightIcon className="size-4 text-ink-400" weight="bold" aria-hidden />
-      )}
+      <CaretRightIcon className="size-4 text-ink-400" weight="bold" aria-hidden />
+    </>
+  );
+  return reload ? (
+    <a href={href} onClick={onNavigate} className={ROW}>
+      {content}
+    </a>
+  ) : (
+    <Link href={href} onClick={onNavigate} className={ROW}>
+      {content}
     </Link>
   );
 }
