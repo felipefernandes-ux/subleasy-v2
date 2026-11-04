@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const CARD_FIELDS = "id, slug, title, space_type, neighborhood, city, price, billing_type, photos, photo_sizes, status, expires_at";
+const CARD_FIELDS = "id, slug, title, space_type, city, state, price, billing_type, photos, photo_sizes, status, expires_at";
 
 export default function FavoriteListPage({ params }: PageProps<"/favoritos/[id]">) {
   return (

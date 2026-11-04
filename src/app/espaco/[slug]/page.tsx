@@ -58,7 +58,7 @@ async function getRelated(listing: { id: string; city: string; space_type: strin
 
   const { data } = await createPublicClient()
     .from("listings")
-    .select("slug, title, space_type, neighborhood, city, price, billing_type, photos, photo_sizes")
+    .select("slug, title, space_type, city, state, price, billing_type, photos, photo_sizes")
     .eq("status", "active")
     .neq("id", listing.id)
     .or(`city.eq."${listing.city.replace(/"/g, "")}",space_type.eq.${listing.space_type}`)

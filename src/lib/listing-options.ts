@@ -137,6 +137,16 @@ export function photoUrl(path: string) {
   return `${SUPABASE_URL}/storage/v1/object/public/${PHOTO_BUCKET}/${path}`;
 }
 
+/**
+ * Onde fica a sala nas listagens: "Santo André, SP", como o Marketplace do Facebook mostra um imóvel.
+ * A cidade vem com o UF porque a busca mistura cidades; o bairro fica só na página do anúncio.
+ * Sem o UF (dado antigo), mostra só a cidade.
+ */
+export function formatPlace(city: string, state?: string | null) {
+  const uf = state?.trim().toUpperCase();
+  return uf ? `${city}, ${uf}` : city;
+}
+
 export function formatPrice(price: number) {
   return price.toLocaleString("pt-BR", {
     style: "currency",

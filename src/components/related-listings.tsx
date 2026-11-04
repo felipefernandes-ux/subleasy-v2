@@ -1,15 +1,16 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ImageIcon } from "@phosphor-icons/react/ssr";
-import { BILLING_UNIT, SPACE_TYPES, formatPrice, parsePhotoSizes, photoUrl, type BillingType, type SpaceType } from "@/lib/listing-options";
+import { BILLING_UNIT, SPACE_TYPES, formatPlace, formatPrice, parsePhotoSizes, photoUrl, type BillingType, type SpaceType } from "@/lib/listing-options";
 import { FramedPhoto } from "./framed-photo";
 
 export type RelatedListing = {
   slug: string;
   title: string;
   space_type: string;
-  neighborhood: string;
   city: string;
+  /** Opcional: o perfil público só o devolve depois da migração perfil_publico_com_uf. */
+  state?: string;
   price: number;
   billing_type: string;
   photos: string[];
@@ -37,7 +38,7 @@ export function ListingCard({ listing, corner }: { listing: RelatedListing; corn
         </span>
         <span className="mt-3 block truncate font-bold text-ink-900 group-hover:text-brand-700">{listing.title}</span>
         <span className="mt-0.5 block truncate text-sm text-ink-600">
-          {SPACE_TYPES[listing.space_type as SpaceType] ?? listing.space_type} ・ {listing.neighborhood}, {listing.city}
+          {SPACE_TYPES[listing.space_type as SpaceType] ?? listing.space_type} ・ {formatPlace(listing.city, listing.state)}
         </span>
         <span className="mt-1 block text-sm">
           <strong className="font-bold text-ink-900">{formatPrice(listing.price)}</strong>

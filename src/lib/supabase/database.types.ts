@@ -941,6 +941,7 @@ export type Database = {
           price: number
           slug: string
           space_type: string
+          state: string
           title: string
         }[]
       }

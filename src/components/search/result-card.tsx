@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { CaretLeftIcon, CaretRightIcon, GiftIcon, ImageIcon } from "@phosphor-icons/react";
-import { BILLING_UNIT, SPACE_TYPES, formatPrice, photoUrl, type BillingType, type PhotoSizes, type SpaceType } from "@/lib/listing-options";
+import { BILLING_UNIT, SPACE_TYPES, formatPlace, formatPrice, photoUrl, type BillingType, type PhotoSizes, type SpaceType } from "@/lib/listing-options";
 import { FramedPhoto } from "../framed-photo";
 
 export type SearchResult = {
@@ -102,7 +102,7 @@ export function ResultCard({ listing, onHover, priority }: { listing: SearchResu
       <a href={href} target="_blank" rel="noopener" tabIndex={-1} className="mt-3 block">
         <span className="block truncate font-bold text-ink-900 group-hover:text-brand-700">{listing.title}</span>
         <span className="mt-0.5 block truncate text-sm text-ink-600">
-          {SPACE_TYPES[listing.space_type as SpaceType] ?? listing.space_type} ・ {listing.neighborhood}, {listing.city}
+          {SPACE_TYPES[listing.space_type as SpaceType] ?? listing.space_type} ・ {formatPlace(listing.city, listing.state)}
         </span>
         <span className="mt-1 block text-sm">
           <strong className="font-bold text-ink-900">{formatPrice(listing.price)}</strong>
