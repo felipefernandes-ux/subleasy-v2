@@ -87,6 +87,11 @@ function parseDocument(page: string): BlogDocument {
   const bodyClass = /<body\s+class="([^"]*)"/.exec(page)?.[1] ?? "";
 
   const styles = [...head.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map((m) => scopeCss(m[1])).filter(Boolean);
+  // No CSS do Bricks a regra de coluna única do destaque (<= 991px) vem antes da de desktop, com a mesma
+  // especificidade, e perde: o destaque ficava em 2 colunas no mobile. Repetida aqui, depois de tudo, ela vence.
+  styles.push(
+    "@media (max-width: 991px) { .wp-body:not(.paged) .sb-post-grid--lead > .sb-card:first-child { grid-template-columns: minmax(0, 1fr); } }",
+  );
 
   const sheets: string[] = [];
   for (const tag of head.matchAll(/<link\s+([^>]*?)\/?>/g)) {
