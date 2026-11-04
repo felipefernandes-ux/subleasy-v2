@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { CookiePreferencesButton } from "./cookie-consent";
 import { ArrowRightIcon, Logo, buttonClasses } from "./ui";
 
@@ -6,39 +5,36 @@ export function FinalCta() {
   return (
     <section aria-labelledby="cta-titulo" className="bg-white pb-20 sm:pb-24">
       <div className="container-page">
-        <div className="grid overflow-hidden rounded-panel bg-brand-600 text-white lg:grid-cols-[1.3fr_1fr]">
-          <div className="p-8 sm:p-12">
-            <h2
-              id="cta-titulo"
-              className="text-h1 font-bold"
-            >
-              Tem horários vagos na sua sala?
-            </h2>
-            <p className="mt-4 max-w-md text-lg text-brand-100">
-              Publique em 3 minutos e comece a receber contatos de profissionais
-              da sua cidade. Grátis e sem comissão.
+        <div className="relative isolate grid items-center gap-8 overflow-hidden rounded-panel bg-brand-600 p-8 text-white shadow-brand sm:p-12 lg:grid-cols-[1.4fr_auto] lg:gap-12 lg:p-16">
+          {/* Grade decorativa à direita, desvanecendo para a esquerda */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 right-0 -z-10 w-full bg-brand-500 [background-image:linear-gradient(to_right,var(--color-brand-600)_6px,transparent_6px),linear-gradient(to_bottom,var(--color-brand-600)_6px,transparent_6px)] [background-position:-3px_-3px] [background-size:30px_30px] [mask-image:linear-gradient(to_top,rgb(0_0_0/0.45),transparent_70%)] lg:w-[55%] lg:[mask-image:linear-gradient(to_left,rgb(0_0_0/0.55),transparent_85%)]"
+          />
+          <div className="flex flex-col gap-4">
+            <p className="inline-flex items-center text-xs font-bold tracking-wider text-brand-100 uppercase">
+              <span aria-hidden className="mr-2 size-2 shrink-0 rounded-full bg-mint-400" />
+              Para quem tem sala
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <a href="/anunciar" className={buttonClasses("inverse", "lg")}>
-                Anunciar minha sala grátis
-                <ArrowRightIcon />
-              </a>
-              <a
-                href="#buscar"
-                className="focus-ring inline-flex h-12 items-center justify-center rounded-control px-5 text-base font-bold text-white ring-1 ring-white/30 transition-colors hover:bg-white/10 sm:h-13 sm:px-6"
-              >
-                Procuro uma sala
-              </a>
-            </div>
+            <h2 id="cta-titulo" className="max-w-[22ch] text-h2 font-bold text-balance">
+              Sua sala fica vazia em algum turno?
+            </h2>
+            <p className="max-w-[52ch] text-lg text-brand-100">
+              Anuncie grátis na Subleasy. Profissionais da sua região falam
+              direto com você pelo WhatsApp.
+            </p>
           </div>
-          <div className="relative hidden min-h-72 lg:block">
-            <Image
-              src="/salas/psicologa-sublocacao-sala.webp"
-              alt="Psicóloga sorrindo com uma prancheta em uma sala de atendimento"
-              fill
-              sizes="(max-width: 1024px) 0px, 40vw"
-              className="object-cover object-[60%_20%]"
-            />
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <a href="/anunciar" className={buttonClasses("inverse", "lg")}>
+              Anunciar minha sala grátis
+              <ArrowRightIcon />
+            </a>
+            <a
+              href="#buscar"
+              className="focus-ring inline-flex h-12 items-center justify-center rounded-control px-5 text-base font-bold text-white ring-1 ring-white/30 transition-colors hover:bg-white/10 sm:h-13 sm:px-6"
+            >
+              Procurar uma sala
+            </a>
           </div>
         </div>
       </div>
