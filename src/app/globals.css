@@ -110,6 +110,8 @@
   --animate-drawer-in: drawer-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-drawer-out: drawer-out 0.26s cubic-bezier(0.5, 0, 0.75, 0) both;
   --animate-veil-in: veil-in 0.3s ease-out both;
+  /* Folha de contato do celular: sobe de baixo. */
+  --animate-sheet-up: sheet-up 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-veil-out: veil-out 0.26s ease-in both;
   --animate-item-in: item-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-spark: spark 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
@@ -118,6 +120,15 @@
   --animate-bar-fill: bar-fill 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   --animate-line-draw: line-draw 1.4s cubic-bezier(0.45, 0, 0.1, 1) both;
   --animate-halo: halo 1.8s cubic-bezier(0.25, 0.8, 0.25, 1) both;
+
+  @keyframes sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: none;
+    }
+  }
 
   @keyframes drawer-in {
     from {

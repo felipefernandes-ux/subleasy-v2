@@ -6,7 +6,7 @@ import { ListingView } from "@/components/listing-view";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ViewTracker } from "@/components/view-tracker";
-import { WhatsAppButton } from "@/components/whatsapp-button";
+import { MobileContact, WhatsAppButton } from "@/components/whatsapp-button";
 import { RelatedListings } from "@/components/related-listings";
 import { BILLING_UNIT, SPACE_TYPES, formatPrice, photoUrl, type BillingType, type SpaceType } from "@/lib/listing-options";
 import { STATUS_LABEL, getAdminClient } from "@/lib/admin-preview";
@@ -135,6 +135,7 @@ async function Sala({ slug }: { slug: string }) {
         listing={listing}
         host={host}
         action={<WhatsAppButton listingId={listing.id} title={listing.title} about={about} whatsapp={listing.whatsapp_contact} email={listing.email_contact} />}
+        mobileContact={<MobileContact listingId={listing.id} title={listing.title} about={about} whatsapp={listing.whatsapp_contact} />}
         related={<RelatedListings listings={related} description={`Outras opções em ${listing.city} e para a mesma área de atuação.`} />}
       />
     </>

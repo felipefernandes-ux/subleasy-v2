@@ -66,6 +66,7 @@ export function ListingView({
   action,
   related,
   contact,
+  mobileContact,
   hostName,
   priceNote,
   amenitiesNote,
@@ -77,6 +78,8 @@ export function ListingView({
   related?: ReactNode;
   /** Prévia de prospecção: botão de contato no bloco da direita, sem compartilhar, salvar nem barra fixa. */
   contact?: ReactNode;
+  /** Botão da barra fixa do celular; sem ele, a barra leva ao bloco de contato. */
+  mobileContact?: ReactNode;
   /** Prévia de prospecção: anunciante que ainda não tem perfil (o nome do local), no lugar do bloco do anunciante. */
   hostName?: string;
   /** Texto pequeno abaixo do preço no bloco de contato (ex.: “Valor de exemplo”). */
@@ -238,9 +241,11 @@ export function ListingView({
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-ink-200 bg-white/95 backdrop-blur-md lg:hidden">
           <div className="container-page flex items-center justify-between gap-4 py-3">
             <p className="text-lg">{price}</p>
-            <a href="#contato" className="focus-ring inline-flex h-11 items-center rounded-control bg-brand-600 px-5 text-sm font-bold text-white shadow-xs hover:bg-brand-500">
-              Entrar em contato
-            </a>
+            {mobileContact ?? (
+              <a href="#contato" className="focus-ring inline-flex h-11 items-center rounded-control bg-brand-600 px-5 text-sm font-bold text-white shadow-xs hover:bg-brand-500">
+                Entrar em contato
+              </a>
+            )}
           </div>
         </div>
       )}
