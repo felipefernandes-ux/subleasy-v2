@@ -121,7 +121,7 @@ function Slider({
 }
 
 // Anima de um valor ao outro em 600ms. Sem animação para quem pede menos movimento.
-function useCountUp(target: number) {
+export function useCountUp(target: number) {
   const [value, setValue] = useState(target);
   const from = useRef(target);
 

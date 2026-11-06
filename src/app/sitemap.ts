@@ -39,6 +39,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    {
+      url: `${SITE_URL}/quanto-cobrar-sublocacao-consultorio`,
+      lastModified: new Date("2026-11-07"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     ...["/termos", "/privacidade"].map((path) => ({
       url: `${SITE_URL}${path}`,
       lastModified: new Date(TERMS_VERSION),

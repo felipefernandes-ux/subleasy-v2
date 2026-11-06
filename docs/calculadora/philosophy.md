@@ -1,0 +1,11 @@
+# Hora Cheia
+
+Uma filosofia visual do tempo que vira valor. A semana é uma grade de vinte e um turnos, sempre a mesma, e cada célula pode estar vazia, oferecida ou ocupada. A composição existe para mostrar a passagem de um estado ao outro: o cinza frio de uma hora que ninguém usou, o roxo claro de uma hora posta à disposição, o menta de uma hora que alguém ocupou. Nada é explicado em frases; o olho lê a diferença entre as três cores e entende o que aconteceu.
+
+O movimento é a prova. As células acendem em cascata, na ordem da agenda, e se apagam devagar para acender de novo, como uma semana que se repete. Uma moeda sobe a cada ciclo e o ponteiro de um relógio gira sem pressa. Cada gesto é curto na entrada e longo na saída, nunca há dois gestos fortes ao mesmo tempo, e quem pede menos movimento recebe a mesma imagem parada. A coreografia foi desenhada com a paciência de quem ajusta cada atraso à mão, até a cascata parecer inevitável.
+
+A forma nasce do número. O resultado em reais é o único elemento monumental da página: um algarismo enorme, quase arquitetônico, que sobe até o valor novo toda vez que a conta muda, cercado de rótulos mínimos nas margens, horas, dias, índices. A grade e o número são a mesma informação vista de dois lados, o espaço e o valor, e se movem juntos. Nenhum desenho decorativo disputa com eles: a sala, a janela, a poltrona e a planta servem de cenário calmo para a agenda na parede, em poucos planos de cor.
+
+A paleta é curta e leal ao sistema: a escala de roxos do mais claro ao mais escuro para tudo o que é estrutura, os cinzas frios para o que está livre e um único menta para o que acontece. Margens largas emolduram a calculadora, e o painel escuro do resultado ancora a página como um instrumento de bancada. A escala alterna o monumental e o minúsculo, e o texto corrido fica quieto, só o suficiente para sustentar a conta.
+
+O ofício é a mensagem. A página deve parecer composta durante semanas por alguém no topo da profissão, com cada célula na mesma unidade, cada intervalo derivado do mesmo módulo e cada transição calibrada até desaparecer. Uma execução de mestre, meticulosa, sem nada sobrando: o cuidado fica invisível e por isso o número parece confiável.

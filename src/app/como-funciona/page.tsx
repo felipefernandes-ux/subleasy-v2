@@ -346,6 +346,13 @@ export default function ComoFuncionaPage() {
             <Reveal delay={120} className="mt-10">
               <ShiftEarnings />
             </Reveal>
+            <p className="mt-6 text-center text-ink-600">
+              Quer a conta com o seu tipo de sala, a sua cidade e o custo da sala?{" "}
+              <Link href="/quanto-cobrar-sublocacao-consultorio" className="font-bold text-brand-600 hover:text-brand-700">
+                Use a calculadora completa
+              </Link>
+              .
+            </p>
           </div>
         </section>
 

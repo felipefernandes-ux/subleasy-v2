@@ -48,6 +48,7 @@ const FOOTER_LINKS = [
     links: [
       { href: "/anunciar", label: "Anunciar sala" },
       { href: "/como-funciona", label: "Como funciona" },
+      { href: "/quanto-cobrar-sublocacao-consultorio", label: "Quanto cobrar pela sala" },
       { href: "#painel", label: "Painel do anunciante" },
     ],
   },
