@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CalendarBlankIcon, ChartLineUpIcon, ScalesIcon } from "@phosphor-icons/react/ssr";
+import { CtaValue } from "@/components/calculator/cta-value";
 import { RoomArt } from "@/components/calculator/room-art";
+import { GlowButton } from "@/components/glow-button";
 import { SubleaseCalculator } from "@/components/calculator/sublease-calculator";
 import { Reveal } from "@/components/reveal";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { ArrowRightIcon, CheckIcon, Eyebrow, buttonClasses } from "@/components/ui";
+import { ArrowRightIcon, CheckIcon, Eyebrow } from "@/components/ui";
 import { MIN_SAMPLE, getMarketStats } from "@/lib/market-prices";
 import { BILLING_UNITS, money, type Billing } from "@/lib/sublease-calc";
 import { SITE_URL } from "@/lib/site";
@@ -306,14 +308,24 @@ export default async function CalculadoraPage() {
         {/* ── Chamada final ────────────────────────────────────── */}
         <section aria-labelledby="final-titulo" className="bg-white pb-20 sm:pb-24">
           <div className="container-page">
-            <Reveal className="relative isolate overflow-hidden rounded-panel bg-brand-600 p-8 text-white shadow-brand sm:p-12 lg:p-16">
+            <Reveal className="relative isolate grid items-center gap-10 overflow-hidden rounded-panel bg-brand-600 p-8 text-white shadow-brand sm:p-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:p-16">
               <div aria-hidden className="absolute inset-0 -z-10 [background-image:linear-gradient(to_right,var(--color-brand-500)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-brand-500)_1px,transparent_1px)] [background-size:30px_30px] [mask-image:linear-gradient(to_left,rgb(0_0_0/0.6),transparent_75%)]" />
-              <h2 id="final-titulo" className="max-w-[24ch] text-h1 font-bold text-balance">Fez a conta? Coloque a sala no ar.</h2>
-              <p className="mt-4 max-w-xl text-lg text-brand-100">Anúncio grátis, pronto em 3 minutos com ajuda da IA e sem comissão sobre o aluguel. Quem procura sala fala direto com você pelo WhatsApp.</p>
-              <a href="/anunciar" className={`${buttonClasses("inverse", "lg")} mt-8`}>
-                Anunciar minha sala grátis
-                <ArrowRightIcon />
-              </a>
+              <div>
+                <h2 id="final-titulo" className="max-w-[24ch] text-h1 font-bold text-balance">Fez a conta? Coloque a sala no ar.</h2>
+                <p className="mt-4 max-w-xl text-lg text-brand-100">Anúncio grátis, pronto em 3 minutos com ajuda da IA e sem comissão sobre o aluguel. Quem procura sala fala direto com você pelo WhatsApp.</p>
+                <GlowButton href="/anunciar" className="mt-8">
+                  Anunciar minha sala grátis
+                  <ArrowRightIcon />
+                </GlowButton>
+                <p className="mt-6 text-sm text-brand-100">
+                  Procura uma sala para atender?{" "}
+                  <Link href="/vale-a-pena-alugar-consultorio-por-hora" className="font-bold text-white underline underline-offset-4 hover:text-mint-400">
+                    Veja se alugar por hora compensa
+                  </Link>
+                  .
+                </p>
+              </div>
+              <CtaValue />
             </Reveal>
           </div>
         </section>

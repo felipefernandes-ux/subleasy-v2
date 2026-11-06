@@ -16,7 +16,7 @@ export async function trackContact(event: ContactEvent, listingId: string) {
   await sendEvent(event, { listing_id: listingId, contact_channel: event === "whatsapp_click" ? "whatsapp" : "formulario" });
 }
 
-/** Evento da calculadora de sublocação: uso, resultado visto e clique em anunciar. Mesmas regras de consentimento e de Super Admin. */
+/** Evento das calculadoras (param `tool`: renda ou economia): uso, resultado visto e clique na chamada final. Mesmas regras de consentimento e de Super Admin. */
 export async function trackCalculator(event: "calculator_started" | "calculator_result" | "calculator_cta_click", params: Record<string, string | number> = {}) {
   await sendEvent(event, params);
 }

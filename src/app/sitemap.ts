@@ -45,6 +45,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    {
+      url: `${SITE_URL}/vale-a-pena-alugar-consultorio-por-hora`,
+      lastModified: new Date("2026-11-07"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     ...["/termos", "/privacidade"].map((path) => ({
       url: `${SITE_URL}${path}`,
       lastModified: new Date(TERMS_VERSION),

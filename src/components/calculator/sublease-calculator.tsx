@@ -5,6 +5,7 @@ import { CaretDownIcon, MapPinIcon, TrendUpIcon } from "@phosphor-icons/react";
 import posthog from "posthog-js";
 import { suggestCities } from "@/app/actions/city-demand";
 import { trackCalculator } from "@/lib/analytics";
+import { publishExpected } from "@/lib/calculator-store";
 import { normalizeCity } from "@/lib/city-text";
 import { SPACE_TYPES, type SpaceType } from "@/lib/listing-options";
 import type { MarketStat } from "@/lib/market-prices";
@@ -44,6 +45,8 @@ export function SubleaseCalculator({ stats }: { stats: MarketStat[] }) {
   const cost = digits(costText);
   const result = calculate({ billing, quantity, price: priceValue, occupancy: occupancy / 100, cost });
   const shown = useCountUp(result.expected);
+  // A chamada final da página repete este valor.
+  useEffect(() => publishExpected(result.expected), [result.expected]);
 
   // Medição: o uso começa na primeira mudança; o resultado conta uma vez por sessão da página, depois de uma pausa.
   const started = useRef(false);
@@ -51,14 +54,14 @@ export function SubleaseCalculator({ stats }: { stats: MarketStat[] }) {
   const touch = () => {
     if (started.current) return;
     started.current = true;
-    void trackCalculator("calculator_started");
-    posthog.capture("calculator_started");
+    void trackCalculator("calculator_started", { tool: "renda" });
+    posthog.capture("calculator_started", { tool: "renda" });
   };
   useEffect(() => {
     if (!started.current || reported.current || result.expected <= 0) return;
     const timer = window.setTimeout(() => {
       reported.current = true;
-      const params = { billing, space_type: spaceType, level: market?.level ?? "none" };
+      const params = { tool: "renda", billing, space_type: spaceType, level: market?.level ?? "none" };
       void trackCalculator("calculator_result", params);
       posthog.capture("calculator_result", params);
     }, 1500);
@@ -295,8 +298,8 @@ export function SubleaseCalculator({ stats }: { stats: MarketStat[] }) {
           <a
             href="/anunciar"
             onClick={() => {
-              void trackCalculator("calculator_cta_click", { billing, space_type: spaceType });
-              posthog.capture("calculator_cta_click", { billing });
+              void trackCalculator("calculator_cta_click", { tool: "renda", billing, space_type: spaceType });
+              posthog.capture("calculator_cta_click", { tool: "renda", billing });
             }}
             className={buttonClasses("inverse", "lg")}
           >

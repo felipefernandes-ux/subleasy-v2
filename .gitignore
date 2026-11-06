@@ -47,3 +47,6 @@ next-env.d.ts
 # skills dos agentes (instaladas por `npx skills add`; têm node_modules próprio)
 /.agents/
 /.claude/skills/
+
+# Firecrawl: pesquisas locais
+.firecrawl/
