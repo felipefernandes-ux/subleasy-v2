@@ -25,12 +25,22 @@ const SHIFTS = ["Manhã", "Tarde", "Noite"];
  * aos anúncios do Subleasy. Tudo roda no navegador; nada do que a pessoa digita é enviado.
  * A semana de 21 turnos (7 dias × manhã, tarde e noite) mostra o que a sala oferece e o que se aluga.
  */
-export function SubleaseCalculator({ stats }: { stats: MarketStat[] }) {
-  const [spaceType, setSpaceType] = useState<SpaceType>("psicologia");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [billing, setBilling] = useState<Billing>("hora");
-  const [quantity, setQuantity] = useState(BILLING_UNITS.hora.start);
+export function SubleaseCalculator({
+  stats,
+  initial,
+  embedded,
+}: {
+  stats: MarketStat[];
+  /** Começa já com o que o cadastro do anúncio sabe: tipo de sala, cobrança e cidade. */
+  initial?: { spaceType?: SpaceType; billing?: Billing; city?: string; state?: string };
+  /** Aberta dentro do cadastro: em vez de levar a outra página, devolve o preço escolhido ao anúncio. */
+  embedded?: { onUse: (price: number, billing: Billing) => void };
+}) {
+  const [spaceType, setSpaceType] = useState<SpaceType>(initial?.spaceType ?? "psicologia");
+  const [city, setCity] = useState(initial?.city ?? "");
+  const [state, setState] = useState(initial?.state ?? "");
+  const [billing, setBilling] = useState<Billing>(initial?.billing ?? "hora");
+  const [quantity, setQuantity] = useState(BILLING_UNITS[initial?.billing ?? "hora"].start);
   const [priceText, setPriceText] = useState("");
   const [priceTouched, setPriceTouched] = useState(false);
   const [occupancy, setOccupancy] = useState(50);
@@ -46,7 +56,9 @@ export function SubleaseCalculator({ stats }: { stats: MarketStat[] }) {
   const result = calculate({ billing, quantity, price: priceValue, occupancy: occupancy / 100, cost });
   const shown = useCountUp(result.expected);
   // A chamada final da página repete este valor.
-  useEffect(() => publishExpected(result.expected), [result.expected]);
+  useEffect(() => {
+    if (!embedded) publishExpected(result.expected);
+  }, [result.expected, embedded]);
 
   // Medição: o uso começa na primeira mudança; o resultado conta uma vez por sessão da página, depois de uma pausa.
   const started = useRef(false);
@@ -295,20 +307,38 @@ export function SubleaseCalculator({ stats }: { stats: MarketStat[] }) {
         )}
 
         <div className="relative mt-auto flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <a
-            href="/anunciar"
-            onClick={() => {
-              void trackCalculator("calculator_cta_click", { tool: "renda", billing, space_type: spaceType });
-              posthog.capture("calculator_cta_click", { tool: "renda", billing });
-            }}
-            className={buttonClasses("inverse", "lg")}
-          >
-            Anunciar minha sala grátis
-            <ArrowRightIcon />
-          </a>
-          <a href={listingsUrl} className="focus-ring inline-flex h-12 items-center justify-center rounded-control px-5 text-base font-bold text-white ring-1 ring-white/30 transition-colors hover:bg-white/10 sm:h-13">
-            Ver salas parecidas
-          </a>
+          {embedded ? (
+            <button
+              type="button"
+              disabled={priceValue <= 0}
+              onClick={() => {
+                void trackCalculator("calculator_cta_click", { tool: "renda", billing, space_type: spaceType, origin: "cadastro" });
+                posthog.capture("calculator_cta_click", { tool: "renda", billing, origin: "cadastro" });
+                embedded.onUse(priceValue, billing);
+              }}
+              className={`${buttonClasses("inverse", "lg")} disabled:opacity-60`}
+            >
+              Usar {money.format(priceValue)} {billing === "mes" ? "por mês" : `por ${unit.unit}`} no meu anúncio
+              <ArrowRightIcon />
+            </button>
+          ) : (
+            <>
+              <a
+                href="/anunciar"
+                onClick={() => {
+                  void trackCalculator("calculator_cta_click", { tool: "renda", billing, space_type: spaceType });
+                  posthog.capture("calculator_cta_click", { tool: "renda", billing });
+                }}
+                className={buttonClasses("inverse", "lg")}
+              >
+                Anunciar minha sala grátis
+                <ArrowRightIcon />
+              </a>
+              <a href={listingsUrl} className="focus-ring inline-flex h-12 items-center justify-center rounded-control px-5 text-base font-bold text-white ring-1 ring-white/30 transition-colors hover:bg-white/10 sm:h-13">
+                Ver salas parecidas
+              </a>
+            </>
+          )}
         </div>
         <p className="relative text-xs text-brand-200">
           Estimativa com os números que você digitou e os anúncios do Subleasy. O valor real depende de quantos horários você fecha.

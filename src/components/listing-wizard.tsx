@@ -24,6 +24,7 @@ import {
 import { createListing, discardDraftPhotos, type NewListing } from "@/app/actions/create-listing";
 import { updateListing } from "@/app/actions/update-listing";
 import { suggestListingCopy } from "@/app/actions/rewrite";
+import { PriceToolButton } from "./calculator/price-tool";
 import {
   AMENITIES,
   BILLING_TYPES,
@@ -771,6 +772,16 @@ function Wizard({
                     </div>
                   )}
                 </Field>
+                <PriceToolButton
+                  spaceType={draft.space_type}
+                  billing={draft.billing_type}
+                  city={draft.city}
+                  state={draft.state}
+                  onUse={(price, billing) => {
+                    set("billing_type", billing);
+                    set("price", moneyFromNumber(price));
+                  }}
+                />
                 <Field label="Período mínimo" hint="Ex.: 1 turno por semana, 3 meses." optional>
                   {(props) => (
                     <input {...props} type="text" value={draft.min_rental_period} onChange={(event) => set("min_rental_period", event.target.value)} className={`${INPUT} h-12 ${props.className}`} />

@@ -46,6 +46,8 @@ const nextConfig: NextConfig = {
     return {
       beforeFiles: [
         wp("/blog/wp-json/:path*"),
+        // Metadados OAuth (RFC 9728 e 8414) que o Novamira CLI lê para autorizar o login em subleasy.com.br/blog.
+        wp("/blog/.well-known/:path*"),
         wp("/blog/feed"),
         wp("/blog/feed/"),
         wp("/blog/:path*/feed"),
