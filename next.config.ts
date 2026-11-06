@@ -47,6 +47,9 @@ const nextConfig: NextConfig = {
       beforeFiles: [
         wp("/blog/wp-json/:path*"),
         // Metadados OAuth (RFC 9728 e 8414) que o Novamira CLI lê para autorizar o login em subleasy.com.br/blog.
+        // O de servidor de autorização passa por src/app/blog-oauth, que troca o authorization_endpoint para a mesma origem.
+        { source: "/blog/.well-known/oauth-authorization-server", destination: "/blog-oauth" },
+        { source: "/blog/.well-known/oauth-authorization-server/", destination: "/blog-oauth" },
         wp("/blog/.well-known/:path*"),
         wp("/blog/feed"),
         wp("/blog/feed/"),
@@ -79,6 +82,8 @@ const nextConfig: NextConfig = {
       legacy("/category/:slug", "/blog/category/:slug/"),
       ...BLOG_POSTS.map((slug) => legacy(`/${slug}`, `/blog/${slug}/`)),
       // WordPress: páginas institucionais e da conta que têm equivalente no 2.0.
+      // Tela de autorização do Novamira CLI: o endereço público existe só para ter a mesma origem do blog (ver src/app/blog-oauth).
+      { source: "/blog/novamira-authorize", destination: `${BLOG}/wp-admin/admin.php?page=novamira-oauth-authorize`, permanent: false },
       legacy("/perguntas-frequentes", "/como-funciona"),
       legacy("/termos-de-uso", "/termos"),
       legacy("/politica-de-privacidade", "/privacidade"),
