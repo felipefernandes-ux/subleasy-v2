@@ -19,7 +19,9 @@ import {
   toBrazilianWhatsApp,
   type Offer,
 } from "@/lib/listing-options";
+import { notifyCityWaiters } from "@/lib/city-waiters";
 import { notifySubmitted } from "@/lib/listing-notify";
+import { ATTRIBUTION_COOKIE, parseAttribution } from "@/lib/attribution";
 import { emitPostHogLog } from "@/lib/posthog-logs";
 import { recordAudit } from "@/lib/superadmin/audit";
 import { getOrigin, getPublicOrigin } from "@/lib/origin";
@@ -277,7 +279,7 @@ export async function approveListing(listingId: string, formData?: FormData) {
     })
     .eq("id", listingId)
     .eq("status", "pending_approval")
-    .select("slug, title")
+    .select("slug, title, city, state")
     .maybeSingle();
   if (error || !listing) {
     console.error("[approveListing]", error);
@@ -296,6 +298,7 @@ export async function approveListing(listingId: string, formData?: FormData) {
       listingPublishedEmail(owner.email, owner.display_name ?? "", listing.title, `${origin}/espaco/${listing.slug}`),
     );
   }
+  await notifyCityWaiters(listing);
   redirect(superadmin ? `/superadmin/anuncios/${listingId}?aprovado=1` : "/admin/anuncios?aprovado=1");
 }
 
@@ -357,6 +360,7 @@ export async function getWhatsAppLink(listingId: string, title: string) {
   const { data: number } = await supabase.rpc("get_listing_whatsapp", {
     p_listing_id: listingId,
     p_visitor_id: visitorId,
+    p_attribution: await getAttribution(),
   });
   if (!number) return null;
 
@@ -417,6 +421,7 @@ export async function submitInquiry(listingId: string, title: string, _previous:
     p_email: data.email,
     p_phone: data.phone,
     p_message: data.message,
+    p_attribution: await getAttribution(),
   });
   if (error) {
     console.error("[submitInquiry]", error);
@@ -436,6 +441,12 @@ export async function recordView(listingId: string) {
   const supabase = await createClient();
   const { error } = await supabase.rpc("record_listing_view", { p_listing_id: listingId, p_visitor_id: visitorId });
   if (error) console.error("[recordView]", error);
+}
+
+// Origem da primeira visita (cookie sl_attr, só existe com o aceite dos cookies de análise).
+async function getAttribution() {
+  const cookieStore = await cookies();
+  return parseAttribution(cookieStore.get(ATTRIBUTION_COOKIE)?.value);
 }
 
 // Id anônimo do visitante (cookie), para contar cada pessoa uma vez por dia.

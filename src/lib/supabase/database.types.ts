@@ -95,6 +95,51 @@ export type Database = {
         }
         Relationships: []
       }
+      city_requests: {
+        Row: {
+          city: string
+          city_key: string
+          created_at: string
+          email: string | null
+          id: number
+          notified_at: string | null
+          requests: number
+          source: string
+          space_type: string | null
+          state: string
+          updated_at: string
+          visitor_id: string
+        }
+        Insert: {
+          city: string
+          city_key: string
+          created_at?: string
+          email?: string | null
+          id?: never
+          notified_at?: string | null
+          requests?: number
+          source?: string
+          space_type?: string | null
+          state: string
+          updated_at?: string
+          visitor_id: string
+        }
+        Update: {
+          city?: string
+          city_key?: string
+          created_at?: string
+          email?: string | null
+          id?: never
+          notified_at?: string | null
+          requests?: number
+          source?: string
+          space_type?: string | null
+          state?: string
+          updated_at?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       consent_events: {
         Row: {
           channel: string
@@ -865,7 +910,7 @@ export type Database = {
       auth_user_id_by_email: { Args: { p_email: string }; Returns: string }
       delete_own_account: { Args: never; Returns: undefined }
       get_listing_whatsapp: {
-        Args: { p_listing_id: string; p_visitor_id: string }
+        Args: { p_attribution?: Json; p_listing_id: string; p_visitor_id: string }
         Returns: string
       }
       get_profile_whatsapp: { Args: { p_public_id: string }; Returns: string }
@@ -952,6 +997,7 @@ export type Database = {
       renew_listing: { Args: { p_listing_id: string }; Returns: string }
       submit_listing_inquiry: {
         Args: {
+          p_attribution?: Json
           p_email: string
           p_listing_id: string
           p_message: string

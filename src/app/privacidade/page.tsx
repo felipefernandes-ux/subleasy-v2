@@ -173,6 +173,10 @@ export default function PrivacidadePage() {
           <strong>De medição (Google Analytics)</strong>, que só ligam se você aceitar no aviso de cookies.
           Eles mostram, de forma agregada, quais páginas são visitadas e de onde vêm os acessos, para
           melhorarmos o site. Não usamos esses dados para anúncios nem para identificar você.
+          Se você aceitar, também guardamos por até 90 dias de qual campanha você chegou (os parâmetros utm,
+          gclid e fbclid do endereço). Quando você entra em contato com um anunciante, ligamos essa origem ao
+          contato para medir se a campanha funciona, sem seu nome nem seu e-mail, e o anunciante não vê essa
+          informação.
         </li>
       </ul>
       <p>

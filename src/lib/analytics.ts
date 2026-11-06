@@ -1,20 +1,11 @@
 "use client";
 
 import { sendGAEvent } from "@next/third-parties/google";
+import { analyticsAllowed } from "@/lib/attribution";
 import { createClient } from "@/lib/supabase/client";
-
-const CONSENT_KEY = "subleasy:cookies";
 
 /** Eventos de contato que viram eventos-chave no GA4 (e conversões no Google Ads). */
 export type ContactEvent = "whatsapp_click" | "inquiry_submit";
-
-function analyticsAllowed() {
-  try {
-    return JSON.parse(window.localStorage.getItem(CONSENT_KEY) ?? "null")?.analytics === true;
-  } catch {
-    return false;
-  }
-}
 
 /**
  * Manda um contato com o anunciante ao GA4. Só envia com o aceite de cookies de análise e com o GA já

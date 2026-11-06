@@ -3,8 +3,10 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { CaretDownIcon, MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react";
+import type { CityOption } from "@/lib/city-text";
 import { AMENITIES, BILLING_TYPES, SPACE_TYPES, amenityLabel } from "@/lib/listing-options";
+import { CityFilter } from "./city-filter";
 import { formatMoneyInput } from "../listing-fields";
 import { buttonClasses } from "../ui";
 
@@ -27,7 +29,7 @@ export function filtersFrom(params: URLSearchParams): Filters {
  * Linha de filtros rápidos, cada um num dropdown (como no QuintoAndar).
  * Aplicar troca a URL; a página busca de novo no servidor.
  */
-export function FilterBar({ aside }: { aside?: ReactNode }) {
+export function FilterBar({ aside, cities }: { aside?: ReactNode; cities: CityOption[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -54,7 +56,7 @@ export function FilterBar({ aside }: { aside?: ReactNode }) {
         onScroll={() => document.dispatchEvent(new MouseEvent("mousedown"))}
         className="-mx-1 flex min-w-0 flex-1 items-center gap-2 overflow-x-auto px-1 py-1 [scrollbar-width:none]"
       >
-        <LocalSearch value={filters.local} onSubmit={(local) => apply({ local })} />
+        <CityFilter value={filters.local} cities={cities} tipo={filters.tipos[0] ?? ""} onSelect={(local) => apply({ local })} />
 
         <Dropdown label={filters.tipos.length ? countLabel("Tipo de sala", filters.tipos.length) : "Tipo de sala"} active={filters.tipos.length > 0}>
           {(close) => (
@@ -134,43 +136,6 @@ export function FilterBar({ aside }: { aside?: ReactNode }) {
 
 function countLabel(label: string, count: number) {
   return `${label} (${count})`;
-}
-
-/** Busca por cidade ou bairro: o primeiro campo da linha. */
-function LocalSearch({ value, onSubmit }: { value: string; onSubmit: (value: string) => void }) {
-  const [text, setText] = useState(value);
-  return (
-    <form
-      role="search"
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSubmit(text.trim());
-      }}
-      className="flex h-10 w-56 shrink-0 items-center gap-2 rounded-full bg-white pr-1 pl-3.5 ring-1 ring-ink-300 focus-within:ring-2 focus-within:ring-brand-600"
-    >
-      <MagnifyingGlassIcon className="size-4.5 shrink-0 text-ink-500" aria-hidden />
-      <input
-        value={text}
-        onChange={(event) => setText(event.target.value)}
-        placeholder="Cidade ou bairro"
-        aria-label="Cidade ou bairro"
-        className="min-w-0 flex-1 bg-transparent text-sm text-ink-900 outline-none placeholder:text-ink-500"
-      />
-      {text && (
-        <button
-          type="button"
-          onClick={() => {
-            setText("");
-            onSubmit("");
-          }}
-          aria-label="Limpar local"
-          className="grid size-7 shrink-0 place-items-center rounded-full text-ink-500 hover:bg-ink-100"
-        >
-          <XIcon className="size-3.5" weight="bold" aria-hidden />
-        </button>
-      )}
-    </form>
-  );
 }
 
 /**

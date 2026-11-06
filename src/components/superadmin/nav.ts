@@ -13,6 +13,7 @@ import {
   HouseSimpleIcon,
   IdentificationCardIcon,
   ListChecksIcon,
+  MapPinIcon,
   MegaphoneIcon,
   PaperPlaneTiltIcon,
   PlusCircleIcon,
@@ -127,6 +128,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: `${base}/leads`, label: "Base de leads", icon: AddressBookIcon, phase: "mvp" },
       { href: `${base}/leads/importar`, label: "Importar do WordPress", icon: UploadSimpleIcon, phase: "mvp" },
+      { href: `${base}/leads/cidades`, label: "Cidades buscando anúncios", icon: MapPinIcon, phase: "mvp" },
       {
         href: `${base}/leads/segmentos`,
         label: "Segmentos",

@@ -2,6 +2,7 @@
 
 import { Suspense, createContext, useContext, useState, type ReactNode } from "react";
 import { MapTrifoldIcon } from "@phosphor-icons/react";
+import type { CityOption } from "@/lib/city-text";
 import { FilterBar } from "./filter-bar";
 
 type LayoutState = {
@@ -23,7 +24,7 @@ export function useSearchLayout() {
  * lista e mapa logo abaixo. O que está em `children` (os anúncios ou o esqueleto)
  * chega depois, sem trocar a casca.
  */
-export function SearchLayout({ children }: { children: ReactNode }) {
+export function SearchLayout({ children, cities }: { children: ReactNode; cities: CityOption[] }) {
   const [showMap, setShowMap] = useState(true);
   const [highlighted, setHighlighted] = useState<string | null>(null);
 
@@ -44,7 +45,7 @@ export function SearchLayout({ children }: { children: ReactNode }) {
       <div className="sticky top-16 z-30 border-b border-ink-200 bg-white/95 px-5 py-3 backdrop-blur-md sm:px-8">
         {/* Os filtros leem a URL; o esqueleto ocupa o lugar deles até ficarem prontos. */}
         <Suspense fallback={<FilterBarSkeleton />}>
-          <FilterBar aside={toggle} />
+          <FilterBar aside={toggle} cities={cities} />
         </Suspense>
       </div>
       <div className="flex">{children}</div>

@@ -269,3 +269,18 @@ function renderText({ heading, paragraphs, card, cta, code, footnote }: Email) {
     .join("\n")
     .trim();
 }
+
+/** Aviso único para quem pediu sala numa cidade: a primeira sala dela entrou no ar. */
+export function cityRoomAvailableEmail(to: string, city: string, url: string): Email {
+  return {
+    to,
+    subject: `Já tem sala em ${city} no Subleasy`,
+    heading: `A primeira sala em ${city} entrou no ar`,
+    paragraphs: [
+      `Você pediu para ser avisado quando houvesse sala em ${city}. Ela já está publicada, com preço e fotos.`,
+      "Fale direto com o anunciante pelo WhatsApp, sem comissão.",
+    ],
+    cta: { label: `Ver salas em ${city}`, url },
+    footnote: "Você recebe este aviso uma única vez. Não enviamos outros e-mails sobre essa cidade.",
+  };
+}

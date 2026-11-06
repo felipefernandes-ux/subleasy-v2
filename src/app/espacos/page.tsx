@@ -6,25 +6,38 @@ import { SearchLayout } from "@/components/search/search-layout";
 import { SearchResults, type AreaPoints } from "@/components/search/search-results";
 import type { SearchResult } from "@/components/search/result-card";
 import { SiteHeader } from "@/components/site-header";
+import { getActiveCities } from "@/lib/cities";
+import { describeLanding, landingIntro, landingMetadata } from "@/lib/espacos-landing";
 import { geocodeArea, spread } from "@/lib/geocode";
 import { AMENITIES, BILLING_TYPE_KEYS, SPACE_TYPE_KEYS, parsePhotoSizes } from "@/lib/listing-options";
 import { getAdminClient } from "@/lib/admin-preview";
 import { createPublicClient } from "@/lib/supabase/public";
 
-export const metadata: Metadata = {
+const DEFAULT_METADATA: Metadata = {
   title: "Buscar salas",
   description: "Consultórios e salas para sublocar por hora, turno, dia ou mês. Filtre por tipo, preço e comodidades e veja no mapa.",
   alternates: { canonical: "/espacos" },
 };
 
-export default function SalasPage({ searchParams }: PageProps<"/espacos">) {
+/** Título próprio por cidade e tipo (ex.: /espacos?local=São+Paulo&tipo=consultorio_medico); sem eles vale o padrão. */
+export async function generateMetadata({ searchParams }: PageProps<"/espacos">): Promise<Metadata> {
+  const params = await searchParams;
+  const landing = describeLanding(params, await getActiveCities());
+  if (landing) return landingMetadata(landing);
+  // Busca com filtros soltos ou cidade desconhecida: não vale indexar.
+  return Object.keys(params).length ? { ...DEFAULT_METADATA, robots: { index: false, follow: true } } : DEFAULT_METADATA;
+}
+
+export default async function SalasPage({ searchParams }: PageProps<"/espacos">) {
+  // Cidades com sala no ar: a lista do filtro. Vem do cache, então a casca continua estática.
+  const cities = await getActiveCities();
   // A casca (cabeçalho, filtros, áreas de lista e mapa) é estática e sai na hora;
   // só os anúncios esperam pelo banco e mostram o esqueleto enquanto isso.
   return (
     <>
       <SiteHeader />
       <main className="flex-1">
-        <SearchLayout>
+        <SearchLayout cities={cities}>
           <Suspense fallback={<ResultsSkeleton />}>
             {searchParams.then((params) => (
               <Results params={params} />
@@ -39,9 +52,11 @@ export default function SalasPage({ searchParams }: PageProps<"/espacos">) {
 async function Results({ params }: { params: Awaited<PageProps<"/espacos">["searchParams"]> }) {
   // Resultado sempre na hora: anúncios entram e expiram a todo momento.
   await connection();
-  const results = await search(params);
+  const [results, cities] = await Promise.all([search(params), getActiveCities()]);
+  const landing = describeLanding(params, cities);
+  const heading = landing ? { title: landing.title, intro: landingIntro(results.length, landing) } : undefined;
   // A busca de coordenadas por bairro é lenta; a lista não espera por ela.
-  return <SearchResults results={results} areaPoints={locateAreas(results)} />;
+  return <SearchResults results={results} areaPoints={locateAreas(results)} heading={heading} tipo={one(params.tipo).split(",")[0] ?? ""} />;
 }
 
 const one = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value) ?? "";
