@@ -19,7 +19,7 @@ export const WHATSAPP_CONSENT = {
     "Ligado: qualquer pessoa que abrir seu perfil vê o número ao clicar em “Mostrar WhatsApp”, mesmo sem conta no Subleasy. Números públicos podem receber mensagens de desconhecidos. Desligado: seu número continua privado e as pessoas falam com você pelos botões de contato dos anúncios. Você pode mudar quando quiser.",
 };
 
-export type ConsentChannel = "cadastro" | "configuracoes";
+export type ConsentChannel = "cadastro" | "configuracoes" | "atualizacao_termos";
 
 const PHONE = /(?:\+?55[\s.-]?)?\(?\d{2}\)?[\s.-]?9?\d{4}[\s.-]?\d{4}/;
 const EMAIL = /[^\s@]+@[^\s@]+\.[^\s@]+/;

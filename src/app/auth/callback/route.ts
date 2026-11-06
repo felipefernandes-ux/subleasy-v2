@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
-import { PROFILE_PATH, safeNextPath } from "@/lib/auth-redirect";
+import { PROFILE_PATH, TERMS_PATH, safeNextPath } from "@/lib/auth-redirect";
+import { needsTermsAcceptance } from "@/lib/legal";
 import { isAdminHost } from "@/lib/admin-host";
 import { createClient } from "@/lib/supabase/server";
 import { isTrustedDevice, markSessionVerified } from "@/lib/two-factor";
@@ -35,9 +36,14 @@ export async function GET(request: NextRequest) {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("id")
+        .select("id, terms_version")
         .eq("id", data.user.id)
         .maybeSingle();
+      if (profile && needsTermsAcceptance(profile.terms_version)) {
+        const terms = new URL(TERMS_PATH, origin);
+        if (next !== "/") terms.searchParams.set("next", next);
+        return NextResponse.redirect(terms);
+      }
       if (profile) return NextResponse.redirect(new URL(next, origin));
 
       const signup = new URL(PROFILE_PATH, origin);

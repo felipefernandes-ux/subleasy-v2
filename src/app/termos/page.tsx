@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Fill, LegalPage } from "@/components/legal-page";
-import { LEGAL } from "@/lib/legal";
+import { LEGAL, TERMS_EFFECTIVE_LABEL } from "@/lib/legal";
 
 export const metadata: Metadata = {
   title: "Termos de uso",
@@ -21,6 +21,7 @@ export default function TermosPage() {
           <li>O acordo, o contrato e o pagamento são combinados direto entre anunciante e profissional.</li>
           <li>Quem anuncia responde pelas informações do anúncio e pela autorização para sublocar.</li>
           <li>O texto que a IA escreve é uma sugestão. Você revisa antes de publicar.</li>
+          <li>Você autoriza o Subleasy a divulgar seu anúncio em publicidade online paga, sem custo e sem usar seu WhatsApp nem seu e-mail. Pode retirar essa autorização quando quiser.</li>
         </ul>
       }
     >
@@ -140,6 +141,28 @@ export default function TermosPage() {
         exibi-los no site, em prévias de compartilhamento (como WhatsApp e Instagram) e em
         resultados de busca, enquanto o anúncio existir. Essa autorização não é exclusiva: você
         pode anunciar a mesma sala em outros lugares.
+      </p>
+
+      <h3>Divulgação do seu anúncio em publicidade paga</h3>
+      <p>
+        Ao publicar, você também autoriza o Subleasy a usar as fotos e os textos do anúncio para
+        divulgá-lo, e para divulgar o Subleasy, em publicidade online que nós pagamos, como
+        anúncios no Google e na Meta (Facebook e Instagram). A autorização vale para todos os seus
+        anúncios. Você não paga nem recebe nada por ela.
+      </p>
+      <p>
+        Nessa divulgação usamos só o que já é público no anúncio: fotos, título, descrição, preço,
+        bairro e cidade. Seu WhatsApp, seu e-mail e o endereço completo da sala nunca entram.
+      </p>
+      <p>
+        Você pode retirar essa autorização quando quiser, escrevendo para{" "}
+        <Fill value={LEGAL.contactEmail} />. Em até 5 dias úteis deixamos de usar suas fotos e
+        textos em novas divulgações e pedimos a retirada das que estão no ar. Retirar a
+        autorização não tira o seu anúncio do site.
+      </p>
+      <p>
+        Para quem já tinha conta antes de 6 de novembro de 2026, esta parte vale a partir de{" "}
+        {TERMS_EFFECTIVE_LABEL}.
       </p>
 
       <h2 id="preco">8. Preço do serviço</h2>

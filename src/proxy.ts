@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminHost, isSharedPath, isSuperAdminPath } from "@/lib/admin-host";
-import { AUTH_PATHS, PROFILE_PATH, isProtectedPath, safeNextPath } from "@/lib/auth-redirect";
+import { AUTH_PATHS, PROFILE_PATH, TERMS_PATH, isProtectedPath, safeNextPath } from "@/lib/auth-redirect";
+import { TERMS_VERSION, needsTermsAcceptance } from "@/lib/legal";
 import type { Database } from "@/lib/supabase/database.types";
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "@/lib/supabase/env";
 import { SESSION_COOKIE, TRUST_COOKIE, TRUST_DAYS, readTrust, signSession, verifySession } from "@/lib/two-factor-token";
@@ -108,10 +109,11 @@ export async function proxy(request: NextRequest) {
   if (signedIn && isProtectedPath(pathname)) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("id")
+      .select("id, terms_version")
       .eq("id", String(claims?.sub))
       .maybeSingle();
     const onProfilePage = pathname === PROFILE_PATH;
+    const onTermsPage = pathname === TERMS_PATH;
 
     if (!profile && !onProfilePage) {
       const url = request.nextUrl.clone();
@@ -122,6 +124,19 @@ export async function proxy(request: NextRequest) {
     }
     if (profile && onProfilePage) {
       const url = new URL(safeNextPath(searchParams.get("next")), request.url);
+      return redirectKeepingCookies(url, response);
+    }
+    // Quem já aceitou a versão atual não tem o que fazer na tela de aceite.
+    if (profile && onTermsPage && profile.terms_version === TERMS_VERSION) {
+      const url = new URL(safeNextPath(searchParams.get("next")), request.url);
+      return redirectKeepingCookies(url, response);
+    }
+    // Versão antiga dos Termos: o aceite vem antes de qualquer outra rota da conta.
+    if (profile && !onTermsPage && needsTermsAcceptance(profile.terms_version)) {
+      const url = request.nextUrl.clone();
+      url.pathname = TERMS_PATH;
+      url.search = "";
+      if (`${pathname}${search}` !== "/") url.searchParams.set("next", `${pathname}${search}`);
       return redirectKeepingCookies(url, response);
     }
   }

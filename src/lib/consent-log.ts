@@ -22,3 +22,19 @@ export async function recordWhatsAppConsent(supabase: Supabase, userId: string, 
   });
   return error;
 }
+
+/** Prova do aceite de uma versão dos Termos e da Política: quem, qual versão, quando, de onde. */
+export async function recordTermsAcceptance(supabase: Supabase, userId: string, version: string) {
+  const list = await headers();
+  const ip = list.get("x-forwarded-for")?.split(",")[0]?.trim() || list.get("x-real-ip") || null;
+  const { error } = await supabase.from("consent_events").insert({
+    user_id: userId,
+    purpose: "terms_acceptance",
+    granted: true,
+    channel: "atualizacao_termos",
+    text_version: version,
+    ip,
+    user_agent: list.get("user-agent")?.slice(0, 400) ?? null,
+  });
+  return error;
+}

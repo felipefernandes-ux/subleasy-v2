@@ -20,6 +20,7 @@ export default function PrivacidadePage() {
           <li>Seu WhatsApp aparece apenas quando alguém clica em &quot;Falar no WhatsApp&quot; no seu anúncio, ou no seu perfil público se você ligar essa opção.</li>
           <li>Seu perfil público mostra o primeiro nome com a inicial do último, a foto e a apresentação que você escolher e, se você anuncia, os seus anúncios no ar.</li>
           <li>O endereço completo da sala fica guardado e não é publicado.</li>
+          <li>Usamos as fotos e os textos públicos dos anúncios em publicidade paga no Google e na Meta, sem usar seu WhatsApp, e-mail nem endereço completo. Você pode retirar essa autorização.</li>
           <li>Não vendemos seus dados. Só mandamos novidades por e-mail se você autorizar.</li>
           <li>Você pode pedir acesso, correção ou exclusão dos seus dados a qualquer momento.</li>
         </ul>
@@ -206,8 +207,9 @@ export default function PrivacidadePage() {
           <strong>Legítimo interesse</strong> (art. 7º, IX): mostrar no seu painel quantas
           pessoas viram e contataram cada anúncio, mostrar no seu perfil público o nome, a data de
           entrada, os anúncios no ar e o que confirmamos sobre a conta, para que quem procura sala
-          confie em quem anuncia, melhorar o site e prevenir fraude e abuso, e avisar quem já tinha conta no Subleasy anterior sobre a nova versão
-          da plataforma.
+          confie em quem anuncia, melhorar o site e prevenir fraude e abuso, avisar quem já tinha conta no Subleasy anterior sobre a nova versão
+          da plataforma e divulgar seus anúncios e o Subleasy em publicidade paga, com as fotos e os textos públicos do anúncio, como os
+          Termos de uso explicam. Você pode se opor a essa divulgação quando quiser, como descrito na seção 7 dos Termos.
         </li>
         <li>
           <strong>Cumprir a lei</strong> (art. 7º, II): guardar registros de acesso, como manda o
@@ -250,6 +252,13 @@ export default function PrivacidadePage() {
         </li>
         <li>
           <strong>Vercel</strong>: hospedagem do site, entrega das páginas e registros de acesso.
+        </li>
+        <li>
+          <strong>Google e Meta (Facebook e Instagram)</strong>: publicidade. Recebem as fotos e os
+          textos públicos dos anúncios que usamos nas divulgações pagas e mostram esses anúncios a
+          quem navega nas plataformas delas. Não enviamos a elas seu WhatsApp, seu e-mail nem o
+          endereço completo da sala. O que cada empresa faz com os dados de quem vê o anúncio
+          segue a política de privacidade dela.
         </li>
       </ul>
       <p>

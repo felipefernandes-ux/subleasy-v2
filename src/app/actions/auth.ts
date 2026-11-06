@@ -4,7 +4,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { isAdminHost } from "@/lib/admin-host";
-import { PROFILE_PATH, safeNextPath } from "@/lib/auth-redirect";
+import { PROFILE_PATH, TERMS_PATH, safeNextPath } from "@/lib/auth-redirect";
+import { needsTermsAcceptance } from "@/lib/legal";
 import { getOrigin } from "@/lib/origin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -145,9 +146,12 @@ export async function signOut() {
   redirect("/entrar");
 }
 
-/** Quem ainda não tem perfil passa pelo cadastro antes do destino. */
+/** Quem ainda não tem perfil passa pelo cadastro antes do destino; quem tem Termos antigos passa pelo aceite. */
 async function redirectAfterSignIn(supabase: Awaited<ReturnType<typeof createClient>>, userId: string, next: string): Promise<never> {
-  const { data: profile } = await supabase.from("profiles").select("id").eq("id", userId).maybeSingle();
+  const { data: profile } = await supabase.from("profiles").select("id, terms_version").eq("id", userId).maybeSingle();
+  if (profile && needsTermsAcceptance(profile.terms_version)) {
+    redirect(`${TERMS_PATH}${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`);
+  }
   if (profile) redirect(next);
   redirect(`${PROFILE_PATH}${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`);
 }
