@@ -55,9 +55,9 @@ Ficou de fora, por precisar do site publicado ou do plugin: Core Web Vitals, sch
 
 ## Pendências antes de publicar
 
-1. **Publicação**: não consegui criar o rascunho. O token do Novamira para `blog-subleasy-com-br` expirou em 26/10 e o `doctor` retorna `server_unsupported` (mesmo problema dos posts anteriores, depois da migração para `/blog`). Colar o HTML no wp-admin como rascunho (editor de código) ou reautorizar.
-2. **Imagem destacada**: enviar o `.webp` à biblioteca de mídia com o nome `quanto-rende-a-sublocacao-de-consultorio.webp` (o HTML já aponta para `/wp-content/uploads/2026/11/`) e defini-lo como destacada. Se o mês ou a pasta forem outros, ajustar o `src` da imagem no conteúdo.
-3. **Rank Math**: colar os campos acima, definir a palavra-chave principal e conferir a nota 90+ no editor. Ela está estimada pelo checklist, não medida.
+1. **Publicação**: rascunho criado em 06/11/2026 pelo Novamira CLI (perfil `subleasy-blog-public`, login via `https://subleasy.com.br/blog`), post ID 5571, status `draft`, categoria Dicas. Edição: https://blog.subleasy.com.br/wp-admin/post.php?post=5571&action=edit. Revisar e publicar no editor.
+2. **Imagem destacada**: enviada (mídia 5570, WebP 1024x1024) e definida como destacada, com o alt acima. O bloco de imagem do conteúdo usa a mesma mídia.
+3. **Rank Math**: palavra-chave, título e descrição já gravados no rascunho. Abrir o editor e conferir a nota 90+: a API só devolve os dados e a lista de 24 testes, a pontuação é calculada no navegador. Está estimada pelo checklist, não medida.
 4. **FAQ com schema**: as 5 perguntas estão como H3 e parágrafo. Converter para o bloco FAQ do Rank Math no editor para gerar o schema.
 5. **Fatos a conferir**: art. 13 da Lei 8.245/91 (mesmo texto do post do contrato e da página da ferramenta). Os valores dos cenários são hipotéticos.
 6. **Depois de publicar**: linkar este post a partir de `sua-sala-comercial-esta-vaga-descubra-como-rentabilizar-com-sublocacao`, `sublocacao-de-consultorios-por-hora` e `contrato-de-sublocacao-de-consultorio`, e do texto da página `/quanto-cobrar-sublocacao-consultorio` (a página já recomenda linkar posts de valor). Pedir indexação no Search Console.
