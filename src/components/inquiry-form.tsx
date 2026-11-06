@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { ArrowLeftIcon, CheckCircleIcon, CircleNotchIcon } from "@phosphor-icons/react";
 import posthog from "posthog-js";
 import { submitInquiry, type InquiryState } from "@/app/actions/listing";
+import { trackContact } from "@/lib/analytics";
 import { buttonClasses } from "./ui";
 
 const INPUT =
@@ -15,6 +16,12 @@ const INPUT =
  */
 export function InquiryForm({ listingId, title, about, onCancel }: { listingId: string; title: string; about: string; onCancel?: () => void }) {
   const [state, formAction, isPending] = useActionState<InquiryState, FormData>(submitInquiry.bind(null, listingId, title), { status: "idle" });
+
+  // Mensagem aceita pelo servidor: conta uma vez como contato no GA4.
+  const sent = state.status === "sent";
+  useEffect(() => {
+    if (sent) void trackContact("inquiry_submit", listingId);
+  }, [sent, listingId]);
 
   if (state.status === "sent") {
     return (

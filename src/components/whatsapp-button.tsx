@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { CircleNotchIcon, EnvelopeSimpleIcon } from "@phosphor-icons/react";
 import posthog from "posthog-js";
 import { getWhatsAppLink } from "@/app/actions/listing";
+import { trackContact } from "@/lib/analytics";
 import { InquiryForm } from "./inquiry-form";
 import { WhatsAppIcon, buttonClasses } from "./ui";
 
@@ -48,10 +49,12 @@ export function WhatsAppButton({
               setFailed(true);
             } else if (tab) {
               posthog.capture("listing_contact_initiated", { listing_id: listingId, contact_channel: "whatsapp" });
+              void trackContact("whatsapp_click", listingId);
               tab.opener = null;
               tab.location.href = link;
             } else {
               posthog.capture("listing_contact_initiated", { listing_id: listingId, contact_channel: "whatsapp" });
+              void trackContact("whatsapp_click", listingId);
               window.location.href = link;
             }
           });

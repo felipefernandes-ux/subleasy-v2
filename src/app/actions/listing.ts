@@ -407,6 +407,9 @@ export async function submitInquiry(listingId: string, title: string, _previous:
 
   const visitorId = await getVisitorId();
   const supabase = await createClient();
+  // Super Admin não gera dado no site público: nada é gravado nem enviado ao anunciante.
+  const { data: isAdmin } = await supabase.rpc("is_admin");
+  if (isAdmin) return { status: "error", error: "Contas de Super Admin não enviam mensagens pelo site público." };
   const { data: hostEmail, error } = await supabase.rpc("submit_listing_inquiry", {
     p_listing_id: listingId,
     p_visitor_id: visitorId,
