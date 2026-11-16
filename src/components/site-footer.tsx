@@ -55,6 +55,7 @@ const FOOTER_LINKS = [
   {
     title: "Profissionais",
     links: [
+      { href: "/consultorios/santo-andre-sp", label: "Consultórios em Santo André" },
       { href: "/espacos?local=Maring%C3%A1", label: "Salas em Maringá" },
       { href: "/espacos?tipo=psicologia&local=Maring%C3%A1", label: "Salas para psicólogos" },
       { href: "/vale-a-pena-alugar-consultorio-por-hora", label: "Vale a pena alugar por hora?" },

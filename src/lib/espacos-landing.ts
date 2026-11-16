@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cityPagePath, findCityPage } from "@/lib/city-pages";
 import { findCity, type CityOption } from "@/lib/city-text";
 import { SPACE_TYPE_KEYS, type SpaceType } from "@/lib/listing-options";
 
@@ -48,10 +49,12 @@ export function describeLanding(params: Params, cities: CityOption[]): Landing |
 
   const where = city ? ` em ${city.city}` : " por hora, turno, dia ou mês";
   const title = tipo ? `${TIPO_TITLE[tipo]} para alugar${where}` : `Consultórios e salas para alugar${where}`;
+  // Cidade com página própria: a busca só pela cidade aponta para ela, e as duas não disputam a mesma busca no Google.
+  const cityPage = city && !tipo ? findCityPage(city.city, city.state) : null;
   return {
     title,
     city,
-    canonical: `/espacos?${base}`,
+    canonical: cityPage ? cityPagePath(cityPage) : `/espacos?${base}`,
     index: hasRooms && !refined && !extraTipos && Boolean(one(params.local) ? city : true),
   };
 }

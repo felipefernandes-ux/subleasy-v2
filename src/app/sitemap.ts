@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { CITY_PAGES, cityPagePath } from "@/lib/city-pages";
 import { TERMS_VERSION } from "@/lib/legal";
 import { SITE_URL } from "@/lib/site";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -27,6 +28,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.9,
     },
+    ...CITY_PAGES.map((page) => ({
+      url: `${SITE_URL}${cityPagePath(page)}`,
+      lastModified: new Date(),
+      changeFrequency: "daily" as const,
+      priority: 0.9,
+    })),
     ...(listings ?? []).map((listing) => ({
       url: `${SITE_URL}/espaco/${listing.slug}`,
       lastModified: new Date(listing.updated_at),

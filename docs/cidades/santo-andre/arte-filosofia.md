@@ -1,0 +1,11 @@
+# Cartografia Ociosa
+
+Uma cidade pode ser medida pelo tempo que fica parado dentro dela. Cartografia Ociosa trata as horas vazias como um território: cada hora é uma unidade mínima, um quadrado pequeno e exato, e o mapa é feito da soma paciente dessas unidades. Rua e prédio ficam de fora. O que se desenha é a ocupação, ou a falta dela, distribuída no espaço como se fosse relevo.
+
+O espaço é uma malha regular, a mesma do papel milimetrado e da planta técnica. Quase toda a malha fica em contorno fino, quieta, de cor quase igual ao fundo: é a cidade em repouso. Em poucos pontos a malha se adensa e se preenche, e a cor aparece em núcleos que se dissolvem para fora em gradação estatística, nunca em borda dura. A forma nasce da repetição, e a repetição precisa parecer feita à mão por alguém de enorme paciência: cada quadrado alinhado ao pixel, cada intervalo medido, um trabalho meticulosamente construído ao longo de incontáveis horas.
+
+A cor é escassa e tem função. Um único tom saturado marca o que está ocupado, um segundo tom claro marca o que acabou de ser ocupado, e todo o resto é cinza de grafite em várias pressões. Linhas de nível finas, quase invisíveis, sobem da base da composição como a respiração de um terreno mais antigo que a malha. Uma só linha sinuosa corta o campo, mais grossa que as outras, para lembrar que toda cidade tem um curso que a organiza.
+
+A escala alterna entre o minúsculo e o vazio. Milhares de marcas pequenas contra grandes zonas de silêncio. A hierarquia vem da densidade, não do tamanho: o olho encontra os núcleos porque ali há mais matéria, e não porque alguém apontou. O equilíbrio é assimétrico e calculado, com a massa visual deslocada e um respiro generoso nas margens, como num atlas de precisão produzido por um mestre do ofício.
+
+O texto é instrumento de medida. Coordenadas, nomes em caixa alta, uma legenda de dois símbolos, uma numeração de figura. Fonte monoespaçada, fina, pequena, alinhada à mesma malha que organiza tudo. Nenhuma frase explica a imagem; as palavras só ancoram o que a forma já mostra. O resultado deve parecer uma prancha de uma disciplina imaginária, revisada até não restar um elemento fora do lugar, com a atenção obsessiva de quem passou a vida inteira aperfeiçoando um único tipo de desenho.
