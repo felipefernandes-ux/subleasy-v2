@@ -4,15 +4,18 @@ import Link from "next/link";
 import { useState } from "react";
 import type { Listing } from "@/lib/superadmin/types";
 import { DeleteListingsDialog } from "./delete-listings-dialog";
-import { Avatar, Button, ButtonLink, ListingStatusBadge, OriginLabel, Pagination, TableCard } from "./ui";
+import { Avatar, Badge, Button, ButtonLink, ListingStatusBadge, OriginLabel, Pagination, TableCard } from "./ui";
 
 export function ListingsTable({
   listings,
   total,
   variant = "all",
   selectable,
+  editedIds = [],
 }: {
   listings: Listing[];
+  /** Na fila de revisão: anúncios já aprovados que voltaram por uma edição. Ganham o selo "Edição". */
+  editedIds?: string[];
   total?: number;
   variant?: "all" | "review" | "imported";
   /** Liga as caixas de seleção e a exclusão em lote. Só para dados reais. */
@@ -100,7 +103,10 @@ export function ListingsTable({
                       <Link href={`/anuncios/${listing.id}`} className="block truncate font-semibold text-sa-ink hover:text-brand-600">
                         {listing.title}
                       </Link>
-                      <span className="text-sa-xs text-sa-muted">{listing.type}</span>
+                      <span className="flex items-center gap-2 text-sa-xs text-sa-muted">
+                        {editedIds.includes(listing.id) && <Badge tone="warning">Edição</Badge>}
+                        {listing.type}
+                      </span>
                     </span>
                   </span>
                 </td>

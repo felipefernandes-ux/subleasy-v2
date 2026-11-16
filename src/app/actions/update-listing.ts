@@ -6,6 +6,7 @@ import { aiObservabilityOptions, embedListing, geminiClient } from "@/lib/ai";
 import { CONTACT_STEP, newListingSchema } from "@/lib/listing-schema";
 import { PHOTO_BUCKET, MIN_PHOTOS, publicPoint, toBrazilianWhatsApp } from "@/lib/listing-options";
 import { notifySubmitted } from "@/lib/listing-notify";
+import { openRevision, protectedPhotos } from "@/lib/listing-revisions";
 import { createClient } from "@/lib/supabase/server";
 import type { CreateListingResult, NewListing } from "./create-listing";
 
@@ -86,6 +87,9 @@ export async function updateListing(input: NewListing): Promise<CreateListingRes
     }
   }
 
+  // Anúncio aprovado: guarda a versão no ar para o admin ver o que mudou (antes e depois).
+  if (published) await openRevision(data.id);
+
   const { error } = await supabase
     .from("listings")
     .update({
@@ -111,8 +115,9 @@ export async function updateListing(input: NewListing): Promise<CreateListingRes
     .upsert({ listing_id: data.id, whatsapp_number: whatsapp, contact_email: data.contact_email, street_address: data.street_address });
   if (contactError) console.error("[updateListing] Erro ao salvar o contato:", contactError);
 
-  // Fotos tiradas da lista saem também do Storage.
-  const removed = current.photos.filter((path: string) => !photos.includes(path));
+  // Fotos tiradas da lista saem também do Storage, menos as da versão no ar: o admin ainda compara com elas.
+  const kept = await protectedPhotos(data.id);
+  const removed = current.photos.filter((path: string) => !photos.includes(path) && !kept.includes(path));
   if (removed.length > 0) await supabase.storage.from(PHOTO_BUCKET).remove(removed);
 
   await notifySubmitted(supabase, user, { id: data.id, ...listing, photos: photos.length, cover: photos[0] ?? null });

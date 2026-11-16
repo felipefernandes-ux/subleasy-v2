@@ -312,6 +312,41 @@ export type Database = {
           },
         ]
       }
+      listing_revisions: {
+        Row: {
+          after: Json | null
+          approved_at: string | null
+          before: Json
+          id: number
+          listing_id: string
+          submitted_at: string
+        }
+        Insert: {
+          after?: Json | null
+          approved_at?: string | null
+          before: Json
+          id?: never
+          listing_id: string
+          submitted_at?: string
+        }
+        Update: {
+          after?: Json | null
+          approved_at?: string | null
+          before?: Json
+          id?: never
+          listing_id?: string
+          submitted_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_revisions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_imports: {
         Row: {
           extras: Json

@@ -25,6 +25,8 @@ import { getPublicOrigin } from "@/lib/origin";
 import { loadListingFull } from "@/lib/superadmin/listing-detail";
 import { loadAdminListings } from "@/lib/superadmin/listings";
 import { DetailSkeleton } from "@/components/superadmin/skeletons";
+import { ChangeHistory, PendingChanges } from "@/components/superadmin/listing-changes";
+import { loadRevisions } from "@/lib/listing-revisions";
 
 export const metadata: Metadata = { title: "Anúncio" };
 
@@ -54,7 +56,7 @@ async function ListingDetail({
   const approved = query.aprovado === "1";
   const approveFailed = query.erro === "aprovar";
   await requireAdmin(`/anuncios/${id}`);
-  const [[listing], full] = await Promise.all([loadAdminListings(id), loadListingFull(id)]);
+  const [[listing], full, revisions] = await Promise.all([loadAdminListings(id), loadListingFull(id), loadRevisions(id)]);
   if (!listing || !full) notFound();
   const { listing: row, contact, imported, counts, inquiries } = full;
   const noWhatsapp = !contact?.whatsapp_number;
@@ -111,6 +113,9 @@ async function ListingDetail({
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
+          {/* Edição de anúncio já aprovado: o que mudou vem antes de tudo, é o que o admin precisa conferir. */}
+          {revisions.pending && <PendingChanges revision={revisions.pending} />}
+
           <Card className="overflow-hidden">
             {listing.photoUrls.length > 0 ? (
               <div className="grid grid-cols-2 gap-1 bg-sa-haze p-1 sm:grid-cols-4">
@@ -221,6 +226,8 @@ async function ListingDetail({
               )}
             </Card>
           )}
+
+          <ChangeHistory history={revisions.history} />
 
           <Card>
             <CardHeader title="Histórico" />

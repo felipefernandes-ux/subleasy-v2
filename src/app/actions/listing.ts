@@ -21,6 +21,7 @@ import {
 } from "@/lib/listing-options";
 import { notifyCityWaiters } from "@/lib/city-waiters";
 import { notifySubmitted } from "@/lib/listing-notify";
+import { closeRevision, openRevision, protectedPhotos } from "@/lib/listing-revisions";
 import { ATTRIBUTION_COOKIE, parseAttribution } from "@/lib/attribution";
 import { emitPostHogLog } from "@/lib/posthog-logs";
 import { recordAudit } from "@/lib/superadmin/audit";
@@ -204,6 +205,9 @@ export async function saveListing(
     }
   }
 
+  // Anúncio aprovado: guarda a versão no ar para o admin ver o que mudou (antes e depois).
+  if (published && submit) await openRevision(listingId);
+
   const now = new Date().toISOString();
   const { error } = await supabase
     .from("listings")
@@ -231,8 +235,9 @@ export async function saveListing(
     if (contactError) console.error("[saveListing] Erro ao salvar o contato:", contactError);
   }
 
-  // Fotos tiradas da lista saem também do Storage.
-  const removed = current.photos.filter((path) => !photos.includes(path));
+  // Fotos tiradas da lista saem também do Storage, menos as da versão no ar: o admin ainda compara com elas.
+  const kept = await protectedPhotos(listingId);
+  const removed = current.photos.filter((path) => !photos.includes(path) && !kept.includes(path));
   if (removed.length > 0) await supabase.storage.from(PHOTO_BUCKET).remove(removed);
 
   if (!submit) return { status: "saved" };
@@ -286,6 +291,8 @@ export async function approveListing(listingId: string, formData?: FormData) {
     redirect(superadmin ? `/superadmin/anuncios/${listingId}?erro=aprovar` : `/admin/anuncios/${listingId}?erro=aprovar`);
   }
 
+  // Edição de anúncio já aprovado: guarda a versão nova no histórico e apaga as fotos que saíram.
+  await closeRevision(listingId);
   await recordAudit({ action: "listing.approve", targetType: "listing", targetId: listingId, targetLabel: listing.title });
   updateTag(`listing:${listing.slug}`);
   updateTag("listings");
